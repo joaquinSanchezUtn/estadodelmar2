@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Estado } from '../../data/estados'
 import type { Tema } from '../../data/temas'
-import { FlechaIzquierda } from '../iconos'
+import { FlechaIzquierda } from '../../componentes/base/iconos'
 import Seccion from '../Seccion'
 
 type Props = { tema: Tema; estado: Estado }

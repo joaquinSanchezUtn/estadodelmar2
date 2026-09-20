@@ -1,7 +1,8 @@
 import { Outlet } from 'react-router-dom'
-import { useScrollAlNavegar } from '../lib/useScrollAlNavegar'
+import ConmutadorDev from '../../auth/ConmutadorDev'
+import { useScrollAlNavegar } from '../../lib/useScrollAlNavegar'
 import Encabezado from './Encabezado'
-import Pie from './Pie'
+import PieDePagina from './PieDePagina'
 
 export default function Layout() {
   useScrollAlNavegar()
@@ -12,7 +13,8 @@ export default function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <Pie />
+      <PieDePagina />
+      {import.meta.env.DEV && <ConmutadorDev />}
     </div>
   )
 }

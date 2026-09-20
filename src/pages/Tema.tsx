@@ -1,5 +1,5 @@
 import { useParams, useSearchParams } from 'react-router-dom'
-import Boton from '../components/Boton'
+import Boton from '../componentes/base/Boton'
 import Seccion from '../components/Seccion'
 import CabeceraTema from '../components/tema/CabeceraTema'
 import ContenidoAbierto from '../components/tema/ContenidoAbierto'

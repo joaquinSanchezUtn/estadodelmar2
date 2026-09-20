@@ -85,10 +85,14 @@ Los títulos de las ventanas son **públicos** (el menú lo ve cualquiera); el c
 - `frontend` — pantallas y componentes React + Tailwind.
 - `integraciones` — Mercado Pago y Bunny Stream, siempre del lado del servidor.
 
+## Decisiones tomadas
+
+- **Navegación en celular**: botón hamburguesa que abre un panel a pantalla completa, con cierre por Escape y por botón visible. A partir de `md:` los enlaces van en línea.
+- **El frontend se construye antes del backend**, con datos de prueba y sesión simulada. Todo el acceso a datos pasa por `src/datos/contenido.ts`, que después se reemplaza por consultas a Supabase sin tocar componentes.
+
 ## Pendientes de decisión
 
-- El precio del plan mensual. En el prototipo figura como `[PRECIO]`.
-- Si la home en celular lleva menú hamburguesa desplegable o el catálogo siempre visible.
+- El precio del plan mensual. En el prototipo y en el código figura como `[PRECIO]`, literal.
 
 ## Fuera de alcance por ahora
 

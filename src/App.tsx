@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import AdminRoute from './auth/AdminRoute'
 import ProtectedRoute from './auth/ProtectedRoute'
-import Layout from './components/Layout'
+import Layout from './componentes/layout/Layout'
 import Admin from './pages/Admin'
 import Home from './pages/Home'
 import Ingresar from './pages/Ingresar'

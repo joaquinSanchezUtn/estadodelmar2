@@ -1,4 +1,4 @@
-import { Play } from '../iconos'
+import { Play } from '../../componentes/base/iconos'
 
 // Maqueta de la vista con suscripción, con textos entre corchetes.
 // El contenido real llegará de la base; esta vista solo se ve en desarrollo.

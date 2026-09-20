@@ -1,4 +1,4 @@
-import Boton from '../Boton'
+import Boton from '../../componentes/base/Boton'
 import Seccion from '../Seccion'
 
 export default function Portada() {

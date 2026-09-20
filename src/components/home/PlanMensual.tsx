@@ -1,5 +1,5 @@
-import Boton from '../Boton'
-import { Check } from '../iconos'
+import Boton from '../../componentes/base/Boton'
+import { Check } from '../../componentes/base/iconos'
 import Seccion from '../Seccion'
 
 const incluye = [

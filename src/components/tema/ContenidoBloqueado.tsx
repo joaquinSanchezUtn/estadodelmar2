@@ -1,5 +1,5 @@
-import Boton from '../Boton'
-import { Candado } from '../iconos'
+import Boton from '../../componentes/base/Boton'
+import { IconoCandado } from '../../componentes/base/iconos'
 
 // Vista sin suscripción. Los títulos de video, meditación y ejercitación son
 // premium (la base no los entrega), así que acá van solo etiquetas genéricas.
@@ -8,7 +8,7 @@ export default function ContenidoBloqueado() {
     <div className="flex flex-col gap-3.5">
       <div className="overflow-hidden rounded-[14px] border border-mar-bordeAgua bg-mar-blanco">
         <div className="flex h-[190px] flex-col items-center justify-center gap-3 bg-mar-espuma text-mar-tintaSuave">
-          <Candado className="h-8 w-8 text-mar-aguaSuave" />
+          <IconoCandado className="h-8 w-8 text-mar-aguaSuave" />
           <span className="text-[15px]">Video psicoeducativo</span>
         </div>
         <p className="p-[18px] text-[15px] text-mar-tintaSuave">Disponible con la suscripción.</p>
@@ -19,7 +19,7 @@ export default function ContenidoBloqueado() {
           key={titulo}
           className="flex items-center gap-3.5 rounded-[13px] border border-mar-bordeAgua bg-mar-blanco p-[17px]"
         >
-          <Candado className="h-[22px] w-[22px] shrink-0 text-mar-aguaSuave" />
+          <IconoCandado className="h-[22px] w-[22px] shrink-0 text-mar-aguaSuave" />
           <span className="font-titulo text-lg">{titulo}</span>
         </div>
       ))}
@@ -32,7 +32,7 @@ export default function ContenidoBloqueado() {
         <Boton to="/#suscripcion" className="w-full">
           Suscribirme
         </Boton>
-        <Boton to="/ingresar" variante="texto" className="mt-2 w-full">
+        <Boton to="/ingresar" variante="fantasma" className="mt-2 w-full">
           Ya tengo cuenta
         </Boton>
       </div>
