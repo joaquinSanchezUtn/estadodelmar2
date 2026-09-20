@@ -60,12 +60,33 @@ export type TemaVisible = Tema &
 // con suscripcion_activa=false. No tiene acceso al contenido premium.
 export type Rol = 'visitante' | 'registrada' | 'suscriptora' | 'admin'
 
-export type Usuario = { nombre: string; email: string }
+export type Usuario = { nombre: string; email: string; conGoogle: boolean }
 
 // proximoCobro va en formato ISO (aaaa-mm-dd). 'administradora' es acceso por rol, sin cobro.
+// - activa: paga y con acceso; se renueva sola.
+// - cancelada: dio de baja pero conserva el acceso hasta `accesoHasta`; después no se renueva.
+// - pendiente: el pago todavía no se acreditó (efectivo, transferencia): sin acceso hasta que llegue.
+// - vencida: el cobro falló o venció: sin acceso hasta reactivarla.
 export type Suscripcion =
-  | { estado: 'activa'; proximoCobro: string }
+  | { estado: 'activa'; proximoCobro: string; medioDePago: string }
+  | { estado: 'cancelada'; accesoHasta: string }
+  | { estado: 'pendiente' }
+  | { estado: 'vencida'; desde: string }
   | { estado: 'administradora' }
 
-// Solo para el panel de admin: incluye borradores y todos sus contenidos.
-export type TemaAdmin = Tema & { contenidos: Contenido[] }
+// Solo para el panel de admin: incluye borradores y todos sus contenidos, con el archivo subido a Bunny
+// (si lo hay). El id del video en Bunny sigue sin viajar: solo el nombre y el tamaño del archivo.
+export type ArchivoDeContenido = { nombre: string; bytes: number }
+export type ContenidoAdmin = Contenido & { archivo: ArchivoDeContenido | null }
+export type TemaAdmin = Tema & { contenidos: ContenidoAdmin[] }
+
+// Lo que la dueña edita de una ventana y de una pieza.
+export type DatosDeTema = { titulo: string; slug: string; descripcion: string; estadoMar: EstadoMarId | null; publicado: boolean }
+export type DatosDeContenido = { tipo: TipoContenido; titulo: string; duracionMin: number | null; cuerpo: string | null; publicado: boolean }
+
+// Un archivo ya subido y a la espera de asociarse a una pieza.
+export type ArchivoSubido = ArchivoDeContenido & { token: string }
+
+export type ResultadoAdmin =
+  | { ok: true; slug?: string; id?: string }
+  | { ok: false; mensaje: string; errores?: Record<string, string> }

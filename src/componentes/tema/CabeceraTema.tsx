@@ -2,9 +2,12 @@ import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import { RADIO_CABECERA, RADIO_OJO_DE_BUEY, idVentana, transicion, transicionLayout, useMovimiento } from '../../animaciones/movimiento'
 import type { EstadoMar, Tema } from '../../datos/tipos'
+import { cn } from '../../lib/cn'
 import Esqueleto from '../base/Esqueleto'
 import { FlechaIzquierda } from '../base/iconos'
 import DibujoEstado from '../objetos/DibujoEstado'
+import { coloresDe } from '../objetos/estados/colores'
+import ReflejoVidrio from '../ventana/ReflejoVidrio'
 
 type Props = { slug: string; tema: Tema | null; estado: EstadoMar | null }
 
@@ -26,10 +29,16 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
       />
       <div className="relative grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_240px] md:items-center md:gap-10 md:p-10">
         <div
-          className="order-first aspect-[3/1] overflow-hidden bg-mar-aguaClara md:order-last md:aspect-square"
+          className={cn(
+            'relative order-first aspect-[3/1] overflow-hidden border-3 shadow-ventana ring-1 md:order-last md:aspect-square',
+            coloresDe(tema?.estadoMar ?? null).agua,
+            coloresDe(tema?.estadoMar ?? null).aro,
+            coloresDe(tema?.estadoMar ?? null).aroExterior,
+          )}
           style={{ borderRadius: RADIO_OJO_DE_BUEY }}
         >
-          <DibujoEstado estado={tema?.estadoMar ?? null} vivo="siempre" autonomo className="text-mar-agua" />
+          <DibujoEstado estado={tema?.estadoMar ?? null} vivo="siempre" autonomo />
+          <ReflejoVidrio />
         </div>
 
         <motion.div
@@ -39,8 +48,8 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
           className="flex flex-col"
         >
           <Link
-            to="/#ventanas"
-            className="mb-4 inline-flex min-h-[44px] items-center gap-2 self-start text-[15px] text-mar-tintaSuave no-underline hover:text-mar-tinta"
+            to="/ventanas"
+            className="mb-4 inline-flex min-h-control-sm items-center gap-2 self-start text-cuerpo text-mar-tintaSuave no-underline hover:text-mar-tinta"
           >
             <FlechaIzquierda />
             Todas las ventanas
@@ -48,12 +57,12 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
           {tema ? (
             <>
               {estado && (
-                <p className="mb-3 text-xs uppercase tracking-[0.18em] text-mar-agua">{estado.nombre}</p>
+                <p className="mb-3 text-etiqueta uppercase text-mar-agua">{estado.nombre}</p>
               )}
-              <h1 className="mb-3.5 text-4xl font-light leading-[1.15] md:text-5xl">{tema.titulo}</h1>
-              <p className="text-[17px] leading-relaxed text-mar-tintaSuave">{tema.descripcion}</p>
+              <h1 className="mb-4 text-titulo-l font-light md:text-titulo-xl">{tema.titulo}</h1>
+              <p className="text-destacado text-mar-tintaSuave">{tema.descripcion}</p>
               {estado && (
-                <blockquote className="mt-6 rounded-r-[10px] border-l-[3px] border-mar-aguaSuave bg-mar-blanco/60 px-4 py-3.5 text-base leading-relaxed text-mar-tinta">
+                <blockquote className="mt-6 rounded-r-control border-l-3 border-mar-aguaSuave bg-mar-blanco/60 px-4 py-4 text-cuerpo text-mar-tinta">
                   {estado.ensenanza}.
                 </blockquote>
               )}

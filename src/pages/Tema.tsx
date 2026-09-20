@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useSesion } from '../auth/SesionContext'
 import Burbuja from '../componentes/base/Burbuja'
 import EstadoVacio from '../componentes/base/EstadoVacio'
+import Pagina from '../componentes/layout/Pagina'
 import CabeceraTema from '../componentes/tema/CabeceraTema'
 import ContenidoTema from '../componentes/tema/ContenidoTema'
 import { listarEstados, obtenerTema } from '../datos/contenido'
@@ -30,7 +31,7 @@ export default function Tema() {
 
   if (vista && !vista.tema) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 pb-16 pt-4 md:px-6">
+      <Pagina ancho="lectura">
         <Burbuja tono="aguaClara" entrada="ninguna">
           <EstadoVacio
             titulo="No encontramos esa ventana"
@@ -38,7 +39,7 @@ export default function Tema() {
             enlace={{ to: '/#ventanas', texto: 'Ver todas las ventanas' }}
           />
         </Burbuja>
-      </div>
+      </Pagina>
     )
   }
 
@@ -46,9 +47,9 @@ export default function Tema() {
   const estado = vista?.estados.find((e) => e.id === tema?.estadoMar) ?? null
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 pb-16 pt-4 md:gap-8 md:px-6">
+    <Pagina ancho="lectura">
       <CabeceraTema slug={slug} tema={tema} estado={estado} />
       {tema && <ContenidoTema tema={tema} />}
-    </div>
+    </Pagina>
   )
 }

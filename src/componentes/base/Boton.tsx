@@ -6,10 +6,20 @@ import { cn } from '../../lib/cn'
 
 // Botón primario: celeste con texto tintaBoton; nunca texto claro encima.
 const variantes = {
-  primario: 'bg-mar-celeste font-bold text-mar-tintaBoton hover:brightness-95',
-  secundario: 'border border-mar-aguaSuave/70 text-mar-tinta hover:bg-mar-blanco/60',
-  fantasma: 'text-mar-tintaSuave hover:bg-mar-tinta/5 hover:text-mar-tinta',
+  primario:
+    'border border-mar-celesteBorde bg-mar-celeste font-bold text-mar-tintaBoton shadow-tarjeta hover:brightness-95',
+  secundario: 'border border-mar-celesteBorde/60 bg-mar-blanco/40 font-medium text-mar-tinta hover:bg-mar-blanco/75',
+  fantasma: 'font-medium text-mar-tintaSuave hover:bg-mar-tinta/5 hover:text-mar-tinta',
 }
+
+// Las clases de un botón, para lo que no es un <button> ni un <a> pero tiene que verse como uno
+// (por ejemplo el <label> que abre el selector de archivos). Un solo lugar define cómo se ve un botón.
+export const clasesBoton = (variante: keyof typeof variantes = 'primario', compacto = false) =>
+  cn(
+    'inline-flex items-center justify-center rounded-full text-center text-cuerpo no-underline transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+    compacto ? 'min-h-control-sm px-5' : 'min-h-control px-8',
+    variantes[variante],
+  )
 
 const AnclaMovil = motion.create(Link)
 
@@ -26,12 +36,7 @@ type ComoAccion = Comun &
 
 export default function Boton(props: ComoEnlace | ComoAccion) {
   const { variante = 'primario', compacto = false, className, children } = props
-  const clases = cn(
-    'inline-flex items-center justify-center rounded-full text-center no-underline transition-colors disabled:cursor-not-allowed disabled:opacity-50',
-    compacto ? 'min-h-[44px] px-5 text-[15px]' : 'min-h-[48px] px-8 text-base',
-    variantes[variante],
-    className,
-  )
+  const clases = cn(clasesBoton(variante, compacto), className)
 
   if ('to' in props) {
     return (

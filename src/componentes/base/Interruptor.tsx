@@ -13,10 +13,10 @@ export default function Interruptor({ etiqueta, ayuda, activo, onCambio }: Props
   const id = useId()
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-xl border border-mar-bordeAgua bg-mar-blanco p-4">
-      <span id={id} className="flex flex-col gap-0.5">
-        <span className="text-base font-medium text-mar-tinta">{etiqueta}</span>
-        {ayuda && <span className="text-sm text-mar-tintaSuave">{ayuda}</span>}
+    <div className="flex items-center justify-between gap-4 rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-4">
+      <span id={id} className="flex flex-col gap-1">
+        <span className="text-cuerpo font-medium text-mar-tinta">{etiqueta}</span>
+        {ayuda && <span className="text-meta text-mar-tintaSuave">{ayuda}</span>}
       </span>
       <button
         type="button"

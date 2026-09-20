@@ -2,14 +2,12 @@ import { motion } from 'motion/react'
 import { useEffect, useRef, type RefObject } from 'react'
 import { Link } from 'react-router-dom'
 import { abrirPanel, fundido } from '../../animaciones/movimiento'
-import Boton from '../base/Boton'
 import { Cerrar } from '../base/iconos'
 
 export type Enlace = { to: string; texto: string }
 
 type Props = {
   enlaces: Enlace[]
-  cta?: Enlace
   onCerrar: () => void
   // Botón al que vuelve el foco al cerrar (Safari no enfoca los botones al hacer clic).
   retorno: RefObject<HTMLElement | null>
@@ -18,7 +16,7 @@ type Props = {
 // Panel a pantalla completa que entra con el resorte suave; sus enlaces entran en cascada.
 // Se cierra con Escape, con la X y al navegar. Mantiene el foco adentro mientras está
 // abierto y lo devuelve al cerrar.
-export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
+export default function MenuMovil({ enlaces, onCerrar, retorno }: Props) {
   const panel = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -63,10 +61,10 @@ export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
       initial="cerrado"
       animate="abierto"
       exit="cerrado"
-      className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-mar-nube md:hidden"
+      className="fixed inset-0 z-menu flex flex-col overflow-y-auto bg-mar-nube md:hidden"
     >
       <div className="flex items-center justify-between border-b border-mar-bordeCielo px-5 py-2">
-        <Link to="/" onClick={onCerrar} className="inline-flex min-h-[44px] items-center font-titulo text-lg text-mar-tinta no-underline">
+        <Link to="/" onClick={onCerrar} className="inline-flex min-h-control-sm items-center font-titulo text-titulo-s text-mar-tinta no-underline">
           Estado del mar
         </Link>
         <button
@@ -85,19 +83,12 @@ export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
             <Link
               to={e.to}
               onClick={onCerrar}
-              className="block border-b border-mar-bordeCielo py-4 font-titulo text-2xl text-mar-tinta no-underline"
+              className="block border-b border-mar-bordeCielo py-4 font-titulo text-titulo-m text-mar-tinta no-underline"
             >
               {e.texto}
             </Link>
           </motion.div>
         ))}
-        {cta && (
-          <motion.div variants={fundido} className="mt-6">
-            <Boton to={cta.to} onClick={onCerrar} className="w-full">
-              {cta.texto}
-            </Boton>
-          </motion.div>
-        )}
       </nav>
     </motion.div>
   )

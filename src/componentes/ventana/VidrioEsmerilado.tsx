@@ -22,14 +22,17 @@ import DibujoEstado from '../objetos/DibujoEstado'
 
 // Reposo y enfoque llegan del padre (variantes 'reposo' / 'enfocar'); en la vista bloqueada
 // que se abre, 'salida' despeja el vidrio del todo.
+// El efecto de vidrio empañado lo da sobre todo la capa translúcida de arriba; el desenfoque
+// es apenas un velo, para que el dibujo del agua siga viéndose y reconociéndose. El tinte
+// se apaga un poco (saturate) y al enfocar el vidrio se aclara: da ganas de entrar.
 const vidrio = {
-  reposo: { filter: 'blur(5px)', opacity: 1 },
-  enfocar: { filter: 'blur(2.5px)', opacity: 1, transition: transicion.rapida },
-  salida: { filter: 'blur(0px)', opacity: 0, transition: transicion.media },
+  reposo: { filter: 'blur(1.6px) saturate(0.72)', opacity: 1 },
+  enfocar: { filter: 'blur(0.6px) saturate(0.95)', opacity: 1, transition: transicion.rapida },
+  salida: { filter: 'blur(0px) saturate(1)', opacity: 0, transition: transicion.media },
 }
 const escarcha = {
   reposo: { opacity: 1 },
-  enfocar: { opacity: 0.55, transition: transicion.rapida },
+  enfocar: { opacity: 0.45, transition: transicion.rapida },
   salida: { opacity: 0, transition: transicion.media },
 }
 
@@ -37,9 +40,9 @@ export default function VidrioEsmerilado({ estado }: { estado: EstadoMarId | nul
   return (
     <>
       <motion.div variants={vidrio} className="absolute inset-0">
-        <DibujoEstado estado={estado} className="text-mar-agua" />
+        <DibujoEstado estado={estado} />
       </motion.div>
-      <motion.span variants={escarcha} aria-hidden="true" className="absolute inset-0 bg-mar-blanco/20" />
+      <motion.span variants={escarcha} aria-hidden="true" className="absolute inset-0 bg-mar-blanco/30" />
     </>
   )
 }

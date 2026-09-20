@@ -40,12 +40,12 @@ export default function LaPropuesta() {
       >
         {piezas.map((p) => (
           <motion.li key={p.titulo} variants={emerger}>
-            <Tarjeta tono="aguaClara" className="h-full p-6">
-              <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-mar-espuma text-mar-agua">
+            <Tarjeta tono="niebla" className="h-full p-6">
+              <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-mar-bordeAgua bg-mar-blanco text-mar-agua shadow-tarjeta">
                 {p.icono}
               </span>
-              <h3 className="mb-2 text-xl font-normal">{p.titulo}</h3>
-              <p className="text-base leading-relaxed text-mar-tintaSuave">{p.texto}</p>
+              <h3 className="mb-2 text-titulo-s font-normal">{p.titulo}</h3>
+              <p className="text-cuerpo text-mar-tintaSuave">{p.texto}</p>
             </Tarjeta>
           </motion.li>
         ))}

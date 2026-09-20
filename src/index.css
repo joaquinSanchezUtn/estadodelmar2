@@ -5,6 +5,15 @@
 @layer base {
   html {
     scroll-padding-top: 5.5rem;
+    /* Reserva el lugar de la barra: si no, el contenido salta unos píxeles al pasar de una
+       página corta (Ingresar) a una larga (Home) donde la barra aparece. */
+    scrollbar-gutter: stable;
+  }
+
+  /* Barras finas y del color del mar, en la página, el menú y los campos de texto. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.mar.bordeCielo') transparent;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -14,7 +23,7 @@
   }
 
   body {
-    @apply bg-mar-nube font-sans text-base text-mar-tinta;
+    @apply bg-mar-nube font-sans text-cuerpo text-mar-tinta;
   }
 
   h1,

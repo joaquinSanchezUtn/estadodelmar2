@@ -1,4 +1,7 @@
 import ConmutadorDev from '../../auth/ConmutadorDev'
+import AvisoSinConexion from '../soporte/AvisoSinConexion'
+import LimiteDeErrores from '../soporte/LimiteDeErrores'
+import Grano from '../objetos/Grano'
 import Manchas from '../objetos/Manchas'
 import Encabezado from './Encabezado'
 import PaginasAnimadas from './PaginasAnimadas'
@@ -9,9 +12,13 @@ import PieDePagina from './PieDePagina'
 export default function Layout() {
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-clip bg-mar-nube [overflow-anchor:none]">
+      <Grano />
       <Manchas cantidad={2} />
+      <AvisoSinConexion />
       <Encabezado />
-      <PaginasAnimadas />
+      <LimiteDeErrores>
+        <PaginasAnimadas />
+      </LimiteDeErrores>
       <PieDePagina />
       {import.meta.env.DEV && <ConmutadorDev />}
     </div>

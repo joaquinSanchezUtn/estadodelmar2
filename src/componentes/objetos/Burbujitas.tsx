@@ -7,7 +7,7 @@ import { cn } from '../../lib/cn'
 const burbujitas = [
   { izq: '8%', tam: 'h-3 w-3', seg: 13, desfase: 0 },
   { izq: '22%', tam: 'h-5 w-5', seg: 17, desfase: 4 },
-  { izq: '46%', tam: 'h-2.5 w-2.5', seg: 15, desfase: 8 },
+  { izq: '46%', tam: 'size-3', seg: 15, desfase: 8 },
   { izq: '68%', tam: 'h-4 w-4', seg: 19, desfase: 2 },
   { izq: '84%', tam: 'h-3 w-3', seg: 14, desfase: 6 },
   { izq: '93%', tam: 'h-2 w-2', seg: 16, desfase: 10 },

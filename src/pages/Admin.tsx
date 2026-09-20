@@ -1,55 +1,35 @@
-import { useState } from 'react'
-import { useSesion } from '../auth/SesionContext'
+import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
+import Boton from '../componentes/base/Boton'
 import Esqueleto from '../componentes/base/Esqueleto'
-import EditorVentana from '../componentes/admin/EditorVentana'
-import ListadoVentanas from '../componentes/admin/ListadoVentanas'
-import Seccion from '../componentes/layout/Seccion'
-import { listarEstados, listarTemasAdmin } from '../datos/contenido'
-import { useCarga } from '../lib/useCarga'
+import MarcoAdmin from '../componentes/admin/MarcoAdmin'
+import ResumenAdmin from '../componentes/admin/ResumenAdmin'
+import { useDatosAdmin } from '../componentes/admin/useDatosAdmin'
 
+// La entrada al panel: un resumen de cómo está el sitio y qué falta hacer.
 export default function Admin() {
-  const { rol } = useSesion()
-  const { datos, cargando } = useCarga(`admin:${rol}`, async () => {
-    const [temas, estados] = await Promise.all([listarTemasAdmin(), listarEstados()])
-    return { temas, estados }
-  })
-  const [elegido, setElegido] = useState<string | null>(null)
-
-  // En celular la lista y el editor van apilados: al elegir, se baja al editor.
-  const elegir = (slug: string) => {
-    setElegido(slug)
-    if (!window.matchMedia('(min-width: 1024px)').matches) {
-      document.getElementById('editor')?.scrollIntoView()
-    }
-  }
-
-  const actual = datos?.temas.find((t) => t.slug === elegido) ?? datos?.temas[0]
+  const { datos, cargando, error, reintentar } = useDatosAdmin()
 
   return (
-    <Seccion fondo="agua">
-      <h1 className="mb-6 text-3xl font-light md:text-4xl">Panel de administración</h1>
-
-      {cargando || !datos ? (
-        <div role="status" className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
-          <p className="sr-only">Cargando las ventanas…</p>
-          <Esqueleto className="h-72" />
-          <Esqueleto className="h-96" />
+    <MarcoAdmin
+      titulo="Panel de administración"
+      acciones={
+        <Boton to="/admin/ventanas/nueva" compacto>
+          Nueva ventana
+        </Boton>
+      }
+    >
+      {error ? (
+        <ErrorDeCarga texto="No pudimos leer las ventanas." onReintentar={reintentar} />
+      ) : cargando || !datos ? (
+        <div role="status" className="grid gap-3 md:grid-cols-4">
+          <p className="sr-only">Cargando el resumen…</p>
+          {Array.from({ length: 4 }, (_, i) => (
+            <Esqueleto key={i} className="h-28" />
+          ))}
         </div>
-      ) : !actual ? (
-        <p className="text-base text-mar-tintaSuave">No hay ventanas para mostrar.</p>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start lg:gap-8">
-          <ListadoVentanas
-            temas={datos.temas}
-            estados={datos.estados}
-            seleccionado={actual.slug}
-            onElegir={elegir}
-          />
-          <div id="editor">
-            <EditorVentana key={actual.slug} tema={actual} estados={datos.estados} />
-          </div>
-        </div>
+        <ResumenAdmin temas={datos.temas} />
       )}
-    </Seccion>
+    </MarcoAdmin>
   )
 }

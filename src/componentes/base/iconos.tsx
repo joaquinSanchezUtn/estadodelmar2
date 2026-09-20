@@ -26,6 +26,26 @@ export const IconoCandado = ({ className = 'h-4 w-4' }: Props) => (
   </Svg>
 )
 
+export const Cuenta = ({ className = 'size-6' }: Props) => (
+  <Svg className={className}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </Svg>
+)
+
+export const Ojo = ({ className = 'size-5' }: Props) => (
+  <Svg className={className}>
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+    <circle cx="12" cy="12" r="3" />
+  </Svg>
+)
+
+export const OjoTachado = ({ className = 'size-5' }: Props) => (
+  <Svg className={className}>
+    <path d="M9.9 5.2A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a10 10 0 0 0 5.4-1.6M3 3l18 18" />
+  </Svg>
+)
+
 export const Menu = ({ className = 'h-6 w-6' }: Props) => (
   <Svg className={className}>
     <path d="M3 6h18M3 12h18M3 18h18" />
@@ -54,6 +74,42 @@ export const Play = ({ className = 'h-5 w-5' }: Props) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
     <path d="M8 5v14l11-7z" />
   </svg>
+)
+
+export const Pausa = ({ className = 'size-5' }: Props) => (
+  <Svg className={className}>
+    <path d="M8 5v14M16 5v14" />
+  </Svg>
+)
+
+export const Volumen = ({ className = 'size-5' }: Props) => (
+  <Svg className={className}>
+    <path d="M4 9v6h4l5 4V5L8 9H4ZM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />
+  </Svg>
+)
+
+export const Silenciado = ({ className = 'size-5' }: Props) => (
+  <Svg className={className}>
+    <path d="M4 9v6h4l5 4V5L8 9H4ZM17 9l5 6M22 9l-5 6" />
+  </Svg>
+)
+
+export const Expandir = ({ className = 'size-5' }: Props) => (
+  <Svg className={className}>
+    <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+  </Svg>
+)
+
+export const Arriba = ({ className = 'size-5' }: Props) => (
+  <Svg className={className}>
+    <path d="m6 15 6-6 6 6" />
+  </Svg>
+)
+
+export const Abajo = ({ className = 'size-5' }: Props) => (
+  <Svg className={className}>
+    <path d="m6 9 6 6 6-6" />
+  </Svg>
 )
 
 export const Ondas = ({ className = 'h-6 w-6' }: Props) => (

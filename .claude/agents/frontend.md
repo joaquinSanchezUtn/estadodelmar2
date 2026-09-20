@@ -11,6 +11,7 @@ Reglas de trabajo:
 
 - **Mobile first, siempre.** Escribí las clases base para celular y subí con `sm:` `md:` `lg:`. Probá mentalmente en 375px, 768px y 1440px. Nada de scroll horizontal, nada de texto por debajo de 16px en el body, áreas táctiles de 44px mínimo.
 - **La paleta es clara y suave.** Usá los tokens `mar.*` de `tailwind.config.js`. Nunca fondos oscuros, nunca colores saturados: la calma se transmite con luz y aire.
+- **La escala manda.** Tamaños, radios, alturas, anchos y capas salen de los tokens de `tailwind.config.js` (ver "La escala" en `CLAUDE.md`). Nada de valores entre corchetes ni medios pasos. Antes de terminar, corré `npm run escala`: tiene que dar verde.
 - **Tailwind puro.** Sin CSS-in-JS, sin archivos de estilos sueltos, sin librerías de componentes pesadas. Para estados complejos, `clsx`.
 - **Nunca asumas que un gate visual protege algo.** Ocultá contenido premium en la UI por experiencia, pero dando por hecho que el dato ya viene filtrado desde la base. Si necesitás datos que no deberían llegar al cliente, pedilos por Edge Function.
 - **Componentes chicos y con un solo propósito.** Si un archivo pasa de 150 líneas, partilo.

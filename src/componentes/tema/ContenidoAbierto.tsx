@@ -12,14 +12,14 @@ export default function ContenidoAbierto({ contenidos }: { contenidos: Contenido
 
   if (contenidos.length === 0) {
     return (
-      <p className="rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-base text-mar-tintaSuave">
+      <p className="rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-cuerpo text-mar-tintaSuave">
         Esta ventana todavía no tiene contenido publicado.
       </p>
     )
   }
 
   return (
-    <div className="flex flex-col gap-3.5">
+    <div className="flex flex-col gap-4">
       {video && <VideoContenido contenido={video} />}
       {meditacion && <MeditacionContenido contenido={meditacion} />}
       {ejercitacion && <EjercitacionContenido contenido={ejercitacion} />}

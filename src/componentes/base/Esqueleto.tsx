@@ -5,7 +5,7 @@ export default function Esqueleto({ className }: { className?: string }) {
   return (
     <div
       aria-hidden="true"
-      className={cn('rounded-xl bg-mar-espuma motion-safe:animate-pulse', className)}
+      className={cn('rounded-tarjeta bg-mar-espuma motion-safe:animate-pulse', className)}
     />
   )
 }

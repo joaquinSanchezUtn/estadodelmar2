@@ -8,13 +8,13 @@ export default function Selector({ etiqueta, opciones, ...nativos }: Props) {
   const id = useId()
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-[15px] font-medium text-mar-tinta">
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-cuerpo font-medium text-mar-tinta">
         {etiqueta}
       </label>
       <select
         id={id}
-        className="min-h-[48px] rounded-xl border border-mar-bordeAgua bg-mar-blanco px-3 text-base text-mar-tinta"
+        className="min-h-control rounded-control border border-mar-bordeAgua bg-mar-blanco px-3 text-cuerpo text-mar-tinta"
         {...nativos}
       >
         {opciones.map((o) => (

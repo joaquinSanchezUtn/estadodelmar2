@@ -37,4 +37,4 @@ export function quebrada(y: number, patron: [number, number][], largo = 400) {
 }
 
 // Clases del trazo: línea fina de grosor constante aunque el dibujo se escale.
-export const trazo = 'fill-none stroke-mar-agua stroke-[1.5] [vector-effect:non-scaling-stroke] [stroke-linecap:round] [stroke-linejoin:round]'
+export const trazo = 'fill-none stroke-current stroke-[1.5] [vector-effect:non-scaling-stroke] [stroke-linecap:round] [stroke-linejoin:round]' // escala-ok: 1.5px, el grosor único del dibujo de línea

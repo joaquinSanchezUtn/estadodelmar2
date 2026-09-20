@@ -16,6 +16,7 @@ const oyentes = new Set<() => void>()
 // tampoco, y ningún pedido hecho con la sesión anterior puede volver a llenar el caché.
 export function vaciarCache() {
   privada.clear()
+  publica.clear() // el catálogo también: lo que vio una sesión (o lo que cambió el panel) no se reutiliza
   generacion++
   oyentes.forEach((avisar) => avisar())
 }
@@ -36,12 +37,17 @@ export function useCarga<T>(clave: string, cargar: () => Promise<T>, esPublica =
     memoria.has(clave) ? { clave, gen, datos: memoria.get(clave) as T } : null,
   )
 
+  const [fallo, setFallo] = useState<{ clave: string; gen: number } | null>(null)
+  const [intento, setIntento] = useState(0)
+
   useEffect(() => {
     let vigente = true
     cargar().then((datos) => {
       // Un pedido hecho con la sesión anterior se descarta: cambiar de generación vuelve
       // a correr este efecto, que lo deja "no vigente".
-      if (!vigente) return
+      // `vigente` se apaga recién en el commit siguiente al cambio de sesión: en esa ventana un
+      // pedido de la sesión anterior aún pasaría. La generación se compara contra la de ahora.
+      if (!vigente || (!esPublica && gen !== generacion)) return
       memoria.set(clave, datos)
       // Si lo revalidado es igual a lo que ya se muestra, se devuelve el mismo estado y React
       // no vuelve a renderizar: un re-render de más en plena transición haría que Motion mida
@@ -51,18 +57,35 @@ export function useCarga<T>(clave: string, cargar: () => Promise<T>, esPublica =
           ? previo
           : { clave, gen, datos },
       )
+    }).catch(() => {
+      // Un pedido que falla no puede dejar la pantalla "cargando" para siempre (por ejemplo, sin poder
+      // llegar a dar de baja una suscripción): se marca el error y la pantalla ofrece reintentar.
+      if (vigente) setFallo({ clave, gen })
     })
     return () => {
       vigente = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clave, gen])
+  }, [clave, gen, intento])
 
   // Lo cargado con una sesión anterior se suelta de inmediato de la memoria de React.
   useEffect(() => {
     setEstado((previo) => (previo && previo.gen !== gen ? null : previo))
   }, [gen])
 
-  const propios = estado?.clave === clave && estado.gen === gen ? estado.datos : ((memoria.get(clave) as T | undefined) ?? null)
-  return { datos: propios, cargando: propios === null }
+  // Un resultado `null` (por ejemplo, "no tiene suscripción") es una respuesta, no una carga
+  // pendiente: por eso `cargando` mira si hay respuesta y no si el dato es null.
+  const mostrado = estado?.clave === clave && estado.gen === gen
+  const enMemoria = memoria.has(clave)
+  const datos = mostrado ? estado.datos : enMemoria ? (memoria.get(clave) as T) : null
+  const error = !mostrado && !enMemoria && fallo?.clave === clave && fallo.gen === gen
+  return {
+    datos,
+    cargando: !mostrado && !enMemoria && !error,
+    error,
+    reintentar: () => {
+      setFallo(null)
+      setIntento((n) => n + 1)
+    },
+  }
 }

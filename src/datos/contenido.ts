@@ -8,23 +8,11 @@
 // Al pasar a Supabase: pedir columnas explícitas (nunca select('*')) para no
 // traer al navegador nada que deba resolverse en el servidor.
 import { accesoSimulado, rolSimulado } from './sesionSimulada'
-import type { EstadoMar, Suscripcion, Tema, TemaAdmin, TemaVisible } from './tipos'
-
-type DatosDePrueba = Pick<typeof import('./mock'), 'estados' | 'temas' | 'contenidos'>
-const sinDatos: DatosDePrueba = { estados: [], temas: [], contenidos: [] }
-
-// Los datos de prueba solo existen en desarrollo o si se compila con
-// VITE_DATOS_DE_PRUEBA=true (una demo, a propósito). En cualquier otro build el
-// archivo mock ni se emite, así que sus textos no viajan al navegador.
-async function cargarPrueba(): Promise<DatosDePrueba> {
-  if (import.meta.env.DEV || import.meta.env.VITE_DATOS_DE_PRUEBA === 'true') {
-    return import('./mock')
-  }
-  return sinDatos
-}
-
-const RETARDO_MS = 150
-const esperar = () => new Promise<void>((resolver) => setTimeout(resolver, RETARDO_MS))
+import { silencioWav } from './medioSimulado'
+import { estadoDelPago, fijarSuscripcionSimulada, nuevoPago, periodoVigente, suscripcionSimulada, type EstadoDelPago } from './suscripcionSimulada'
+import { archivoDe } from './admin'
+import { cargarPrueba, esperar, hayDatosDePrueba, sinBackend } from './base'
+import type { EstadoMar, Suscripcion, Tema, TemaVisible } from './tipos'
 
 export async function listarEstados(): Promise<EstadoMar[]> {
   await esperar()
@@ -58,28 +46,84 @@ export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
 // Estado de la suscripción de la sesión actual, o null si no tiene una.
 export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
   await esperar()
-  const rol = rolSimulado()
-  if (rol === 'admin') return { estado: 'administradora' }
-  if (rol !== 'suscriptora') return null
-  const cobro = new Date()
-  cobro.setDate(cobro.getDate() + 16)
-  const dos = (n: number) => String(n).padStart(2, '0')
-  const iso = `${cobro.getFullYear()}-${dos(cobro.getMonth() + 1)}-${dos(cobro.getDate())}`
-  return { estado: 'activa', proximoCobro: iso }
+  if (rolSimulado() === 'admin') return { estado: 'administradora' }
+  return suscripcionSimulada()
 }
 
-// Panel de admin: todos los temas, borradores incluidos, con sus contenidos.
-// Ojo: acá devuelve [] si no es admin, pero un select plano contra la base NO haría
-// eso (RLS le devuelve a cualquiera los temas publicados). El reemplazo tiene que ser
-// una función de la base que verifique es_admin() en el servidor.
-export async function listarTemasAdmin(): Promise<TemaAdmin[]> {
+// Adónde mandar a la persona para pagar. Con Mercado Pago es una URL externa (init_point de la
+// preapproval, creada en una Edge Function); en desarrollo es una pantalla nuestra que lo simula.
+export type DestinoDePago = { url: string; externo: boolean }
+
+export async function iniciarSuscripcion(): Promise<DestinoDePago> {
+  if (!hayDatosDePrueba) return sinBackend()
   await esperar()
-  if (rolSimulado() !== 'admin') return []
-  const { temas, contenidos } = await cargarPrueba()
-  return temas
-    .map((t) => ({
-      ...t,
-      contenidos: contenidos.filter((c) => c.temaId === t.id).sort((a, b) => a.orden - b.orden),
-    }))
-    .sort((a, b) => a.orden - b.orden)
+  return { url: `/suscripcion/simular-pago?accion=suscribir&pago=${nuevoPago()}`, externo: false }
 }
+
+export async function cambiarMedioDePago(): Promise<DestinoDePago> {
+  if (!hayDatosDePrueba) return sinBackend()
+  await esperar()
+  return { url: '/suscripcion/simular-pago?accion=tarjeta', externo: false }
+}
+
+export type ResultadoDeAccion = { ok: true } | { ok: false; mensaje: string }
+const noSePudo = { ok: false, mensaje: 'No pudimos hacerlo ahora. Probá de nuevo en un rato.' } as const
+
+// Cómo va un pago puntual. Con Mercado Pago es el estado que dejó el webhook para ese preapproval_id.
+export async function obtenerEstadoDelPago(id: string): Promise<EstadoDelPago> {
+  if (!hayDatosDePrueba) return sinBackend()
+  await esperar()
+  return estadoDelPago(id)
+}
+
+// La baja no corta el acceso: sigue hasta el fin del período pago. Devuelve hasta cuándo, para que
+// el aviso diga lo que el servidor decidió. Pendiente: preapproval a 'cancelled' en MP.
+export async function cancelarSuscripcion(): Promise<{ ok: true; accesoHasta: string } | typeof noSePudo> {
+  if (!hayDatosDePrueba) return sinBackend()
+  await esperar()
+  const s = suscripcionSimulada()
+  if (s?.estado !== 'activa') return noSePudo
+  fijarSuscripcionSimulada({ estado: 'cancelada', accesoHasta: s.proximoCobro })
+  return { ok: true, accesoHasta: s.proximoCobro }
+}
+
+// Solo se puede reactivar una cancelada con el período todavía vigente: no hay cobro nuevo, así que
+// con el período vencido hay que pagar de nuevo.
+export async function reactivarSuscripcion(): Promise<ResultadoDeAccion> {
+  if (!hayDatosDePrueba) return sinBackend()
+  await esperar()
+  const s = suscripcionSimulada()
+  if (s?.estado !== 'cancelada' || !periodoVigente(s.accesoHasta)) return noSePudo
+  fijarSuscripcionSimulada({ estado: 'activa', proximoCobro: s.accesoHasta, medioDePago: 'Visa terminada en 4242' })
+  return { ok: true }
+}
+
+// El formulario de contacto. Con backend real es una Edge Function que guarda el mensaje y avisa por
+// correo, con límite de envíos por IP; el campo `sitioWeb` es una trampa para bots y llega vacío si es una persona.
+export type MensajeDeContacto = { nombre: string; email: string; asunto: string; mensaje: string; sitioWeb: string }
+
+export async function enviarMensajeDeContacto(_mensaje: MensajeDeContacto): Promise<ResultadoDeAccion> {
+  if (!hayDatosDePrueba) return sinBackend()
+  await esperar()
+  return { ok: true }
+}
+
+// La dirección con la que se reproduce una pieza. Con Bunny Stream la firma una Edge Function que
+// primero verifica la suscripción, y vence a los ~15 minutos: por eso trae `venceEn` y el reproductor
+// pide otra si hace falta. null = todavía no hay archivo subido para esa pieza.
+export type OrigenDeMedio = { url: string; venceEn: number }
+
+export async function obtenerOrigenDeMedio(contenidoId: string): Promise<OrigenDeMedio | null> {
+  if (!hayDatosDePrueba) return sinBackend()
+  await esperar()
+  const { contenidos, temas } = await cargarPrueba()
+  const c = contenidos.find((x) => x.id === contenidoId)
+  // Igual que la base: sin acceso no hay URL, aunque se conozca el id de la pieza; y una pieza o una
+  // ventana sin publicar no se entrega a nadie salvo a la dueña (la Edge Function repite las tres condiciones).
+  const visible = c && (rolSimulado() === 'admin' || (c.publicado && temas.find((t) => t.id === c.temaId)?.publicado))
+  if (!c || !visible || c.tipo === 'ejercitacion' || !accesoSimulado(rolSimulado())) return null
+  if (!(await archivoDe(c))) return null // todavía no se subió el archivo
+  return { url: silencioWav(30), venceEn: Date.now() + 15 * 60 * 1000 }
+}
+
+export * from './admin'

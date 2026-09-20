@@ -4,8 +4,8 @@ type Props = { titulo: string; texto?: string }
 export default function TituloBurbuja({ titulo, texto }: Props) {
   return (
     <div className="mb-6 md:mb-8">
-      <h2 className="mb-1.5 text-[27px] font-normal md:mb-2 lg:text-[34px]">{titulo}</h2>
-      {texto && <p className="max-w-[700px] text-base leading-relaxed text-mar-tintaSuave">{texto}</p>}
+      <h2 className="mb-2 text-titulo-m font-normal md:text-titulo-l">{titulo}</h2>
+      {texto && <p className="max-w-parrafo text-cuerpo text-mar-tintaSuave">{texto}</p>}
     </div>
   )
 }

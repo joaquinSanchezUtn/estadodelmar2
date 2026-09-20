@@ -1,16 +1,21 @@
-// Pendiente: las páginas legales todavía no existen.
-const legales = ['Términos', 'Privacidad', 'Contacto']
+import { Link } from 'react-router-dom'
+
+const legales = [
+  { to: '/terminos', texto: 'Términos' },
+  { to: '/privacidad', texto: 'Privacidad' },
+  { to: '/contacto', texto: 'Contacto' },
+]
 
 export default function PieDePagina() {
   return (
     <footer className="border-t border-mar-bordeCielo bg-mar-nube">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-6 text-[15px] text-mar-tintaSuave md:flex-row md:items-center md:justify-between md:px-8 lg:px-16">
+      <div className="mx-auto flex max-w-ancho flex-col gap-2 px-4 py-6 text-cuerpo text-mar-tintaSuave md:flex-row md:items-center md:justify-between md:px-16">
         <span>Estado del mar</span>
         <nav aria-label="Legales" className="flex gap-6">
-          {legales.map((texto) => (
-            <a key={texto} href="#" className="inline-flex min-h-[44px] items-center text-mar-tintaSuave hover:text-mar-tinta">
-              {texto}
-            </a>
+          {legales.map((l) => (
+            <Link key={l.to} to={l.to} className="inline-flex min-h-control-sm items-center text-mar-tintaSuave no-underline hover:text-mar-tinta">
+              {l.texto}
+            </Link>
           ))}
         </nav>
       </div>

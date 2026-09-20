@@ -1,7 +1,7 @@
 // DATOS DE PRUEBA — se borra cuando entra Supabase.
 // Lo que en producción deduce la base a partir de la sesión (el JWT), acá se
 // simula con una variable. La escribe SesionContext y la lee contenido.ts.
-import type { Rol, Usuario } from './tipos'
+import type { Rol } from './tipos'
 
 let rol: Rol = 'visitante'
 
@@ -20,13 +20,3 @@ const conAcceso: Record<Rol, boolean> = {
   admin: true,
 }
 export const accesoSimulado = (r: Rol) => conAcceso[r]
-
-const usuarios: Record<Rol, Usuario | null> = {
-  visitante: null,
-  registrada: { nombre: 'Sofía Acosta', email: 'sofia@ejemplo.com' },
-  suscriptora: { nombre: 'Lucía Benítez', email: 'lucia@ejemplo.com' },
-  admin: { nombre: 'Mariana Ríos', email: 'mariana@ejemplo.com' },
-}
-
-// Solo se usa en desarrollo: en producción no hay usuarios de ejemplo en el bundle.
-export const usuarioSimulado = (r: Rol) => usuarios[r]

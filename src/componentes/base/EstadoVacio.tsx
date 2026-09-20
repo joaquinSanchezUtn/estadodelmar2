@@ -10,8 +10,8 @@ type Props = {
 export default function EstadoVacio({ titulo, texto, enlace }: Props) {
   return (
     <div className="flex flex-col items-start gap-4 py-6">
-      <h1 className="text-3xl font-light md:text-4xl">{titulo}</h1>
-      {texto && <p className="max-w-md text-base leading-relaxed text-mar-tintaSuave">{texto}</p>}
+      <h1 className="text-titulo-m font-light md:text-titulo-l">{titulo}</h1>
+      {texto && <p className="max-w-angosto text-cuerpo text-mar-tintaSuave">{texto}</p>}
       <Boton to={enlace.to} variante="secundario">
         {enlace.texto}
       </Boton>

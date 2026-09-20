@@ -4,6 +4,7 @@ import { useMovimiento } from '../../animaciones/movimiento'
 import type { EstadoMarId } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
 import Calma from './estados/Calma'
+import { coloresDe } from './estados/colores'
 import Corrientes from './estados/Corrientes'
 import Horizonte from './estados/Horizonte'
 import MarAgitado from './estados/MarAgitado'
@@ -48,7 +49,7 @@ export default function DibujoEstado({ estado, vivo = 'escritorio', autonomo = f
       preserveAspectRatio={ajuste === 'cubrir' ? 'xMidYMid slice' : 'xMidYMid meet'}
       initial={autonomo ? 'reposo' : undefined}
       animate={autonomo ? 'reposo' : undefined}
-      className={cn('h-full w-full', className)}
+      className={cn('h-full w-full', coloresDe(estado).linea, className)}
       aria-hidden="true"
       focusable="false"
     >

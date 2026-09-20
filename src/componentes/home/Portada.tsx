@@ -16,9 +16,11 @@ export default function Portada() {
     <Burbuja
       tono="aguaClara"
       entrada="ninguna"
-      className="pb-28 pt-12 md:pb-44 md:pt-24"
+      className="pb-28 pt-10 md:pb-36 md:pt-16"
       decoracion={
         <>
+          {/* El agua se va profundizando hacia abajo, donde suben las olas. */}
+          <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-mar-celeste/25" />
           <Olas parallax={bucles ? parallax : undefined} />
           <Burbujitas />
         </>
@@ -31,12 +33,12 @@ export default function Portada() {
         animate="visible"
         className="flex flex-col gap-4 md:items-center md:gap-6 md:text-center"
       >
-        <motion.p variants={fundido} className="text-xs uppercase tracking-[0.2em] text-mar-agua md:text-[13px]">
+        <motion.p variants={fundido} className="text-etiqueta uppercase text-mar-agua">
           Un gimnasio del alma
         </motion.p>
         <motion.h1
           variants={fundido}
-          className="text-[40px] font-light leading-[1.14] md:text-[56px] md:leading-[1.12] lg:text-[64px]"
+          className="text-titulo-xl font-light"
         >
           No somos las olas.
           <br />
@@ -44,12 +46,12 @@ export default function Portada() {
         </motion.h1>
         <motion.p
           variants={fundido}
-          className="text-[17px] leading-relaxed text-mar-tintaSuave md:max-w-[660px] md:text-[19px]"
+          className="text-destacado text-mar-tintaSuave md:max-w-parrafo"
         >
           Las emociones, los pensamientos y las circunstancias aparecen y desaparecen. Debajo de todo
           eso hay un espacio de paz que nunca se va. Acá se practica vivir desde esa profundidad.
         </motion.p>
-        <motion.div variants={fundido} className="mt-2 flex flex-col gap-3 md:flex-row md:gap-3.5">
+        <motion.div variants={fundido} className="mt-2 flex flex-col gap-3 md:flex-row md:gap-4">
           <Boton to="/#ventanas">Ver las ventanas</Boton>
           <Boton to="/#propuesta" variante="secundario">
             Cómo funciona

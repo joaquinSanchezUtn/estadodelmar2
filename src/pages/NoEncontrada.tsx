@@ -1,11 +1,15 @@
 import Burbuja from '../componentes/base/Burbuja'
 import EstadoVacio from '../componentes/base/EstadoVacio'
+import Pagina from '../componentes/layout/Pagina'
 import DibujoEstado from '../componentes/objetos/DibujoEstado'
+import { coloresEstado } from '../componentes/objetos/estados/colores'
+import ReflejoVidrio from '../componentes/ventana/ReflejoVidrio'
+import { cn } from '../lib/cn'
 import { RADIO_OJO_DE_BUEY } from '../animaciones/movimiento'
 
 export default function NoEncontrada() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-16 pt-6 md:pt-12">
+    <Pagina ancho="lectura" className="pt-6 md:pt-12">
       <Burbuja tono="aguaClara" entrada="ninguna" interior="grid gap-6 md:grid-cols-[1fr_200px] md:items-center">
         <EstadoVacio
           titulo="Esta página no existe"
@@ -14,12 +18,18 @@ export default function NoEncontrada() {
         />
         {/* El horizonte: una línea con un círculo apoyado encima. */}
         <div
-          className="order-first aspect-[3/1] overflow-hidden bg-mar-espuma md:order-last md:aspect-square"
+          className={cn(
+            'relative order-first aspect-[3/1] overflow-hidden border-3 shadow-ventana ring-1 md:order-last md:aspect-square',
+            coloresEstado.horizonte.agua,
+            coloresEstado.horizonte.aro,
+            coloresEstado.horizonte.aroExterior,
+          )}
           style={{ borderRadius: RADIO_OJO_DE_BUEY }}
         >
-          <DibujoEstado estado="horizonte" vivo="siempre" autonomo className="text-mar-agua" />
+          <DibujoEstado estado="horizonte" vivo="siempre" autonomo />
+          <ReflejoVidrio />
         </div>
       </Burbuja>
-    </div>
+    </Pagina>
   )
 }

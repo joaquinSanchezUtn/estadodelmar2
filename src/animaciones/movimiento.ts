@@ -105,6 +105,12 @@ export const abrirPanel: Variants = {
   abierto: { y: 0, opacity: 1, transition: { ...resorte, staggerChildren: 0.06, delayChildren: 0.08 } },
 }
 
+// Menú que se despliega desde su botón (el de la cuenta): baja unos píxeles y se asienta.
+export const desplegar: Variants = {
+  cerrado: { opacity: 0, y: -8, scale: 0.98, transition: transicion.rapida },
+  abierto: { opacity: 1, y: 0, scale: 1, transition: transicion.media },
+}
+
 // Contenido que se abre en su lugar (bloqueado ↔ desbloqueado).
 export const revelar: Variants = {
   oculto: { opacity: 0, y: 12, filter: 'blur(6px)' },
