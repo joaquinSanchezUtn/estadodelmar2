@@ -5,10 +5,10 @@ import { useSesion } from './SesionContext'
 // La protección real vive en las políticas RLS de la base, que son las que
 // impiden leer borradores o escribir contenido a cualquiera que no sea admin.
 export default function RutaDeAdmin() {
-  const { rol, cargando } = useSesion()
+  const { usuario, rol, cargando } = useSesion()
 
   if (cargando) return <p role="status" className="p-6 text-mar-tintaSuave">Cargando…</p>
-  if (rol === 'visitante') return <Navigate to="/ingresar" replace />
+  if (!usuario) return <Navigate to="/ingresar" replace />
   if (rol !== 'admin') return <Navigate to="/" replace />
   return <Outlet />
 }

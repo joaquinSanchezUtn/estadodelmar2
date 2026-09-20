@@ -62,8 +62,10 @@ export type Rol = 'visitante' | 'registrada' | 'suscriptora' | 'admin'
 
 export type Usuario = { nombre: string; email: string }
 
-// Fecha en formato ISO (aaaa-mm-dd).
-export type Suscripcion = { estado: 'activa'; proximoCobro: string }
+// proximoCobro va en formato ISO (aaaa-mm-dd). 'administradora' es acceso por rol, sin cobro.
+export type Suscripcion =
+  | { estado: 'activa'; proximoCobro: string }
+  | { estado: 'administradora' }
 
 // Solo para el panel de admin: incluye borradores y todos sus contenidos.
 export type TemaAdmin = Tema & { contenidos: Contenido[] }

@@ -6,9 +6,9 @@ import Sello from '../base/Sello'
 import Tarjeta from '../base/Tarjeta'
 import ConfirmarBaja from './ConfirmarBaja'
 
-type Props = { suscripcion: Suscripcion | null; esAdmin: boolean }
+type Props = { suscripcion: Suscripcion | null }
 
-export default function EstadoSuscripcion({ suscripcion, esAdmin }: Props) {
+export default function EstadoSuscripcion({ suscripcion }: Props) {
   const [confirmando, setConfirmando] = useState(false)
   const botonBaja = useRef<HTMLButtonElement>(null)
 
@@ -18,7 +18,7 @@ export default function EstadoSuscripcion({ suscripcion, esAdmin }: Props) {
     botonBaja.current?.focus()
   }
 
-  if (esAdmin) {
+  if (suscripcion?.estado === 'administradora') {
     return (
       <Tarjeta className="p-6">
         <h2 className="mb-2 text-xl font-normal">Acceso de administradora</h2>

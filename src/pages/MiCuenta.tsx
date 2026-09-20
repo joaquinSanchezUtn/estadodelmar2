@@ -19,7 +19,7 @@ export default function MiCuenta() {
       {cargando ? (
         <Esqueleto className="h-44" />
       ) : (
-        <EstadoSuscripcion suscripcion={suscripcion} esAdmin={rol === 'admin'} />
+        <EstadoSuscripcion suscripcion={suscripcion} />
       )}
     </Seccion>
   )

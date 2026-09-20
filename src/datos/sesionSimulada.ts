@@ -12,7 +12,14 @@ export const fijarRolSimulado = (nuevo: Rol) => {
 }
 
 // Equivale a tiene_acceso() en la base: suscripción activa, o admin.
-export const accesoSimulado = (r: Rol) => r === 'suscriptora' || r === 'admin'
+// Es exhaustivo a propósito: al sumar un rol, el compilador obliga a decidir si tiene acceso.
+const conAcceso: Record<Rol, boolean> = {
+  visitante: false,
+  registrada: false,
+  suscriptora: true,
+  admin: true,
+}
+export const accesoSimulado = (r: Rol) => conAcceso[r]
 
 const usuarios: Record<Rol, Usuario | null> = {
   visitante: null,

@@ -43,7 +43,9 @@ export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
 // Estado de la suscripción de la sesión actual, o null si no tiene una.
 export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
   await esperar()
-  if (rolSimulado() !== 'suscriptora') return null
+  const rol = rolSimulado()
+  if (rol === 'admin') return { estado: 'administradora' }
+  if (rol !== 'suscriptora') return null
   const cobro = new Date()
   cobro.setDate(cobro.getDate() + 16)
   const dos = (n: number) => String(n).padStart(2, '0')
@@ -52,7 +54,9 @@ export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
 }
 
 // Panel de admin: todos los temas, borradores incluidos, con sus contenidos.
-// Sin ser admin no devuelve nada, como haría RLS.
+// Ojo: acá devuelve [] si no es admin, pero un select plano contra la base NO haría
+// eso (RLS le devuelve a cualquiera los temas publicados). El reemplazo tiene que ser
+// una función de la base que verifique es_admin() en el servidor.
 export async function listarTemasAdmin(): Promise<TemaAdmin[]> {
   await esperar()
   if (rolSimulado() !== 'admin') return []
