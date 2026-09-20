@@ -7,27 +7,42 @@
 //
 // Al pasar a Supabase: pedir columnas explícitas (nunca select('*')) para no
 // traer al navegador nada que deba resolverse en el servidor.
-import { contenidos, estados, temas } from './mock'
 import { accesoSimulado, rolSimulado } from './sesionSimulada'
 import type { EstadoMar, Suscripcion, Tema, TemaAdmin, TemaVisible } from './tipos'
+
+type DatosDePrueba = Pick<typeof import('./mock'), 'estados' | 'temas' | 'contenidos'>
+const sinDatos: DatosDePrueba = { estados: [], temas: [], contenidos: [] }
+
+// Los datos de prueba solo existen en desarrollo o si se compila con
+// VITE_DATOS_DE_PRUEBA=true (una demo, a propósito). En cualquier otro build el
+// archivo mock ni se emite, así que sus textos no viajan al navegador.
+async function cargarPrueba(): Promise<DatosDePrueba> {
+  if (import.meta.env.DEV || import.meta.env.VITE_DATOS_DE_PRUEBA === 'true') {
+    return import('./mock')
+  }
+  return sinDatos
+}
 
 const RETARDO_MS = 150
 const esperar = () => new Promise<void>((resolver) => setTimeout(resolver, RETARDO_MS))
 
 export async function listarEstados(): Promise<EstadoMar[]> {
   await esperar()
+  const { estados } = await cargarPrueba()
   return [...estados]
 }
 
 // Catálogo público: solo temas publicados, con título, slug, estado y descripción.
 export async function listarTemas(): Promise<Tema[]> {
   await esperar()
+  const { temas } = await cargarPrueba()
   return temas.filter((t) => t.publicado).sort((a, b) => a.orden - b.orden)
 }
 
 // El tema, con sus contenidos si hay acceso; o null si no existe o no es visible.
 export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
   await esperar()
+  const { temas, contenidos } = await cargarPrueba()
   const rol = rolSimulado()
   const tema = temas.find((t) => t.slug === slug)
   if (!tema || (!tema.publicado && rol !== 'admin')) return null
@@ -60,6 +75,7 @@ export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
 export async function listarTemasAdmin(): Promise<TemaAdmin[]> {
   await esperar()
   if (rolSimulado() !== 'admin') return []
+  const { temas, contenidos } = await cargarPrueba()
   return temas
     .map((t) => ({
       ...t,

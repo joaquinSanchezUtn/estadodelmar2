@@ -52,7 +52,9 @@ export default function Ventanas({ temas, estados, activo }: Props) {
             <span className="font-titulo text-lg text-mar-tintaSuave">Se van sumando</span>
             <span className="text-sm leading-relaxed text-mar-tintaSuave">
               {vacio
-                ? 'Todavía no hay ventanas en este estado.'
+                ? activo
+                  ? 'Todavía no hay ventanas en este estado.'
+                  : 'Todavía no hay ventanas publicadas.'
                 : 'Nuevas ventanas se suman con el tiempo.'}
             </span>
           </li>
