@@ -27,11 +27,12 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   // contra ese estado de carga.
   useEffect(() => setCargando(false), [])
 
-  // Sin acceso, no queda nada premium en el caché de datos.
-  const tieneAcceso = accesoSimulado(rol)
+  // Cada cambio de sesión (cierre, otro rol, otro usuario) invalida lo cargado: no solo al
+  // perder acceso. Un pedido en vuelo hecho con la sesión anterior tampoco puede volver a
+  // llenar el caché.
   useEffect(() => {
-    if (!tieneAcceso) vaciarCache()
-  }, [tieneAcceso])
+    vaciarCache()
+  }, [rol])
 
   const valor = useMemo<SesionConSetter>(
     () => ({

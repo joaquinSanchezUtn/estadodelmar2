@@ -8,7 +8,7 @@ import { useCarga } from '../lib/useCarga'
 
 export default function MiCuenta() {
   const { usuario, rol } = useSesion()
-  const { datos: suscripcion, cargando } = useCarga(`suscripcion:${rol}`, obtenerSuscripcion)
+  const { datos: suscripcion, cargando } = useCarga(`suscripcion:${usuario?.email ?? 'anonimo'}:${rol}`, obtenerSuscripcion)
 
   if (!usuario) return null // la ruta ya redirige a quien no tiene sesión
 

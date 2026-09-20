@@ -10,8 +10,8 @@ import { useCarga } from '../lib/useCarga'
 export default function Home() {
 
   const [params] = useSearchParams()
-  const { datos: estados } = useCarga('estados', listarEstados)
-  const { datos: temas } = useCarga('temas', listarTemas)
+  const { datos: estados } = useCarga('estados', listarEstados, true)
+  const { datos: temas } = useCarga('temas', listarTemas, true)
 
   // El filtro vive en la URL (?estado=agitado): se puede compartir y anda el "atrás".
   const activo = estados?.find((e) => e.id === params.get('estado')) ?? null

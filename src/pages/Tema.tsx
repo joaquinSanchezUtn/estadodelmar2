@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSesion } from '../auth/SesionContext'
 import Burbuja from '../componentes/base/Burbuja'
@@ -9,17 +10,23 @@ import { useCarga } from '../lib/useCarga'
 
 export default function Tema() {
   const { slug = '' } = useParams()
-  const { rol } = useSesion()
+  const { rol, accesoActivo } = useSesion()
 
-  // El rol solo entra en la clave para volver a pedir el tema cuando cambia la sesión.
-  // Qué se muestra lo decide lo que devuelve obtenerTema, no la sesión.
-  const { datos, anteriores } = useCarga(`tema:${slug}:${rol}`, async () => {
+  // La sesión solo entra en la clave para volver a pedir el tema cuando cambia (lo que decide
+  // el acceso es accesoActivo, no el nombre del rol). Qué se muestra lo decide lo que
+  // devuelve obtenerTema, no la sesión.
+  const { datos } = useCarga(`tema:${slug}:${rol}:${accesoActivo}`, async () => {
     const [tema, estados] = await Promise.all([obtenerTema(slug), listarEstados()])
     return { slug, tema, estados }
   })
-  // Al cambiar el rol se conserva lo último visto de esta ventana mientras llega lo nuevo:
-  // así el vidrio se despeja en su lugar en vez de vaciarse la pantalla.
-  const vista = datos ?? (anteriores?.slug === slug ? anteriores : null)
+
+  // Al ganar acceso se conserva la vista bloqueada mientras llega la nueva: así el vidrio se
+  // despeja en su lugar en vez de vaciarse la pantalla. Solo se recuerda lo BLOQUEADO (público):
+  // nunca lo premium, que al perder el acceso tiene que salir del DOM en el mismo instante.
+  const ultimoBloqueado = useRef<typeof datos>(null)
+  if (datos?.tema?.acceso === 'bloqueado') ultimoBloqueado.current = datos
+  const previo = ultimoBloqueado.current?.slug === slug ? ultimoBloqueado.current : null
+  const vista = datos ?? previo
 
   if (vista && !vista.tema) {
     return (

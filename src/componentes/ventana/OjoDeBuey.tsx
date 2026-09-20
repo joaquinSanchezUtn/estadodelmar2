@@ -46,7 +46,7 @@ export default function OjoDeBuey({ tema, estadoNombre, bloqueada }: Props) {
           className="absolute inset-0 border border-mar-bordeAgua bg-mar-blanco shadow-burbuja"
         />
         <span className="absolute inset-0 overflow-hidden" style={forma}>
-          {bloqueada ? <VidrioEsmerilado>{agua}</VidrioEsmerilado> : agua}
+          {bloqueada ? <VidrioEsmerilado estado={tema.estadoMar} /> : agua}
         </span>
         {/* Borde que se aclara al enfocar. */}
         <motion.span

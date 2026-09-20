@@ -1,7 +1,6 @@
 import { motion } from 'motion/react'
 import type { EstadoMarId, Pieza, TipoContenido } from '../../datos/tipos'
 import { minutos } from '../../lib/formato'
-import DibujoEstado from '../objetos/DibujoEstado'
 import VidrioEsmerilado from '../ventana/VidrioEsmerilado'
 
 const nombres: Record<TipoContenido, string> = {
@@ -23,9 +22,7 @@ export default function PiezaBloqueada({ pieza, estado }: Props) {
       className="flex items-center gap-4 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-4"
     >
       <span className="relative block h-16 w-24 shrink-0 overflow-hidden rounded-2xl bg-mar-espuma">
-        <VidrioEsmerilado>
-          <DibujoEstado estado={estado} className="text-mar-agua" />
-        </VidrioEsmerilado>
+        <VidrioEsmerilado estado={estado} />
       </span>
       <span className="flex flex-1 flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between">
         <span className="font-titulo text-lg">{nombres[pieza.tipo]}</span>

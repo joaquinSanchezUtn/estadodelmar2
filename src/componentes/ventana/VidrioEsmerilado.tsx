@@ -1,19 +1,23 @@
 import { motion } from 'motion/react'
-import type { ReactNode } from 'react'
 import { transicion } from '../../animaciones/movimiento'
+import type { EstadoMarId } from '../../datos/tipos'
+import DibujoEstado from '../objetos/DibujoEstado'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ATENCIÓN — SEGURIDAD. NO "MEJORAR" ESTE COMPONENTE.
 //
 // Lo que se ve borroso acá es SIEMPRE un dibujo decorativo (el agua de la ventana), nunca
 // contenido premium real. Jamás se debe poner texto, video, descripción o cualquier dato de
-// pago dentro de `children` con un filtro de blur encima: ese dato viajaría igual al
-// navegador, y se lee quitando una línea de CSS desde la consola.
+// pago con un filtro de blur encima: ese dato viajaría igual al navegador, y se lee quitando
+// una línea de CSS desde la consola.
 //
 // El contenido premium NO EXISTE en el HTML hasta que corresponde (la base no lo entrega sin
 // suscripción activa). El desenfoque es un efecto estético; la protección la da que el dato
-// no esté. Si alguien quiere mostrar "una vista previa difuminada" del contenido real, la
-// respuesta es no: se dibuja un sustituto decorativo, como hace este componente.
+// no esté.
+//
+// Por eso este componente NO acepta `children`: dibuja él mismo el sustituto decorativo a
+// partir del estado del mar. Así no hay forma de pasarle contenido real, ni por error. Si
+// alguien quiere una "vista previa difuminada" del contenido real, la respuesta es no.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Reposo y enfoque llegan del padre (variantes 'reposo' / 'enfocar'); en la vista bloqueada
@@ -29,11 +33,11 @@ const escarcha = {
   salida: { opacity: 0, transition: transicion.media },
 }
 
-export default function VidrioEsmerilado({ children }: { children: ReactNode }) {
+export default function VidrioEsmerilado({ estado }: { estado: EstadoMarId | null }) {
   return (
     <>
       <motion.div variants={vidrio} className="absolute inset-0">
-        {children}
+        <DibujoEstado estado={estado} className="text-mar-agua" />
       </motion.div>
       <motion.span variants={escarcha} aria-hidden="true" className="absolute inset-0 bg-mar-blanco/20" />
     </>
