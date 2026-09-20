@@ -1,10 +1,11 @@
 // SOLO DESARROLLO — se borra cuando entra Supabase Auth.
-// Cambia entre los tres roles simulados para revisar cada pantalla sin backend.
+// Cambia entre los roles simulados para revisar cada pantalla sin backend.
 import type { Rol } from '../datos/tipos'
 import { useSesionDev } from './SesionContext'
 
 const siguiente: Record<Rol, Rol> = {
-  visitante: 'suscriptora',
+  visitante: 'registrada',
+  registrada: 'suscriptora',
   suscriptora: 'admin',
   admin: 'visitante',
 }

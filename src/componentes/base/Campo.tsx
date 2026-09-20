@@ -23,7 +23,7 @@ export default function Campo({ etiqueta, ayuda, error, className, ...nativos }:
         aria-describedby={[ayuda && idAyuda, error && idError].filter(Boolean).join(' ') || undefined}
         className={
           'min-h-[48px] rounded-xl border bg-mar-blanco px-4 text-base text-mar-tinta placeholder:text-mar-tintaSuave ' +
-          (error ? 'border-mar-arenaOscura' : 'border-mar-bordeAgua') +
+          (error ? 'border-mar-coral' : 'border-mar-bordeAgua') +
           (className ? ` ${className}` : '')
         }
         {...nativos}
@@ -34,7 +34,7 @@ export default function Campo({ etiqueta, ayuda, error, className, ...nativos }:
         </p>
       )}
       {error && (
-        <p id={idError} className="text-sm text-mar-arenaOscura">
+        <p id={idError} className="text-sm text-mar-coral">
           {error}
         </p>
       )}

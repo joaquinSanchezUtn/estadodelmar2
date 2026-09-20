@@ -10,7 +10,7 @@ const incluye = [
 ]
 
 export default function PlanMensual() {
-  const { accesoActivo } = useSesion()
+  const { accesoActivo, usuario } = useSesion()
 
   return (
     <Seccion
@@ -48,7 +48,7 @@ export default function PlanMensual() {
             Ya tenés acceso · Mi cuenta
           </Boton>
         ) : (
-          <Boton to="/ingresar" className="w-full">
+          <Boton to={usuario ? '/mi-cuenta' : '/ingresar'} className="w-full">
             Suscribirme
           </Boton>
         )}

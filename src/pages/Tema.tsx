@@ -37,7 +37,7 @@ export default function Tema() {
 
   if (!tema) {
     return (
-      <Seccion fondo="marfil" angosta>
+      <Seccion fondo="nube" angosta>
         <EstadoVacio
           titulo="No encontramos esa ventana"
           texto="Puede que el enlace esté mal escrito o que la ventana ya no esté disponible."

@@ -56,6 +56,14 @@ export type Contenido = {
 export type TemaVisible = Tema &
   ({ acceso: 'abierto'; contenidos: Contenido[] } | { acceso: 'bloqueado' })
 
-export type Rol = 'visitante' | 'suscriptora' | 'admin'
+// 'registrada' es quien tiene cuenta pero no suscripción: en la base, role='user'
+// con suscripcion_activa=false. No tiene acceso al contenido premium.
+export type Rol = 'visitante' | 'registrada' | 'suscriptora' | 'admin'
 
 export type Usuario = { nombre: string; email: string }
+
+// Fecha en formato ISO (aaaa-mm-dd).
+export type Suscripcion = { estado: 'activa'; proximoCobro: string }
+
+// Solo para el panel de admin: incluye borradores y todos sus contenidos.
+export type TemaAdmin = Tema & { contenidos: Contenido[] }

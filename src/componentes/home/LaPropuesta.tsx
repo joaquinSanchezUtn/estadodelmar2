@@ -24,7 +24,7 @@ const piezas: { icono: ReactNode; titulo: string; texto: string }[] = [
 
 export default function LaPropuesta() {
   return (
-    <Seccion id="propuesta" fondo="marfil">
+    <Seccion id="propuesta" fondo="nube">
       <TituloSeccion
         titulo="Qué hay en cada ventana"
         texto="Tres piezas que se acompañan: primero se comprende, después se practica."
@@ -32,7 +32,7 @@ export default function LaPropuesta() {
       <ul className="grid gap-4 md:grid-cols-3 md:gap-5">
         {piezas.map((p) => (
           <li key={p.titulo}>
-            <Tarjeta tono="arena" className="h-full p-6">
+            <Tarjeta tono="cielo" className="h-full p-6">
               <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-mar-espuma text-mar-agua">
                 {p.icono}
               </span>

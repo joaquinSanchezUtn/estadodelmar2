@@ -1,9 +1,9 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import type { Contenido } from '../../datos/tipos'
 import { minutos } from '../../lib/formato'
+import AreaTexto from '../base/AreaTexto'
 
 export default function EjercitacionContenido({ contenido }: { contenido: Contenido }) {
-  const id = useId()
   // Las notas viven solo en esta pantalla: guardar historial está fuera de alcance.
   const [notas, setNotas] = useState('')
 
@@ -16,21 +16,14 @@ export default function EjercitacionContenido({ contenido }: { contenido: Conten
       {contenido.cuerpo && (
         <p className="mb-5 text-base leading-relaxed text-mar-tinta">{contenido.cuerpo}</p>
       )}
-      <label htmlFor={id} className="mb-1.5 block text-[15px] font-medium text-mar-tinta">
-        Tus notas
-      </label>
-      <textarea
-        id={id}
+      <AreaTexto
+        etiqueta="Tus notas"
+        ayuda="Tus notas quedan solo en esta pantalla."
         value={notas}
         onChange={(e) => setNotas(e.target.value)}
         rows={4}
-        aria-describedby={`${id}-ayuda`}
-        className="w-full resize-y rounded-xl border border-mar-bordeAgua bg-mar-marfil p-3 text-base text-mar-tinta placeholder:text-mar-tintaSuave"
         placeholder="Escribí acá lo que vayas notando…"
       />
-      <p id={`${id}-ayuda`} className="mt-1.5 text-sm text-mar-tintaSuave">
-        Tus notas quedan solo en esta pantalla.
-      </p>
     </div>
   )
 }

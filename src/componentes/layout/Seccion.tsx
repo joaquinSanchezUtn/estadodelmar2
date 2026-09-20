@@ -2,10 +2,10 @@ import clsx from 'clsx'
 import type { ReactNode } from 'react'
 
 const fondos = {
-  degrade: 'bg-gradient-to-b from-mar-marfil to-mar-aguaClara',
-  marfil: 'bg-mar-marfil',
+  degrade: 'bg-gradient-to-b from-mar-nube to-mar-aguaClara',
+  nube: 'bg-mar-nube',
   agua: 'bg-mar-aguaClara',
-  arena: 'bg-mar-arenaClara',
+  cielo: 'bg-mar-cielo',
   espuma: 'bg-mar-espuma',
 }
 

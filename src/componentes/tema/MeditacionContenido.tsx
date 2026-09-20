@@ -9,7 +9,7 @@ export default function MeditacionContenido({ contenido }: { contenido: Contenid
       <button
         type="button"
         aria-label={`Reproducir meditación: ${contenido.titulo}`}
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mar-arena text-[#2A3E45] transition hover:brightness-95"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mar-celeste text-mar-tintaBoton transition hover:brightness-95"
       >
         <Play className="h-5 w-5" />
       </button>

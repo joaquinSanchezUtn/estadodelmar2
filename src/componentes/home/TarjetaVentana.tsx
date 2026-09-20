@@ -8,7 +8,7 @@ export default function TarjetaVentana({ tema, estadoNombre, bloqueada }: Props)
   return (
     <Link
       to={`/tema/${tema.slug}`}
-      className="flex h-full flex-col gap-2.5 rounded-xl border border-mar-bordeArena bg-mar-blanco p-5 text-mar-tinta no-underline transition hover:border-mar-arena"
+      className="flex h-full flex-col gap-2.5 rounded-xl border border-mar-bordeCielo bg-mar-blanco p-5 text-mar-tinta no-underline transition hover:border-mar-celeste"
     >
       <span className="flex min-h-[16px] items-center justify-between text-xs uppercase tracking-widest text-mar-tintaSuave">
         {estadoNombre}

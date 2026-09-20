@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 const tonos = {
   agua: 'border-mar-bordeAgua',
-  arena: 'border-mar-bordeArena',
+  cielo: 'border-mar-bordeCielo',
 }
 
 type Props = { tono?: keyof typeof tonos; className?: string; children: ReactNode }

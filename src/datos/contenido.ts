@@ -9,7 +9,7 @@
 // traer al navegador nada que deba resolverse en el servidor.
 import { contenidos, estados, temas } from './mock'
 import { accesoSimulado, rolSimulado } from './sesionSimulada'
-import type { EstadoMar, Tema, TemaVisible } from './tipos'
+import type { EstadoMar, Suscripcion, Tema, TemaAdmin, TemaVisible } from './tipos'
 
 const RETARDO_MS = 150
 const esperar = () => new Promise<void>((resolver) => setTimeout(resolver, RETARDO_MS))
@@ -38,4 +38,28 @@ export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
     .filter((c) => c.temaId === tema.id && (c.publicado || rol === 'admin'))
     .sort((a, b) => a.orden - b.orden)
   return { ...tema, acceso: 'abierto', contenidos: propios }
+}
+
+// Estado de la suscripción de la sesión actual, o null si no tiene una.
+export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
+  await esperar()
+  if (rolSimulado() !== 'suscriptora') return null
+  const cobro = new Date()
+  cobro.setDate(cobro.getDate() + 16)
+  const dos = (n: number) => String(n).padStart(2, '0')
+  const iso = `${cobro.getFullYear()}-${dos(cobro.getMonth() + 1)}-${dos(cobro.getDate())}`
+  return { estado: 'activa', proximoCobro: iso }
+}
+
+// Panel de admin: todos los temas, borradores incluidos, con sus contenidos.
+// Sin ser admin no devuelve nada, como haría RLS.
+export async function listarTemasAdmin(): Promise<TemaAdmin[]> {
+  await esperar()
+  if (rolSimulado() !== 'admin') return []
+  return temas
+    .map((t) => ({
+      ...t,
+      contenidos: contenidos.filter((c) => c.temaId === t.id).sort((a, b) => a.orden - b.orden),
+    }))
+    .sort((a, b) => a.orden - b.orden)
 }

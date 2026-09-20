@@ -5,20 +5,21 @@ export default {
     extend: {
       colors: {
         mar: {
-          marfil: '#FBFAF6', // fondo general
-          arenaClara: '#F6F1E8', // sección cálida
-          aguaClara: '#F1F5F4', // sección fría
-          espuma: '#EEF4F3', // bloque destacado frío
+          nube: '#F6FAFD', // fondo general
+          aguaClara: '#EEF6FB', // sección fría, muy clara
+          cielo: '#E3F0F8', // sección celeste
+          espuma: '#D9ECF7', // bloque destacado
           blanco: '#FFFFFF', // tarjetas
-          bordeArena: '#E3DFD3',
-          bordeAgua: '#DCE7E4',
-          tinta: '#2C444D', // texto principal
-          tintaSuave: '#556E77', // texto secundario
-          tintaTenue: '#6B8188', // pies, metadatos (solo desde 14px)
-          arena: '#D9A461', // botón primario (texto #2A3E45)
-          arenaOscura: '#A8703A', // texto sobre claro
-          agua: '#3B7B72', // enlaces y acentos
-          aguaSuave: '#8FBDB4', // bordes de cita, íconos
+          bordeCielo: '#CFE1EE',
+          bordeAgua: '#C6DDEB',
+          tinta: '#1E3A4C', // texto principal
+          tintaSuave: '#4A6478', // texto secundario
+          tintaTenue: '#5F7788', // pies, metadatos (solo desde 14px)
+          celeste: '#72B7E0', // botón primario (texto tintaBoton)
+          tintaBoton: '#143247', // texto sobre el botón primario
+          coral: '#B0523A', // errores y avisos, texto sobre claro
+          agua: '#2A6A96', // enlaces y acentos
+          aguaSuave: '#9CCBE6', // bordes de cita, íconos
         },
       },
       fontFamily: {

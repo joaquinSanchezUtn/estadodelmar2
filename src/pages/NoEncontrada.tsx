@@ -3,7 +3,7 @@ import Seccion from '../componentes/layout/Seccion'
 
 export default function NoEncontrada() {
   return (
-    <Seccion fondo="marfil" angosta className="min-h-[50vh]">
+    <Seccion fondo="nube" angosta className="min-h-[50vh]">
       <EstadoVacio
         titulo="Esta página no existe"
         texto="Puede que el enlace esté mal escrito o que la página se haya movido."

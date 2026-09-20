@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
-import AdminRoute from './auth/AdminRoute'
-import ProtectedRoute from './auth/ProtectedRoute'
+import RutaDeAdmin from './auth/RutaDeAdmin'
+import RutaConSesion from './auth/RutaConSesion'
 import Layout from './componentes/layout/Layout'
 import Admin from './pages/Admin'
 import Home from './pages/Home'
@@ -16,10 +16,10 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/tema/:slug" element={<Tema />} />
         <Route path="/ingresar" element={<Ingresar />} />
-        <Route element={<ProtectedRoute />}>
+        <Route element={<RutaConSesion />}>
           <Route path="/mi-cuenta" element={<MiCuenta />} />
         </Route>
-        <Route element={<AdminRoute />}>
+        <Route element={<RutaDeAdmin />}>
           <Route path="/admin" element={<Admin />} />
         </Route>
         <Route path="*" element={<NoEncontrada />} />

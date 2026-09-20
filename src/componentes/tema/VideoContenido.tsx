@@ -11,7 +11,7 @@ export default function VideoContenido({ contenido }: { contenido: Contenido }) 
         <button
           type="button"
           aria-label={`Reproducir video: ${contenido.titulo}`}
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-mar-arena text-[#2A3E45] transition hover:brightness-95"
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-mar-celeste text-mar-tintaBoton transition hover:brightness-95"
         >
           <Play className="h-6 w-6" />
         </button>

@@ -16,6 +16,7 @@ export const accesoSimulado = (r: Rol) => r === 'suscriptora' || r === 'admin'
 
 const usuarios: Record<Rol, Usuario | null> = {
   visitante: null,
+  registrada: { nombre: 'Sofía Acosta', email: 'sofia@ejemplo.com' },
   suscriptora: { nombre: 'Lucía Benítez', email: 'lucia@ejemplo.com' },
   admin: { nombre: 'Mariana Ríos', email: 'mariana@ejemplo.com' },
 }

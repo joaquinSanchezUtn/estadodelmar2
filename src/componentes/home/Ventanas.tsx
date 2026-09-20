@@ -15,7 +15,7 @@ export default function Ventanas({ temas, estados, activo }: Props) {
   const nombreDe = (t: Tema) => estados?.find((e) => e.id === t.estadoMar)?.nombre
 
   return (
-    <Seccion id="ventanas" fondo="arena">
+    <Seccion id="ventanas" fondo="cielo">
       <TituloSeccion
         titulo="Las ventanas"
         texto="Cada ventana reúne un video psicoeducativo, una meditación y una ejercitación para poner en práctica. Los títulos los ve cualquiera; el contenido es para suscriptoras."
@@ -48,7 +48,7 @@ export default function Ventanas({ temas, estados, activo }: Props) {
               </li>
             ))}
         {visibles && (!activo || vacio) && (
-          <li className="flex flex-col justify-center gap-1.5 rounded-xl border border-dashed border-mar-bordeArena bg-mar-marfil/60 p-5">
+          <li className="flex flex-col justify-center gap-1.5 rounded-xl border border-dashed border-mar-bordeCielo bg-mar-nube/60 p-5">
             <span className="font-titulo text-lg text-mar-tintaSuave">Se van sumando</span>
             <span className="text-sm leading-relaxed text-mar-tintaSuave">
               {vacio

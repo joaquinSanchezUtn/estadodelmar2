@@ -56,9 +56,9 @@ export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Menú principal"
-      className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-mar-marfil md:hidden"
+      className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-mar-nube md:hidden"
     >
-      <div className="flex items-center justify-between border-b border-mar-bordeArena px-5 py-2">
+      <div className="flex items-center justify-between border-b border-mar-bordeCielo px-5 py-2">
         <Link to="/" onClick={onCerrar} className="inline-flex min-h-[44px] items-center font-titulo text-lg text-mar-tinta no-underline">
           Estado del mar
         </Link>
@@ -78,7 +78,7 @@ export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
             key={e.to}
             to={e.to}
             onClick={onCerrar}
-            className="border-b border-mar-bordeArena py-4 font-titulo text-2xl text-mar-tinta no-underline"
+            className="border-b border-mar-bordeCielo py-4 font-titulo text-2xl text-mar-tinta no-underline"
           >
             {e.texto}
           </Link>

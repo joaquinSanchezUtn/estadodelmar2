@@ -14,6 +14,9 @@ const cuenta: Enlace = { to: '/mi-cuenta', texto: 'Mi cuenta' }
 function opcionesPara(rol: Rol): { enlaces: Enlace[]; cta?: Enlace } {
   if (rol === 'admin') return { enlaces: [ventanas, cuenta, { to: '/admin', texto: 'Administrar' }] }
   if (rol === 'suscriptora') return { enlaces: [ventanas, cuenta] }
+  if (rol === 'registrada') {
+    return { enlaces: [ventanas, cuenta], cta: { to: '/#suscripcion', texto: 'Suscribirme' } }
+  }
   return {
     enlaces: [
       ventanas,
@@ -35,7 +38,7 @@ export default function Encabezado() {
   useEffect(cerrar, [key, cerrar]) // al navegar, el panel se cierra
 
   return (
-    <header className="border-b border-mar-bordeArena bg-mar-marfil">
+    <header className="border-b border-mar-bordeCielo bg-mar-nube">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2 md:px-8 md:py-4 lg:px-16">
         <Link to="/" className="inline-flex min-h-[44px] items-center font-titulo text-lg text-mar-tinta no-underline md:text-[21px]">
           Estado del mar

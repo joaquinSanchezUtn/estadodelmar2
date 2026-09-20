@@ -1,3 +1,4 @@
+import { useSesion } from '../../auth/SesionContext'
 import type { Pieza, TipoContenido } from '../../datos/tipos'
 import { minutos } from '../../lib/formato'
 import Boton from '../base/Boton'
@@ -12,6 +13,8 @@ const nombres: Record<TipoContenido, string> = {
 // Vista sin acceso. Solo usa lo público de cada pieza (tipo y duración): los
 // títulos y el contenido son premium y no llegan al navegador.
 export default function ContenidoBloqueado({ piezas }: { piezas: Pieza[] }) {
+  const { usuario } = useSesion() // solo para no ofrecer "ya tengo cuenta" a quien ya la tiene
+
   return (
     <div className="flex flex-col gap-3.5">
       <ul className="flex flex-col gap-3.5">
@@ -29,16 +32,18 @@ export default function ContenidoBloqueado({ piezas }: { piezas: Pieza[] }) {
         ))}
       </ul>
 
-      <div className="mt-2 rounded-2xl border border-mar-bordeArena bg-mar-arenaClara p-6 text-center md:p-8">
+      <div className="mt-2 rounded-2xl border border-mar-bordeCielo bg-mar-cielo p-6 text-center md:p-8">
         <h2 className="mb-2 text-[22px] font-normal">Esta ventana es para suscriptoras</h2>
         <p className="mx-auto mb-5 max-w-md text-base leading-relaxed text-mar-tintaSuave">
           Con un solo plan accedés a todas las ventanas y a las que se vayan sumando.
         </p>
         <div className="mx-auto flex max-w-xs flex-col gap-2">
           <Boton to="/#suscripcion">Suscribirme</Boton>
-          <Boton to="/ingresar" variante="fantasma">
-            Ya tengo cuenta
-          </Boton>
+          {!usuario && (
+            <Boton to="/ingresar" variante="fantasma">
+              Ya tengo cuenta
+            </Boton>
+          )}
         </div>
       </div>
     </div>
