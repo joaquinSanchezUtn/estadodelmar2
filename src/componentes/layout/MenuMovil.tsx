@@ -1,5 +1,7 @@
+import { motion } from 'motion/react'
 import { useEffect, useRef, type RefObject } from 'react'
 import { Link } from 'react-router-dom'
+import { abrirPanel, fundido } from '../../animaciones/movimiento'
 import Boton from '../base/Boton'
 import { Cerrar } from '../base/iconos'
 
@@ -13,8 +15,9 @@ type Props = {
   retorno: RefObject<HTMLElement | null>
 }
 
-// Panel a pantalla completa. Se cierra con Escape, con la X y al navegar.
-// Mantiene el foco adentro mientras está abierto y lo devuelve al cerrar.
+// Panel a pantalla completa que entra con el resorte suave; sus enlaces entran en cascada.
+// Se cierra con Escape, con la X y al navegar. Mantiene el foco adentro mientras está
+// abierto y lo devuelve al cerrar.
 export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
   const panel = useRef<HTMLDivElement>(null)
 
@@ -51,11 +54,15 @@ export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
   }, [onCerrar, retorno])
 
   return (
-    <div
+    <motion.div
       ref={panel}
       role="dialog"
       aria-modal="true"
       aria-label="Menú principal"
+      variants={abrirPanel}
+      initial="cerrado"
+      animate="abierto"
+      exit="cerrado"
       className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-mar-nube md:hidden"
     >
       <div className="flex items-center justify-between border-b border-mar-bordeCielo px-5 py-2">
@@ -74,21 +81,24 @@ export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
 
       <nav aria-label="Principal" className="flex flex-col px-6 py-4">
         {enlaces.map((e) => (
-          <Link
-            key={e.to}
-            to={e.to}
-            onClick={onCerrar}
-            className="border-b border-mar-bordeCielo py-4 font-titulo text-2xl text-mar-tinta no-underline"
-          >
-            {e.texto}
-          </Link>
+          <motion.div key={e.to} variants={fundido}>
+            <Link
+              to={e.to}
+              onClick={onCerrar}
+              className="block border-b border-mar-bordeCielo py-4 font-titulo text-2xl text-mar-tinta no-underline"
+            >
+              {e.texto}
+            </Link>
+          </motion.div>
         ))}
         {cta && (
-          <Boton to={cta.to} onClick={onCerrar} className="mt-6 w-full">
-            {cta.texto}
-          </Boton>
+          <motion.div variants={fundido} className="mt-6">
+            <Boton to={cta.to} onClick={onCerrar} className="w-full">
+              {cta.texto}
+            </Boton>
+          </motion.div>
         )}
       </nav>
-    </div>
+    </motion.div>
   )
 }

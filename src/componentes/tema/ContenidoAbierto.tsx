@@ -12,7 +12,7 @@ export default function ContenidoAbierto({ contenidos }: { contenidos: Contenido
 
   if (contenidos.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-base text-mar-tintaSuave">
+      <p className="rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-base text-mar-tintaSuave">
         Esta ventana todavía no tiene contenido publicado.
       </p>
     )

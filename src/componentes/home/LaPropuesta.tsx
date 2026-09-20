@@ -1,8 +1,10 @@
+import { motion } from 'motion/react'
 import type { ReactNode } from 'react'
+import { cascada, emerger, viewportUnaVez } from '../../animaciones/movimiento'
+import Burbuja from '../base/Burbuja'
 import Tarjeta from '../base/Tarjeta'
 import { Lapiz, Ondas, Play } from '../base/iconos'
-import Seccion from '../layout/Seccion'
-import TituloSeccion from '../layout/TituloSeccion'
+import TituloBurbuja from './TituloBurbuja'
 
 const piezas: { icono: ReactNode; titulo: string; texto: string }[] = [
   {
@@ -24,24 +26,30 @@ const piezas: { icono: ReactNode; titulo: string; texto: string }[] = [
 
 export default function LaPropuesta() {
   return (
-    <Seccion id="propuesta" fondo="nube">
-      <TituloSeccion
+    <Burbuja id="propuesta" tono="blanco">
+      <TituloBurbuja
         titulo="Qué hay en cada ventana"
         texto="Tres piezas que se acompañan: primero se comprende, después se practica."
       />
-      <ul className="grid gap-4 md:grid-cols-3 md:gap-5">
+      <motion.ul
+        variants={cascada(0.08)}
+        initial="oculto"
+        whileInView="visible"
+        viewport={viewportUnaVez}
+        className="grid gap-4 md:grid-cols-3 md:gap-5"
+      >
         {piezas.map((p) => (
-          <li key={p.titulo}>
-            <Tarjeta tono="cielo" className="h-full p-6">
+          <motion.li key={p.titulo} variants={emerger}>
+            <Tarjeta tono="aguaClara" className="h-full p-6">
               <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-mar-espuma text-mar-agua">
                 {p.icono}
               </span>
               <h3 className="mb-2 text-xl font-normal">{p.titulo}</h3>
               <p className="text-base leading-relaxed text-mar-tintaSuave">{p.texto}</p>
             </Tarjeta>
-          </li>
+          </motion.li>
         ))}
-      </ul>
-    </Seccion>
+      </motion.ul>
+    </Burbuja>
   )
 }

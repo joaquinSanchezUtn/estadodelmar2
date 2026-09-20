@@ -1,18 +1,17 @@
-import { Outlet } from 'react-router-dom'
 import ConmutadorDev from '../../auth/ConmutadorDev'
-import { useScrollAlNavegar } from '../../lib/useScrollAlNavegar'
+import Manchas from '../objetos/Manchas'
 import Encabezado from './Encabezado'
+import PaginasAnimadas from './PaginasAnimadas'
 import PieDePagina from './PieDePagina'
 
+// overflow-x-clip (y no hidden) recorta lo que se sale sin volver este contenedor un
+// scroll: el encabezado sigue pegado arriba. overflow-anchor: none, ver PaginasAnimadas.
 export default function Layout() {
-  useScrollAlNavegar()
-
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col overflow-x-clip bg-mar-nube [overflow-anchor:none]">
+      <Manchas cantidad={2} />
       <Encabezado />
-      <main className="flex-1">
-        <Outlet />
-      </main>
+      <PaginasAnimadas />
       <PieDePagina />
       {import.meta.env.DEV && <ConmutadorDev />}
     </div>

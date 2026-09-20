@@ -9,10 +9,10 @@ import { useCarga } from '../lib/useCarga'
 
 export default function Admin() {
   const { rol } = useSesion()
-  const { datos, cargando } = useCarga(async () => {
+  const { datos, cargando } = useCarga(`admin:${rol}`, async () => {
     const [temas, estados] = await Promise.all([listarTemasAdmin(), listarEstados()])
     return { temas, estados }
-  }, [rol])
+  })
   const [elegido, setElegido] = useState<string | null>(null)
 
   // En celular la lista y el editor van apilados: al elegir, se baja al editor.

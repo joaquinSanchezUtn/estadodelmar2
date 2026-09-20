@@ -91,6 +91,13 @@ Los títulos de las ventanas son **públicos** (el menú lo ve cualquiera); el c
 - **Navegación en celular**: botón hamburguesa que abre un panel a pantalla completa, con cierre por Escape y por botón visible. A partir de `md:` los enlaces van en línea.
 - **El frontend se construye antes del backend**, con datos de prueba y sesión simulada. Todo el acceso a datos pasa por `src/datos/contenido.ts`, que después se reemplaza por consultas a Supabase sin tocar componentes.
 
+- **Burbujas y ojos de buey**: cada sección del sitio vive en una `Burbuja` (esquinas muy redondeadas, borde apenas visible, sombra difusa). Las ventanas son ojos de buey (`OjoDeBuey`): un `<a>` real con el dibujo de línea del estado del mar de adentro. Las de contenido pago se ven a través de un vidrio esmerilado (`VidrioEsmerilado`).
+- **El vidrio esmerilado solo desenfoca un dibujo decorativo, nunca contenido premium real.** Poner texto, video o descripción de pago detrás de un blur es una fuga: el dato viaja igual al navegador. El contenido premium no existe en el HTML hasta que corresponde. Ver el comentario del componente.
+- **Movimiento**: Motion (`motion/react`), y todo sale de `src/animaciones/movimiento.ts` (una curva, tres duraciones, variantes con nombre). Solo se anima `transform`, `opacity` y `filter`. Con `prefers-reduced-motion` no queda ningún bucle y la ventana no vuela (solo fundido). Los bucles infinitos y las decoraciones grandes no se cargan en celular.
+- **La ventana que se abre** (la burbuja crece hasta ser la cabecera del tema): `layoutId` compartido en `src/componentes/layout/PaginasAnimadas.tsx`. Es frágil y está verificado en Chrome real (ida, vuelta, interrupción, entrada directa, producción). Antes de tocarlo, releer los comentarios de ese archivo. Lo que costó encontrar: `overflow-anchor: none` en el contenedor; no tocar el scroll durante la transición y aterrizar en un solo paso con `useInstantLayoutTransition`; memoizar el `LayoutGroup`; `popLayout` exige `ref` en el hijo directo; y no re-renderizar la pantalla a mitad de la transición.
+- **Trampas de Motion**: `AnimatePresence initial={false}` apaga las animaciones de montaje de todos los descendientes, y los bucles saltan al último fotograma. Dentro de `AnimatePresence` los hijos no reciben `whileInView` del padre: cada uno se dispara solo.
+- **Tailwind**: al cambiar `tailwind.config.js` hay que reiniciar el servidor de desarrollo; si no, sirve un CSS viejo (las clases nuevas no existen).
+
 ## Pendientes de decisión
 
 - El precio del plan mensual. En el prototipo y en el código figura como `[PRECIO]`, literal.

@@ -8,14 +8,12 @@ export default function EjercitacionContenido({ contenido }: { contenido: Conten
   const [notas, setNotas] = useState('')
 
   return (
-    <div className="rounded-[13px] border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
+    <div className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
       <p className="mb-1 text-xs uppercase tracking-[0.16em] text-mar-agua">
         Ejercitación · {minutos(contenido.duracionMin)}
       </p>
       <h2 className="mb-3 text-xl font-normal">{contenido.titulo}</h2>
-      {contenido.cuerpo && (
-        <p className="mb-5 text-base leading-relaxed text-mar-tinta">{contenido.cuerpo}</p>
-      )}
+      {contenido.cuerpo && <p className="mb-5 text-base leading-relaxed text-mar-tinta">{contenido.cuerpo}</p>}
       <AreaTexto
         etiqueta="Tus notas"
         ayuda="Tus notas quedan solo en esta pantalla."

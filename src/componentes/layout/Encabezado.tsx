@@ -1,6 +1,8 @@
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSesion } from '../../auth/SesionContext'
+import { transicion } from '../../animaciones/movimiento'
 import type { Rol } from '../../datos/tipos'
 import Boton from '../base/Boton'
 import { Menu } from '../base/iconos'
@@ -28,19 +30,34 @@ function opcionesPara(rol: Rol): { enlaces: Enlace[]; cta?: Enlace } {
 }
 
 export default function Encabezado() {
+
   const { rol } = useSesion()
   const { key } = useLocation()
   const [abierto, setAbierto] = useState(false)
+  const [elevado, setElevado] = useState(false)
   const botonMenu = useRef<HTMLButtonElement>(null)
   const cerrar = useCallback(() => setAbierto(false), [])
   const { enlaces, cta } = opcionesPara(rol)
 
+  // Al scrollear el encabezado gana fondo translúcido, desenfoque y una sombra mínima.
+  const { scrollY } = useScroll()
+  useMotionValueEvent(scrollY, 'change', (y) => setElevado(y > 8))
+
   useEffect(cerrar, [key, cerrar]) // al navegar, el panel se cierra
 
   return (
-    <header className="border-b border-mar-bordeCielo bg-mar-nube">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2 md:px-8 md:py-4 lg:px-16">
-        <Link to="/" className="inline-flex min-h-[44px] items-center font-titulo text-lg text-mar-tinta no-underline md:text-[21px]">
+    <header className="sticky top-0 z-40">
+      <motion.div
+        aria-hidden="true"
+        animate={{ opacity: elevado ? 1 : 0 }}
+        transition={transicion.media}
+        className="pointer-events-none absolute inset-0 border-b border-mar-bordeCielo bg-mar-nube/75 shadow-[0_1px_18px_-8px_rgba(30,58,76,0.2)] backdrop-blur-md"
+      />
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between px-5 py-2 md:px-8 md:py-4 lg:px-16">
+        <Link
+          to="/"
+          className="inline-flex min-h-[44px] items-center font-titulo text-lg text-mar-tinta no-underline md:text-[21px]"
+        >
           Estado del mar
         </Link>
 
@@ -74,7 +91,9 @@ export default function Encabezado() {
         </button>
       </div>
 
-      {abierto && <MenuMovil enlaces={enlaces} cta={cta} onCerrar={cerrar} retorno={botonMenu} />}
+      <AnimatePresence>
+        {abierto && <MenuMovil enlaces={enlaces} cta={cta} onCerrar={cerrar} retorno={botonMenu} />}
+      </AnimatePresence>
     </header>
   )
 }

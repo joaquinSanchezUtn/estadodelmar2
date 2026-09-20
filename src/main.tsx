@@ -1,3 +1,4 @@
+import { MotionConfig } from 'motion/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
@@ -9,7 +10,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <SesionProvider>
-        <App />
+        {/* reducedMotion="user": con prefers-reduced-motion se apagan transform y layout */}
+        <MotionConfig reducedMotion="user">
+          <App />
+        </MotionConfig>
       </SesionProvider>
     </BrowserRouter>
   </StrictMode>,

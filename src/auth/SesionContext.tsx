@@ -4,6 +4,7 @@
 // la base con RLS. En producción el rol es siempre 'visitante' y no hay setter.
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { accesoSimulado, fijarRolSimulado, usuarioSimulado } from '../datos/sesionSimulada'
+import { vaciarCache } from '../lib/useCarga'
 import type { Rol, Usuario } from '../datos/tipos'
 
 export type Sesion = {
@@ -25,6 +26,12 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   // La sesión real se resuelve de forma asíncrona: las pantallas ya se escriben
   // contra ese estado de carga.
   useEffect(() => setCargando(false), [])
+
+  // Sin acceso, no queda nada premium en el caché de datos.
+  const tieneAcceso = accesoSimulado(rol)
+  useEffect(() => {
+    if (!tieneAcceso) vaciarCache()
+  }, [tieneAcceso])
 
   const valor = useMemo<SesionConSetter>(
     () => ({

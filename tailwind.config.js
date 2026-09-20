@@ -22,6 +22,13 @@ export default {
           aguaSuave: '#9CCBE6', // bordes de cita, íconos
         },
       },
+      borderRadius: {
+        burbuja: '28px',
+        burbujaGrande: '40px',
+      },
+      boxShadow: {
+        burbuja: '0 2px 40px -12px rgba(30, 58, 76, 0.14)',
+      },
       fontFamily: {
         titulo: ['Fraunces', 'Georgia', 'serif'],
         sans: ['Karla', 'system-ui', 'sans-serif'],

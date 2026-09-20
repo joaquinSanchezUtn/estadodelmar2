@@ -1,38 +1,25 @@
 import { useSesion } from '../../auth/SesionContext'
-import type { Pieza, TipoContenido } from '../../datos/tipos'
-import { minutos } from '../../lib/formato'
+import type { EstadoMarId, Pieza } from '../../datos/tipos'
 import Boton from '../base/Boton'
-import Candado from '../base/Candado'
+import Burbuja from '../base/Burbuja'
+import PiezaBloqueada from './PiezaBloqueada'
 
-const nombres: Record<TipoContenido, string> = {
-  video: 'Video psicoeducativo',
-  meditacion: 'Meditación guiada',
-  ejercitacion: 'Ejercitación',
-}
+type Props = { piezas: Pieza[]; estado: EstadoMarId | null }
 
-// Vista sin acceso. Solo usa lo público de cada pieza (tipo y duración): los
-// títulos y el contenido son premium y no llegan al navegador.
-export default function ContenidoBloqueado({ piezas }: { piezas: Pieza[] }) {
+// Vista sin acceso: las piezas con su duración detrás de un vidrio esmerilado, y una burbuja
+// que invita a suscribirse.
+export default function ContenidoBloqueado({ piezas, estado }: Props) {
   const { usuario } = useSesion() // solo para no ofrecer "ya tengo cuenta" a quien ya la tiene
 
   return (
-    <div className="flex flex-col gap-3.5">
+    <div className="flex flex-col gap-4 md:gap-5">
       <ul className="flex flex-col gap-3.5">
         {piezas.map((pieza) => (
-          <li
-            key={pieza.tipo}
-            className="flex items-center gap-3.5 rounded-[13px] border border-mar-bordeAgua bg-mar-blanco p-[17px]"
-          >
-            <Candado etiqueta="Bloqueado" className="h-[22px] w-[22px] text-mar-aguaSuave" />
-            <span className="flex flex-1 flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between">
-              <span className="font-titulo text-lg">{nombres[pieza.tipo]}</span>
-              <span className="text-[15px] text-mar-tintaSuave">{minutos(pieza.duracionMin)}</span>
-            </span>
-          </li>
+          <PiezaBloqueada key={pieza.tipo} pieza={pieza} estado={estado} />
         ))}
       </ul>
 
-      <div className="mt-2 rounded-2xl border border-mar-bordeCielo bg-mar-cielo p-6 text-center md:p-8">
+      <Burbuja tono="espuma" entrada="ninguna" className="p-6 text-center md:p-8">
         <h2 className="mb-2 text-[22px] font-normal">Esta ventana es para suscriptoras</h2>
         <p className="mx-auto mb-5 max-w-md text-base leading-relaxed text-mar-tintaSuave">
           Con un solo plan accedés a todas las ventanas y a las que se vayan sumando.
@@ -45,7 +32,7 @@ export default function ContenidoBloqueado({ piezas }: { piezas: Pieza[] }) {
             </Boton>
           )}
         </div>
-      </div>
+      </Burbuja>
     </div>
   )
 }

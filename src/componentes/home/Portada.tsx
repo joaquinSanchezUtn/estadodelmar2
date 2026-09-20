@@ -1,31 +1,61 @@
+import { motion, useScroll, useTransform } from 'motion/react'
+import { cascada, fundido, useMovimiento } from '../../animaciones/movimiento'
 import Boton from '../base/Boton'
-import Seccion from '../layout/Seccion'
+import Burbuja from '../base/Burbuja'
+import Burbujitas from '../objetos/Burbujitas'
+import Olas from '../objetos/Olas'
 
 export default function Portada() {
+
+  const { bucles } = useMovimiento()
+  // Parallax muy leve ligado al scroll: unos pocos píxeles, nada de profundidad exagerada.
+  const { scrollY } = useScroll()
+  const parallax = useTransform(scrollY, [0, 500], [0, 14])
+
   return (
-    <Seccion
-      fondo="degrade"
-      className="flex flex-col gap-4 pt-11 md:items-center md:gap-6 md:pb-[76px] md:pt-20 md:text-center"
+    <Burbuja
+      tono="aguaClara"
+      entrada="ninguna"
+      className="pb-28 pt-12 md:pb-44 md:pt-24"
+      decoracion={
+        <>
+          <Olas parallax={bucles ? parallax : undefined} />
+          <Burbujitas />
+        </>
+      }
     >
-      <p className="text-xs uppercase tracking-[0.2em] text-mar-agua md:text-[13px]">
-        Un gimnasio del alma
-      </p>
-      <h1 className="text-[40px] font-light leading-[1.14] md:text-[56px] md:leading-[1.12] lg:text-[64px]">
-        No somos las olas.
-        <br />
-        Somos el océano.
-      </h1>
-      <p className="text-[17px] leading-relaxed text-mar-tintaSuave md:max-w-[660px] md:text-[19px]">
-        Las emociones, los pensamientos y las circunstancias aparecen y desaparecen. Debajo de
-        todo eso hay un espacio de paz que nunca se va. Acá se practica vivir desde esa
-        profundidad.
-      </p>
-      <div className="mt-2 flex flex-col gap-3 md:flex-row md:gap-3.5">
-        <Boton to="/#ventanas">Ver las ventanas</Boton>
-        <Boton to="/#propuesta" variante="secundario">
-          Cómo funciona
-        </Boton>
-      </div>
-    </Seccion>
+      {/* El héroe se ve al instante: solo un fundido corto y escalonado del texto (<150ms). */}
+      <motion.div
+        variants={cascada(0.045)}
+        initial="oculto"
+        animate="visible"
+        className="flex flex-col gap-4 md:items-center md:gap-6 md:text-center"
+      >
+        <motion.p variants={fundido} className="text-xs uppercase tracking-[0.2em] text-mar-agua md:text-[13px]">
+          Un gimnasio del alma
+        </motion.p>
+        <motion.h1
+          variants={fundido}
+          className="text-[40px] font-light leading-[1.14] md:text-[56px] md:leading-[1.12] lg:text-[64px]"
+        >
+          No somos las olas.
+          <br />
+          Somos el océano.
+        </motion.h1>
+        <motion.p
+          variants={fundido}
+          className="text-[17px] leading-relaxed text-mar-tintaSuave md:max-w-[660px] md:text-[19px]"
+        >
+          Las emociones, los pensamientos y las circunstancias aparecen y desaparecen. Debajo de todo
+          eso hay un espacio de paz que nunca se va. Acá se practica vivir desde esa profundidad.
+        </motion.p>
+        <motion.div variants={fundido} className="mt-2 flex flex-col gap-3 md:flex-row md:gap-3.5">
+          <Boton to="/#ventanas">Ver las ventanas</Boton>
+          <Boton to="/#propuesta" variante="secundario">
+            Cómo funciona
+          </Boton>
+        </motion.div>
+      </motion.div>
+    </Burbuja>
   )
 }

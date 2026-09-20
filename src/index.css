@@ -4,7 +4,7 @@
 
 @layer base {
   html {
-    scroll-padding-top: 1rem;
+    scroll-padding-top: 5.5rem;
   }
 
   @media (prefers-reduced-motion: no-preference) {

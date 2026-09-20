@@ -1,0 +1,41 @@
+import { motion } from 'motion/react'
+import type { ReactNode } from 'react'
+import { transicion } from '../../animaciones/movimiento'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ATENCIÓN — SEGURIDAD. NO "MEJORAR" ESTE COMPONENTE.
+//
+// Lo que se ve borroso acá es SIEMPRE un dibujo decorativo (el agua de la ventana), nunca
+// contenido premium real. Jamás se debe poner texto, video, descripción o cualquier dato de
+// pago dentro de `children` con un filtro de blur encima: ese dato viajaría igual al
+// navegador, y se lee quitando una línea de CSS desde la consola.
+//
+// El contenido premium NO EXISTE en el HTML hasta que corresponde (la base no lo entrega sin
+// suscripción activa). El desenfoque es un efecto estético; la protección la da que el dato
+// no esté. Si alguien quiere mostrar "una vista previa difuminada" del contenido real, la
+// respuesta es no: se dibuja un sustituto decorativo, como hace este componente.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Reposo y enfoque llegan del padre (variantes 'reposo' / 'enfocar'); en la vista bloqueada
+// que se abre, 'salida' despeja el vidrio del todo.
+const vidrio = {
+  reposo: { filter: 'blur(5px)', opacity: 1 },
+  enfocar: { filter: 'blur(2.5px)', opacity: 1, transition: transicion.rapida },
+  salida: { filter: 'blur(0px)', opacity: 0, transition: transicion.media },
+}
+const escarcha = {
+  reposo: { opacity: 1 },
+  enfocar: { opacity: 0.55, transition: transicion.rapida },
+  salida: { opacity: 0, transition: transicion.media },
+}
+
+export default function VidrioEsmerilado({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <motion.div variants={vidrio} className="absolute inset-0">
+        {children}
+      </motion.div>
+      <motion.span variants={escarcha} aria-hidden="true" className="absolute inset-0 bg-mar-blanco/20" />
+    </>
+  )
+}
