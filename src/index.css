@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-padding-top: 1rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    @apply bg-mar-marfil font-sans text-base text-mar-tinta;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-titulo;
+  }
+
+  a {
+    @apply text-mar-agua;
+  }
+
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-mar-agua;
+  }
+}
