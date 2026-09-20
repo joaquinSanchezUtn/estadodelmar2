@@ -51,6 +51,11 @@ export type Contenido = {
   orden: number
 }
 
-export type TemaConContenidos = Tema & { contenidos: Contenido[] }
+// El dato dice si el acceso está abierto: el componente decide qué mostrar según
+// lo que recibió, sin consultar la sesión. En 'bloqueado' no hay contenidos.
+export type TemaVisible = Tema &
+  ({ acceso: 'abierto'; contenidos: Contenido[] } | { acceso: 'bloqueado' })
 
 export type Rol = 'visitante' | 'suscriptora' | 'admin'
+
+export type Usuario = { nombre: string; email: string }

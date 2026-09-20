@@ -8,7 +8,7 @@ export default function PieDePagina() {
         <span>Estado del mar</span>
         <nav aria-label="Legales" className="flex gap-6">
           {legales.map((texto) => (
-            <a key={texto} href="#" className="py-2 text-mar-tintaSuave hover:text-mar-tinta">
+            <a key={texto} href="#" className="inline-flex min-h-[44px] items-center text-mar-tintaSuave hover:text-mar-tinta">
               {texto}
             </a>
           ))}

@@ -3,11 +3,13 @@
 // una consulta a Supabase y los componentes no se enteran.
 //
 // Igual que la base real, esto NO entrega contenido premium a quien no
-// corresponde: sin acceso activo, `contenidos` llega vacío. Los componentes
-// deben manejar esa ausencia en vez de confiar en ocultar lo que ya llegó.
+// corresponde: sin acceso, el tema llega como 'bloqueado', sin contenidos.
+//
+// Al pasar a Supabase: pedir columnas explícitas (nunca select('*')) para no
+// traer al navegador nada que deba resolverse en el servidor.
 import { contenidos, estados, temas } from './mock'
-import { rolSimulado } from './sesionSimulada'
-import type { EstadoMar, Tema, TemaConContenidos } from './tipos'
+import { accesoSimulado, rolSimulado } from './sesionSimulada'
+import type { EstadoMar, Tema, TemaVisible } from './tipos'
 
 const RETARDO_MS = 150
 const esperar = () => new Promise<void>((resolver) => setTimeout(resolver, RETARDO_MS))
@@ -23,17 +25,17 @@ export async function listarTemas(): Promise<Tema[]> {
   return temas.filter((t) => t.publicado).sort((a, b) => a.orden - b.orden)
 }
 
-// El tema con sus contenidos, o null si no existe o no es visible para esta sesión.
-export async function obtenerTema(slug: string): Promise<TemaConContenidos | null> {
+// El tema, con sus contenidos si hay acceso; o null si no existe o no es visible.
+export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
   await esperar()
   const rol = rolSimulado()
   const tema = temas.find((t) => t.slug === slug)
   if (!tema || (!tema.publicado && rol !== 'admin')) return null
 
-  const conAcceso = rol !== 'visitante'
+  if (!accesoSimulado(rol)) return { ...tema, acceso: 'bloqueado' }
+
   const propios = contenidos
     .filter((c) => c.temaId === tema.id && (c.publicado || rol === 'admin'))
     .sort((a, b) => a.orden - b.orden)
-
-  return { ...tema, contenidos: conAcceso ? propios : [] }
+  return { ...tema, acceso: 'abierto', contenidos: propios }
 }

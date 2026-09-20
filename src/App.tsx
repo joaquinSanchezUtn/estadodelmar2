@@ -6,6 +6,7 @@ import Admin from './pages/Admin'
 import Home from './pages/Home'
 import Ingresar from './pages/Ingresar'
 import MiCuenta from './pages/MiCuenta'
+import NoEncontrada from './pages/NoEncontrada'
 import Tema from './pages/Tema'
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<Admin />} />
         </Route>
+        <Route path="*" element={<NoEncontrada />} />
       </Route>
     </Routes>
   )

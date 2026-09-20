@@ -23,7 +23,7 @@ export default function Seccion({ fondo, id, angosta = false, className, childre
     <section id={id} className={fondos[fondo]}>
       <div
         className={clsx(
-          'mx-auto px-6 py-10 lg:px-16 lg:py-16',
+          'mx-auto px-6 py-10 md:px-8 md:py-14 lg:px-16 lg:py-16',
           angosta ? 'max-w-3xl' : 'max-w-6xl',
           className,
         )}

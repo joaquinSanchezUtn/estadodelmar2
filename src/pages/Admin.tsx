@@ -1,6 +1,6 @@
-import Seccion from '../components/Seccion'
+import Seccion from '../componentes/layout/Seccion'
 
-// Placeholder: pantalla pendiente.
+// Placeholder: pantalla pendiente (tanda 3).
 export default function Admin() {
   return (
     <Seccion fondo="marfil" angosta>

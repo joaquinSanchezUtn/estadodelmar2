@@ -37,13 +37,17 @@ export default function Encabezado() {
   return (
     <header className="border-b border-mar-bordeArena bg-mar-marfil">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2 md:px-8 md:py-4 lg:px-16">
-        <Link to="/" className="font-titulo text-lg text-mar-tinta no-underline md:text-[21px]">
+        <Link to="/" className="inline-flex min-h-[44px] items-center font-titulo text-lg text-mar-tinta no-underline md:text-[21px]">
           Estado del mar
         </Link>
 
         <nav aria-label="Principal" className="hidden items-center gap-6 text-[15px] md:flex lg:gap-8">
           {enlaces.map((e) => (
-            <Link key={e.to} to={e.to} className="text-mar-tintaSuave no-underline hover:text-mar-tinta">
+            <Link
+              key={e.to}
+              to={e.to}
+              className="inline-flex min-h-[44px] items-center text-mar-tintaSuave no-underline hover:text-mar-tinta"
+            >
               {e.texto}
             </Link>
           ))}

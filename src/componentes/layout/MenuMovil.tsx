@@ -59,7 +59,7 @@ export default function MenuMovil({ enlaces, cta, onCerrar, retorno }: Props) {
       className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-mar-marfil md:hidden"
     >
       <div className="flex items-center justify-between border-b border-mar-bordeArena px-5 py-2">
-        <Link to="/" onClick={onCerrar} className="font-titulo text-lg text-mar-tinta no-underline">
+        <Link to="/" onClick={onCerrar} className="inline-flex min-h-[44px] items-center font-titulo text-lg text-mar-tinta no-underline">
           Estado del mar
         </Link>
         <button

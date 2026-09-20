@@ -1,7 +1,7 @@
 // SOLO DESARROLLO — se borra cuando entra Supabase Auth.
 // Cambia entre los tres roles simulados para revisar cada pantalla sin backend.
 import type { Rol } from '../datos/tipos'
-import { useSesion } from './SesionContext'
+import { useSesionDev } from './SesionContext'
 
 const siguiente: Record<Rol, Rol> = {
   visitante: 'suscriptora',
@@ -10,9 +10,11 @@ const siguiente: Record<Rol, Rol> = {
 }
 
 export default function ConmutadorDev() {
-  const { rol, cambiarRol } = useSesion()
+  return import.meta.env.DEV ? <Conmutador /> : null
+}
 
-  if (!import.meta.env.DEV) return null
+function Conmutador() {
+  const { rol, cambiarRol } = useSesionDev()
 
   return (
     <button

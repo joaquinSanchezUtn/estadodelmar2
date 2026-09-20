@@ -1,24 +1,26 @@
-import { useState } from 'react'
-import EstadosDelMar from '../components/home/EstadosDelMar'
-import PlanMensual from '../components/home/PlanMensual'
-import Portada from '../components/home/Portada'
-import Ventanas from '../components/home/Ventanas'
-import type { EstadoId } from '../data/estados'
+import { useSearchParams } from 'react-router-dom'
+import EstadosDelMar from '../componentes/home/EstadosDelMar'
+import LaPropuesta from '../componentes/home/LaPropuesta'
+import PlanMensual from '../componentes/home/PlanMensual'
+import Portada from '../componentes/home/Portada'
+import Ventanas from '../componentes/home/Ventanas'
+import { listarEstados, listarTemas } from '../datos/contenido'
+import { useCarga } from '../lib/useCarga'
 
 export default function Home() {
-  const [estado, setEstado] = useState<EstadoId | null>(null)
+  const [params] = useSearchParams()
+  const { datos: estados } = useCarga(listarEstados, [])
+  const { datos: temas } = useCarga(listarTemas, [])
 
-  // Elegir un estado filtra las ventanas y baja hasta ellas; elegirlo de nuevo lo quita.
-  const elegir = (id: EstadoId) => {
-    setEstado(estado === id ? null : id)
-    if (estado !== id) document.getElementById('ventanas')?.scrollIntoView()
-  }
+  // El filtro vive en la URL (?estado=agitado): se puede compartir y anda el "atrás".
+  const activo = estados?.find((e) => e.id === params.get('estado')) ?? null
 
   return (
     <>
       <Portada />
-      <EstadosDelMar activo={estado} onElegir={elegir} />
-      <Ventanas estado={estado} onVerTodas={() => setEstado(null)} />
+      <EstadosDelMar estados={estados} activo={activo?.id ?? null} />
+      <Ventanas temas={temas} estados={estados} activo={activo} />
+      <LaPropuesta />
       <PlanMensual />
     </>
   )
