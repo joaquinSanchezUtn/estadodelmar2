@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useSesion } from '../auth/SesionContext'
 import SoloVisitantes from '../auth/SoloVisitantes'
-import { CuentasDePrueba } from '../componentes/acceso/AyudaDeDesarrollo'
 import BotonGoogle from '../componentes/acceso/BotonGoogle'
 import FormularioIngreso from '../componentes/acceso/FormularioIngreso'
 import PaginaDeAcceso from '../componentes/acceso/PaginaDeAcceso'
@@ -28,7 +27,6 @@ export default function Ingresar() {
             Crear cuenta
           </Link>
         </p>
-        <CuentasDePrueba />
       </PaginaDeAcceso>
     </SoloVisitantes>
   )

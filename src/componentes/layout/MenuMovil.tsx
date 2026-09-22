@@ -3,6 +3,7 @@ import { useEffect, useRef, type RefObject } from 'react'
 import { Link } from 'react-router-dom'
 import { abrirPanel, fundido } from '../../animaciones/movimiento'
 import { Cerrar } from '../base/iconos'
+import LogoDelSitio from './LogoDelSitio'
 
 export type Enlace = { to: string; texto: string }
 
@@ -64,9 +65,7 @@ export default function MenuMovil({ enlaces, onCerrar, retorno }: Props) {
       className="fixed inset-0 z-menu flex flex-col overflow-y-auto bg-mar-nube md:hidden"
     >
       <div className="flex items-center justify-between border-b border-mar-bordeCielo px-5 py-2">
-        <Link to="/" onClick={onCerrar} className="inline-flex min-h-control-sm items-center font-titulo text-titulo-s text-mar-tinta no-underline">
-          Estado del mar
-        </Link>
+        <LogoDelSitio onClick={onCerrar} />
         <button
           type="button"
           aria-label="Cerrar menú"

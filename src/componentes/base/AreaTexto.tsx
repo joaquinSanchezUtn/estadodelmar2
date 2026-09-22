@@ -16,7 +16,7 @@ export default function AreaTexto({ etiqueta, ayuda, className, ...nativos }: Pr
         id={id}
         aria-describedby={ayuda ? `${id}-ayuda` : undefined}
         className={clsx(
-          'w-full resize-y rounded-control border border-mar-bordeAgua bg-mar-blanco p-3 text-cuerpo text-mar-tinta placeholder:text-mar-tintaSuave',
+          'w-full resize-y rounded-control border border-mar-bordeControl bg-mar-blanco p-3 text-cuerpo text-mar-tinta placeholder:text-mar-tintaSuave',
           className,
         )}
         {...nativos}

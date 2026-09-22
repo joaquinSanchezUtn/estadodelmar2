@@ -14,6 +14,7 @@ export default {
           espuma: '#BFDCEE', // suscripción y bloques destacados
           bordeAgua: '#8BADC6', // borde de 1px sobre blanco
           bordeCielo: '#79A4C3', // borde de 1px sobre burbujas tintadas
+          bordeControl: '#4F7A99', // borde de campos, chips y botones: ≥3:1 contra blanco, nube y todas las burbujas (WCAG 1.4.11)
           tinta: '#152A37', // texto principal
           tintaSuave: '#314A5B', // texto secundario
           tintaTenue: '#3F5462', // enseñanzas, metadatos (pasa 4.5:1 en todas las superficies)

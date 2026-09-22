@@ -55,7 +55,7 @@ export default function MenuCuenta() {
         aria-haspopup="menu"
         aria-controls="menu-cuenta"
         onClick={() => setAbierto((a) => !a)}
-        className="flex size-11 items-center justify-center rounded-full border border-mar-bordeCielo bg-mar-blanco/60 text-mar-tinta transition-colors hover:bg-mar-blanco"
+        className="flex size-11 items-center justify-center rounded-full border border-mar-bordeControl bg-mar-blanco/60 text-mar-tinta transition-colors hover:bg-mar-blanco"
       >
         <Cuenta />
       </button>

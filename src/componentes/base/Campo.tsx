@@ -26,7 +26,7 @@ export default function Campo({ etiqueta, ayuda, error, derecha, className, ...n
           aria-describedby={[ayuda && !error && idAyuda, error && idError].filter(Boolean).join(' ') || undefined}
           className={
             'min-h-control rounded-control border bg-mar-blanco px-4 text-cuerpo text-mar-tinta placeholder:text-mar-tintaSuave ' +
-            (error ? 'border-mar-coral' : 'border-mar-bordeAgua') +
+            (error ? 'border-mar-coral' : 'border-mar-bordeControl') +
             (derecha ? ' pr-14' : '') +
             (className ? ` ${className}` : '')
           }

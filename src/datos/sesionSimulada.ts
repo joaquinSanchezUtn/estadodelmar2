@@ -1,6 +1,7 @@
-// DATOS DE PRUEBA — se borra cuando entra Supabase.
-// Lo que en producción deduce la base a partir de la sesión (el JWT), acá se
-// simula con una variable. La escribe SesionContext y la lee contenido.ts.
+// PUENTE TEMPORAL — Auth ya es real (ver SesionContext.tsx), pero `contenido.ts`/`admin.ts`
+// (el catálogo y el panel) todavía son datos simulados y deciden el acceso mirando esta variable.
+// SesionContext la mantiene sincronizada con el rol real después de cada cambio de sesión. Se borra
+// entero, junto con este archivo, cuando la Tanda de datos conecte esas dos capas a Supabase.
 import type { Rol } from './tipos'
 
 let rol: Rol = 'visitante'

@@ -14,7 +14,7 @@ const chip = 'inline-flex min-h-control-sm items-center gap-2 rounded-full borde
 export default function FiltroDeEstados({ estados, activo, cantidades, onElegir }: Props) {
   const total = Object.values(cantidades).reduce((a, b) => a + (b ?? 0), 0)
   const variante = (marcado: boolean) =>
-    marcado ? 'border-mar-celesteBorde bg-mar-celeste font-medium text-mar-tintaBoton' : 'border-mar-bordeCielo bg-mar-blanco/60 text-mar-tinta hover:bg-mar-blanco'
+    marcado ? 'border-mar-celesteBorde bg-mar-celeste font-medium text-mar-tintaBoton' : 'border-mar-bordeControl bg-mar-blanco/60 text-mar-tinta hover:bg-mar-blanco'
 
   return (
     <div role="group" aria-label="Filtrar por estado del mar" className="flex flex-wrap gap-2">

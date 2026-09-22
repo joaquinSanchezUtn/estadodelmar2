@@ -1,5 +1,5 @@
-import { motion } from 'motion/react'
-import type { ComponentType } from 'react'
+import { motion, useInView } from 'motion/react'
+import { useRef, type ComponentType } from 'react'
 import { useMovimiento } from '../../animaciones/movimiento'
 import type { EstadoMarId } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
@@ -39,12 +39,17 @@ type Props = {
 // una animación propia y contenida; al enfocar la pieza que lo contiene, se agita un poco más.
 export default function DibujoEstado({ estado, vivo = 'escritorio', autonomo = false, ajuste = 'cubrir', className }: Props) {
   const { reducido, escritorio } = useMovimiento()
-  const activo = !reducido && (vivo === 'siempre' || escritorio)
+  // Solo se mueve mientras está en pantalla (o a punto de estarlo): un dibujo fuera de la vista no gasta
+  // procesador. Con dieciséis en la home, eso pasaba de unas 6.500 escrituras de estilo por segundo a las de los visibles.
+  const ref = useRef<SVGSVGElement>(null)
+  const visible = useInView(ref, { margin: '160px' })
+  const activo = !reducido && visible && (vivo === 'siempre' || escritorio)
   const agua: Agua = activo ? (reposo, enfocar) => ({ reposo, enfocar }) : () => ({})
   const Dibujo = dibujos[estado ?? 'calma']
 
   return (
     <motion.svg
+      ref={ref}
       viewBox="0 0 200 200"
       preserveAspectRatio={ajuste === 'cubrir' ? 'xMidYMid slice' : 'xMidYMid meet'}
       initial={autonomo ? 'reposo' : undefined}

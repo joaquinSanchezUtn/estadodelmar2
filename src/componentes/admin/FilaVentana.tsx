@@ -19,7 +19,7 @@ type Props = {
   onCambio: (aviso: string) => void
 }
 
-const icono = 'flex size-11 items-center justify-center rounded-full border border-mar-bordeAgua bg-mar-blanco text-mar-tinta hover:bg-mar-aguaClara disabled:opacity-40'
+const icono = 'flex size-11 items-center justify-center rounded-full border border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-aguaClara disabled:opacity-40'
 
 // Una ventana en la lista: subir y bajar, publicar o despublicar, editar, ver y eliminar.
 export default function FilaVentana({ tema, estados, posicion, total, puedeOrdenar, onCambio }: Props) {

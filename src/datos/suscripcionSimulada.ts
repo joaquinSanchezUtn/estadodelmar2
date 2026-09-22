@@ -1,13 +1,13 @@
 // DATOS DE PRUEBA — simula lo que en producción hacen Mercado Pago, su webhook y la base: el estado
-// de la suscripción de la sesión actual y sus transiciones. Sin datos personales (no lleva emails):
-// las cuentas de ejemplo están en cuentasSimuladas.ts, que nunca llega a producción.
-import type { Rol, Suscripcion } from './tipos'
+// de la suscripción de la sesión actual y sus transiciones. Es un único valor global, sin atarlo a
+// ninguna identidad: en desarrollo lo cambia el botón de ConmutadorDev, para poder ver cada tarjeta
+// de Mi cuenta sin depender de tener suscripciones reales cargadas. Se borra cuando la Tanda de
+// datos conecte Mi cuenta a la tabla real `suscripciones`.
+import type { Suscripcion } from './tipos'
 
 export type ResultadoDePago = 'aprobado' | 'pendiente' | 'rechazado'
 
 let actual: Suscripcion | null = null
-let clave: string | null = null
-const guardadas = new Map<string, Suscripcion | null>()
 
 const dos = (n: number) => String(n).padStart(2, '0')
 export const enDias = (dias: number) => {
@@ -20,28 +20,10 @@ export const enDias = (dias: number) => {
 // ese período termina, así que la fecha se compara en cada consulta (la base tiene que hacer lo mismo).
 export const periodoVigente = (accesoHasta: string) => accesoHasta >= enDias(0)
 
-// Equivale a tiene_acceso() en la base: activa, cancelada con período vigente, o admin.
-export const accesoDe = (s: Suscripcion | null) =>
-  s?.estado === 'activa' || s?.estado === 'administradora' || (s?.estado === 'cancelada' && periodoVigente(s.accesoHasta))
-
-// El rol que corresponde a una cuenta según su suscripción (el admin no depende de ella).
-export const rolDe = (rolBase: Exclude<Rol, 'visitante'>, s: Suscripcion | null): Rol =>
-  rolBase === 'admin' ? 'admin' : accesoDe(s) ? 'suscriptora' : 'registrada'
-
 export const suscripcionSimulada = () => actual
-
-// Al abrir sesión se recupera lo que esa cuenta tenía; si es la primera vez, arranca de la semilla.
-export function entrarSuscripcion(email: string | null, semilla: Suscripcion | null) {
-  clave = email
-  actual = email ? (guardadas.has(email) ? (guardadas.get(email) ?? null) : semilla) : null
-}
-
-export function fijarSuscripcionSimulada(s: Suscripcion | null) {
+export const fijarSuscripcionSimulada = (s: Suscripcion | null) => {
   actual = s
-  if (clave) guardadas.set(clave, s)
 }
-
-export const olvidarSuscripcion = (email: string) => guardadas.delete(email)
 
 // Cada intento de pago tiene su identificador (en Mercado Pago, el preapproval_id que vuelve en la URL).
 // La pantalla de resultado consulta ESE pago: no el estado general de la persona, que podría ser de antes.

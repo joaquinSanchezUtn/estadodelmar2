@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import SoloVisitantes from '../auth/SoloVisitantes'
-import { SimularCorreo } from '../componentes/acceso/AyudaDeDesarrollo'
 import FormularioRecuperar from '../componentes/acceso/FormularioRecuperar'
 import PaginaDeAcceso from '../componentes/acceso/PaginaDeAcceso'
 import Aviso from '../componentes/base/Aviso'
@@ -24,7 +23,6 @@ export default function Recuperar() {
             minutos; mirá también en la carpeta de spam.
           </Aviso>
           {volver}
-          <SimularCorreo tipo="recuperacion" />
         </PaginaDeAcceso>
       ) : (
         <PaginaDeAcceso titulo="Recuperar la contraseña" texto="Escribí tu email y te mandamos un enlace para elegir una nueva.">

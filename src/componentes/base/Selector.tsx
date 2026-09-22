@@ -14,7 +14,7 @@ export default function Selector({ etiqueta, opciones, ...nativos }: Props) {
       </label>
       <select
         id={id}
-        className="min-h-control rounded-control border border-mar-bordeAgua bg-mar-blanco px-3 text-cuerpo text-mar-tinta"
+        className="min-h-control rounded-control border border-mar-bordeControl bg-mar-blanco px-3 text-cuerpo text-mar-tinta"
         {...nativos}
       >
         {opciones.map((o) => (

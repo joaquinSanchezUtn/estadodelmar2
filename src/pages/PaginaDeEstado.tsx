@@ -88,7 +88,7 @@ export default function PaginaDeEstado() {
         <nav aria-label="Otros estados del mar" className="flex flex-wrap items-center gap-2 px-2">
           <span className="mr-2 text-cuerpo text-mar-tintaSuave">Otros estados:</span>
           {otros.map((e) => (
-            <Link key={e.id} to={urlDeEstado(e.id)} className="inline-flex min-h-control-sm items-center rounded-full border border-mar-bordeCielo bg-mar-blanco/60 px-4 text-cuerpo text-mar-tinta no-underline hover:bg-mar-blanco">
+            <Link key={e.id} to={urlDeEstado(e.id)} className="inline-flex min-h-control-sm items-center rounded-full border border-mar-bordeControl bg-mar-blanco/60 px-4 text-cuerpo text-mar-tinta no-underline hover:bg-mar-blanco">
               {e.nombre}
             </Link>
           ))}

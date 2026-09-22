@@ -73,7 +73,7 @@ export default function SubidaDeArchivo({ tipo, archivo, onSubido, onQuitar }: P
           onDragOver={(e) => { e.preventDefault(); setEncima(true) }}
           onDragLeave={() => setEncima(false)}
           onDrop={(e) => { e.preventDefault(); setEncima(false); void subir(e.dataTransfer.files) }}
-          className={cn('flex flex-col items-center gap-3 rounded-tarjeta border-2 border-dashed p-6 text-center transition', encima ? 'border-mar-agua bg-mar-espuma' : 'border-mar-bordeAgua bg-mar-blanco/60')}
+          className={cn('flex flex-col items-center gap-3 rounded-tarjeta border-2 border-dashed p-6 text-center transition', encima ? 'border-mar-agua bg-mar-espuma' : 'border-mar-bordeControl bg-mar-blanco/60')}
         >
           <p className="text-cuerpo text-mar-tinta">Arrastrá acá el archivo</p>
           <p className="text-meta text-mar-tintaSuave">o</p>

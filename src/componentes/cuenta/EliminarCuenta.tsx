@@ -78,7 +78,7 @@ export default function EliminarCuenta({ suscripcion }: { suscripcion: Suscripci
             value={escrito}
             onChange={(e) => setEscrito(e.target.value)}
             autoComplete="off"
-            className="min-h-control w-full rounded-control border border-mar-bordeAgua bg-mar-blanco px-4 text-cuerpo text-mar-tinta"
+            className="min-h-control w-full rounded-control border border-mar-bordeControl bg-mar-blanco px-4 text-cuerpo text-mar-tinta"
           />
           {error && <Aviso className="mt-4">{error}</Aviso>}
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">

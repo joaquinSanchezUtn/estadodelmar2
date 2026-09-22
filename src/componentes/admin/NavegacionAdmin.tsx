@@ -18,7 +18,7 @@ export default function NavegacionAdmin() {
           className={({ isActive }) =>
             cn(
               'inline-flex min-h-control-sm items-center rounded-full border px-5 text-cuerpo no-underline transition-colors',
-              isActive ? 'border-mar-celesteBorde bg-mar-celeste font-medium text-mar-tintaBoton' : 'border-mar-bordeCielo bg-mar-blanco/60 text-mar-tinta hover:bg-mar-blanco',
+              isActive ? 'border-mar-celesteBorde bg-mar-celeste font-medium text-mar-tintaBoton' : 'border-mar-bordeControl bg-mar-blanco/60 text-mar-tinta hover:bg-mar-blanco',
             )
           }
         >

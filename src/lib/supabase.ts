@@ -8,4 +8,7 @@ if (!url || !anonKey) {
 }
 
 // Solo la anon key es pública: el acceso real lo controla RLS en la base.
-export const supabase = createClient(url, anonKey)
+// flowType 'pkce': los enlaces de confirmación, recuperación y OAuth vuelven con `?code=` (no con el
+// token suelto en el hash de la URL). Es más seguro y además pone los errores en la query string,
+// donde `useSearchParams` los puede leer (RetornoAuth.tsx).
+export const supabase = createClient(url, anonKey, { auth: { flowType: 'pkce' } })

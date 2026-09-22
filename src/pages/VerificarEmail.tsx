@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import SoloVisitantes from '../auth/SoloVisitantes'
 import { useSesion } from '../auth/SesionContext'
-import { SimularCorreo } from '../componentes/acceso/AyudaDeDesarrollo'
 import PaginaDeAcceso from '../componentes/acceso/PaginaDeAcceso'
 import Aviso from '../componentes/base/Aviso'
 import Boton from '../componentes/base/Boton'
@@ -54,7 +53,6 @@ export default function VerificarEmail() {
             Crear la cuenta otra vez
           </Link>
         </p>
-        <SimularCorreo tipo="confirmacion" />
       </PaginaDeAcceso>
     </SoloVisitantes>
   )

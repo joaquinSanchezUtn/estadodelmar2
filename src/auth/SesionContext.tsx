@@ -1,14 +1,19 @@
-// SESIÓN SIMULADA — se reemplaza por la sesión de Supabase Auth.
-// Tiene la forma que va a tener la real: { usuario, rol, accesoActivo, cargando, acciones de acceso }.
-// Es lo que el front usa para mostrar u ocultar cosas; el acceso real lo decide la base con RLS.
-// En producción el rol es siempre 'visitante' y no hay setter ni cuentas de ejemplo.
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { cuentaDeEjemplo, type Cuenta } from '../datos/cuentasSimuladas'
-import { accesoSimulado, fijarRolSimulado } from '../datos/sesionSimulada'
+// La sesión real, contra Supabase Auth. `usuario`/`rol`/`accesoActivo` es lo que el front usa para
+// mostrar u ocultar cosas; el acceso real a cada dato lo decide la base con RLS (ver tiene_acceso()
+// en la migración 0002). Un solo listener (supabase.auth.onAuthStateChange) es la única fuente de
+// verdad: ninguna acción de accionesReales.ts actualiza este estado a mano, porque cada una de ellas
+// ya cambia la sesión de Supabase, y eso solo dispara el evento correspondiente.
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import type { Session } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
+// Puente temporal con la capa de datos, que todavía es simulada (mock.ts): hasta que la Tanda de
+// datos la reemplace por consultas reales, `contenido.ts`/`admin.ts` deciden el acceso mirando
+// `rolSimulado()`. Mantenerlo sincronizado con el rol real evita que el panel de admin (por
+// ejemplo) se vea vacío para una admin de verdad. Se borra entero cuando esa tanda esté lista.
+import { fijarRolSimulado } from '../datos/sesionSimulada'
 import { vaciarCache } from '../lib/useCarga'
 import type { Rol, Usuario } from '../datos/tipos'
-import { entrarSuscripcion } from '../datos/suscripcionSimulada'
-import { abrirSesionSimulada, crearAcciones, sinAcceso } from './accionesSimuladas'
+import { crearAccionesReales } from './accionesReales'
 import type { AccionesDeAcceso, AccionesDeCuenta } from './tipos'
 
 export type Sesion = AccionesDeAcceso & AccionesDeCuenta & {
@@ -18,94 +23,120 @@ export type Sesion = AccionesDeAcceso & AccionesDeCuenta & {
   cargando: boolean
   // Entró por el enlace de "olvidé mi contraseña": lo único que puede hacer es elegir una nueva.
   enRecuperacion: boolean
-  // La sesión se cayó sola (venció o se revocó): las pantallas explican por qué se pide ingresar de nuevo.
+  // La sesión se cayó sola (venció o se revocó en otro lado): las pantallas explican por qué se
+  // pide ingresar de nuevo, en lugar de un cierre de sesión silencioso.
   sesionVencida: boolean
   cerrarSesion: () => void
 }
 
-// El setter no forma parte del contrato de sesión: solo existe en desarrollo.
-type SesionConSetter = Sesion & { cambiarRol?: (rol: Rol) => void; vencerSesion?: () => void }
+const SesionContext = createContext<Sesion | null>(null)
 
-const SesionContext = createContext<SesionConSetter | null>(null)
+// Equivale a tiene_acceso() en la base, pero visto desde el front: solo decide qué mostrar, nunca
+// qué se entrega. La fecha se compara acá también porque Mercado Pago no avisa cuando termina el
+// período de una cancelada (ver CLAUDE.md).
+const hoyISO = () => new Date().toISOString().slice(0, 10)
+
+async function leerPerfil(session: Session): Promise<{ usuario: Usuario; rolReal: Rol }> {
+  const [{ data: perfil }, { data: suscripciones }] = await Promise.all([
+    supabase.from('profiles').select('role, nombre').eq('id', session.user.id).single(),
+    supabase
+      .from('suscripciones')
+      .select('estado, acceso_hasta')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(1),
+  ])
+  const usuario: Usuario = {
+    nombre: perfil?.nombre ?? '',
+    email: session.user.email ?? '',
+    conGoogle: session.user.app_metadata?.provider === 'google',
+  }
+  const fila = suscripciones?.[0]
+  const conAcceso = fila?.estado === 'activa' || (fila && ['cancelada', 'en_gracia'].includes(fila.estado) && (fila.acceso_hasta ?? '') >= hoyISO())
+  const rolReal: Rol = perfil?.role === 'admin' ? 'admin' : conAcceso ? 'suscriptora' : 'registrada'
+  return { usuario, rolReal }
+}
 
 export function SesionProvider({ children }: { children: ReactNode }) {
-  const [cuenta, setCuenta] = useState<Cuenta | null>(null)
+  const [usuario, setUsuario] = useState<Usuario | null>(null)
+  const [rolReal, setRolReal] = useState<Rol>('visitante')
   const [enRecuperacion, setEnRecuperacion] = useState(false)
   const [vencida, setVencida] = useState(false)
   const [cargando, setCargando] = useState(true)
-  const vivo = useRef({ cuenta, enRecuperacion })
-  vivo.current = { cuenta, enRecuperacion }
+  const cerrandoAProposito = useRef(false)
 
-  // La sesión real se resuelve de forma asíncrona: las pantallas ya se escriben
-  // contra ese estado de carga.
-  useEffect(() => setCargando(false), [])
+  // Mientras dura la recuperación, la sesión queda confinada: no vale como suscriptora ni como admin,
+  // aunque la cuenta lo sea (defensa en el cliente; falta el respaldo del lado del servidor, anotado
+  // en CLAUDE.md). El resto de la app usa este `rol`, nunca `rolReal` directo.
+  const rol: Rol = enRecuperacion ? 'visitante' : rolReal
 
-  const usuario = import.meta.env.DEV && cuenta ? { nombre: cuenta.nombre, email: cuenta.email, conGoogle: cuenta.conGoogle } : null
-  // Con el enlace de recuperación la sesión queda confinada: no vale como suscriptora ni como admin.
-  const rol: Rol = import.meta.env.DEV && cuenta && !enRecuperacion ? cuenta.rol : 'visitante'
+  const cargarSesion = useCallback(async (session: Session | null) => {
+    if (!session) {
+      setUsuario(null)
+      setRolReal('visitante')
+      setCargando(false)
+      return
+    }
+    const { usuario, rolReal } = await leerPerfil(session)
+    setUsuario(usuario)
+    setRolReal(rolReal)
+    setVencida(false)
+    setCargando(false)
+  }, [])
 
-  // Cada cambio de sesión (cierre, otro rol, otro usuario) invalida lo cargado: no solo al
-  // perder acceso. Un pedido en vuelo hecho con la sesión anterior tampoco puede volver a
-  // llenar el caché. Se mira la identidad y no solo el rol: dos personas con el mismo rol (en un
-  // dispositivo compartido) no pueden compartir memoria. Con Supabase, acá va el id del usuario.
-  const email = usuario?.email
+  useEffect(() => {
+    const { data: suscripcion } = supabase.auth.onAuthStateChange((evento, session) => {
+      if (evento === 'SIGNED_OUT') {
+        setUsuario(null)
+        setRolReal('visitante')
+        setEnRecuperacion(false)
+        setVencida(!cerrandoAProposito.current) // false si lo pidió la propia persona
+        cerrandoAProposito.current = false
+        setCargando(false)
+        return
+      }
+      if (evento === 'PASSWORD_RECOVERY') setEnRecuperacion(true)
+      // USER_UPDATED es el único evento de auth.updateUser(): tanto cambiar la contraseña durante la
+      // recuperación como cambiarla ya con sesión normal pasan por acá. En el primer caso, termina la
+      // confinación; en el segundo, no había ninguna que terminar.
+      if (evento === 'USER_UPDATED') setEnRecuperacion(false)
+      if (evento === 'SIGNED_IN') setEnRecuperacion(false) // un ingreso normal nunca es una recuperación
+      void cargarSesion(session)
+    })
+    return () => suscripcion.subscription.unsubscribe()
+  }, [cargarSesion])
+
+  // El puente con la capa de datos simulada (ver el comentario de arriba) y la invalidación del
+  // caché van con el rol YA confinado: son "lo que se muestra", no "lo que dice la base".
+  useEffect(() => {
+    fijarRolSimulado(rol)
+  }, [rol])
   useEffect(() => {
     vaciarCache()
-  }, [rol, email])
+  }, [rol, usuario?.email])
 
-  const valor = useMemo<SesionConSetter>(() => {
-    const acciones = import.meta.env.DEV
-      ? crearAcciones({
-          entrar: (c) => {
-            setVencida(false)
-            setCuenta(c)
-          },
-          cuentaActual: () => vivo.current.cuenta,
-          recuperando: setEnRecuperacion,
-          enRecuperacion: () => vivo.current.enRecuperacion,
-        })
-      : sinAcceso
+  const valor = useMemo<Sesion>(() => {
+    const acciones = crearAccionesReales({ refrescarPerfil: async () => cargarSesion((await supabase.auth.getSession()).data.session) })
     return {
       ...acciones,
-      // Después de un cambio de suscripción, lo cargado con el acceso anterior no sirve más.
+      // Lo que cambió puede no mover ni el rol ni el email (por ejemplo, la suscripción simulada que
+      // usa Mi cuenta en desarrollo): se vacía el caché siempre, no solo cuando esas claves cambian.
       refrescarSesion: async () => {
         await acciones.refrescarSesion()
         vaciarCache()
       },
-      usuario: email ? { nombre: cuenta?.nombre ?? '', email, conGoogle: cuenta?.conGoogle ?? false } : null,
+      usuario,
       rol,
-      accesoActivo: accesoSimulado(rol),
+      accesoActivo: rol === 'suscriptora' || rol === 'admin',
       cargando,
       enRecuperacion,
       sesionVencida: vencida,
       cerrarSesion: () => {
-        // Pendiente: con Supabase Auth, acá va `await supabase.auth.signOut()`. Lo que sigue tiene
-        // que correr siempre (también en producción): soltar la sesión local no puede depender de DEV.
-        if (import.meta.env.DEV) {
-          fijarRolSimulado('visitante')
-          entrarSuscripcion(null, null)
-        }
-        setCuenta(null)
-        setEnRecuperacion(false)
-        setVencida(false)
+        cerrandoAProposito.current = true
+        void supabase.auth.signOut()
       },
-      ...(import.meta.env.DEV && {
-        vencerSesion: () => {
-          fijarRolSimulado('visitante')
-          entrarSuscripcion(null, null)
-          setCuenta(null)
-          setEnRecuperacion(false)
-          setVencida(true)
-        },
-        cambiarRol: (nuevo: Rol) => {
-          const ejemplo = cuentaDeEjemplo(nuevo)
-          if (!ejemplo) fijarRolSimulado('visitante')
-          setCuenta(ejemplo && abrirSesionSimulada(ejemplo))
-          setEnRecuperacion(false)
-        },
-      }),
     }
-  }, [cuenta, email, rol, enRecuperacion, vencida, cargando])
+  }, [usuario, rol, cargando, enRecuperacion, vencida, cargarSesion])
 
   return <SesionContext.Provider value={valor}>{children}</SesionContext.Provider>
 }
@@ -114,11 +145,4 @@ export function useSesion(): Sesion {
   const sesion = useContext(SesionContext)
   if (!sesion) throw new Error('useSesion debe usarse dentro de SesionProvider')
   return sesion
-}
-
-// SOLO DESARROLLO: lo usa ConmutadorDev. Falla si el setter no existe.
-export function useSesionDev() {
-  const sesion = useContext(SesionContext)
-  if (!sesion?.cambiarRol) throw new Error('El cambio de rol solo existe en desarrollo')
-  return { rol: sesion.rol, cambiarRol: sesion.cambiarRol, vencerSesion: sesion.vencerSesion }
 }

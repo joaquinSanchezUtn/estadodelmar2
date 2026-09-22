@@ -11,7 +11,7 @@ import PieDePagina from './PieDePagina'
 // scroll: el encabezado sigue pegado arriba. overflow-anchor: none, ver PaginasAnimadas.
 export default function Layout() {
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-clip bg-mar-nube [overflow-anchor:none]">
+    <div className="group relative flex min-h-screen flex-col overflow-x-clip bg-mar-nube [overflow-anchor:none]">
       <Grano />
       <Manchas cantidad={2} />
       <AvisoSinConexion />

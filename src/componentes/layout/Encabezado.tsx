@@ -5,6 +5,7 @@ import { useSesion } from '../../auth/SesionContext'
 import { transicion } from '../../animaciones/movimiento'
 import type { Rol } from '../../datos/tipos'
 import { Menu } from '../base/iconos'
+import LogoDelSitio from './LogoDelSitio'
 import MenuCuenta from './MenuCuenta'
 import MenuMovil, { type Enlace } from './MenuMovil'
 
@@ -44,12 +45,7 @@ export default function Encabezado() {
         className="pointer-events-none absolute inset-0 border-b border-mar-bordeCielo shadow-encabezado"
       />
       <div className="relative mx-auto flex max-w-ancho items-center justify-between px-4 py-2 md:px-16 md:py-4">
-        <Link
-          to="/"
-          className="inline-flex min-h-control-sm items-center font-titulo text-titulo-s text-mar-tinta no-underline"
-        >
-          Estado del mar
-        </Link>
+        <LogoDelSitio />
 
         <div className="flex items-center gap-2 md:gap-6 lg:gap-8">
           <nav aria-label="Principal" className="hidden items-center gap-6 text-cuerpo md:flex lg:gap-8">

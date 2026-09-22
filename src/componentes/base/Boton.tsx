@@ -8,7 +8,7 @@ import { cn } from '../../lib/cn'
 const variantes = {
   primario:
     'border border-mar-celesteBorde bg-mar-celeste font-bold text-mar-tintaBoton shadow-tarjeta hover:brightness-95',
-  secundario: 'border border-mar-celesteBorde/60 bg-mar-blanco/40 font-medium text-mar-tinta hover:bg-mar-blanco/75',
+  secundario: 'border border-mar-celesteBorde bg-mar-blanco/40 font-medium text-mar-tinta hover:bg-mar-blanco/75',
   fantasma: 'font-medium text-mar-tintaSuave hover:bg-mar-tinta/5 hover:text-mar-tinta',
 }
 

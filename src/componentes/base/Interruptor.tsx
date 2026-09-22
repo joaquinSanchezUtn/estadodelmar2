@@ -29,7 +29,7 @@ export default function Interruptor({ etiqueta, ayuda, activo, onCambio }: Props
         <span
           className={clsx(
             'relative h-7 w-12 rounded-full transition-colors',
-            activo ? 'bg-mar-agua' : 'bg-mar-tintaSuave/30',
+            activo ? 'bg-mar-agua' : 'bg-mar-bordeControl',
           )}
         >
           <span
