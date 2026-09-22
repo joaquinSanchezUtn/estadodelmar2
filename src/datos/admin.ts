@@ -1,67 +1,53 @@
 // Panel de administración: crear, editar, ordenar, publicar y borrar ventanas y sus piezas, y subir
-// archivos. Hoy opera sobre los datos de prueba en memoria; con Supabase cada función pasa a ser una
-// consulta o una Edge Function.
+// archivos. Ventanas y piezas ya son consultas reales a Supabase.
 //
-// OJO: acá cada función verifica que la sesión sea admin, pero en el navegador eso es solo
-// experiencia. La barrera real es la base: las policies `temas_admin` y `contenidos_admin` (es_admin())
-// y las Edge Functions que suben archivos a Bunny, que tienen que volver a verificar el rol en el servidor.
-import { cargarPrueba, esperar, hayDatosDePrueba, sinBackend } from './base'
-import { rolSimulado } from './sesionSimulada'
-import type { ArchivoDeContenido, ArchivoSubido, Contenido, DatosDeContenido, DatosDeTema, EstadoMarId, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
+// OJO: `esAdmin()` acá es la barrera real solo para lo que ESCRIBE (insert/update/delete): ahí sí,
+// si la sesión no es admin, las policies `temas_admin`/`contenidos_admin` (es_admin()) rechazan la
+// escritura pase lo que pase acá, y el chequeo de este archivo es nada más un mensaje temprano y
+// claro en vez de un error genérico de Postgres. Para lo que LEE (`listarTemasAdmin` y las consultas
+// previas de cada función, que traen `temas`/`contenidos` sin filtrar por `publicado`) el chequeo de
+// acá SÍ decide qué se devuelve: sin él, una sesión no-admin vería el catálogo público (con sus piezas
+// publicadas) a través de las funciones del panel, porque `temas_catalogo_publico`/`contenidos_con_acceso`
+// son policies permisivas que igual matchean. No es una fuga (no ve nada que no pudiera ver por las
+// rutas públicas), pero rompería el "está vacío si no sos admin" que esperan estas funciones.
+//
+// Los archivos (Bunny Stream) siguen simulados: la tabla real `archivos_contenido` solo la escribe una
+// Edge Function con service_role que todavía no existe (ver CLAUDE.md, "Para respaldar en Supabase").
+// Este `Map` en memoria es un reemplazo de mentira nada más para que el panel tenga algo que mostrar
+// mientras tanto; no persiste entre recargas y se vacía al cerrar sesión (`olvidarArchivos`, llamado
+// desde `vaciarCache` en SesionContext).
+import { supabase } from '../lib/supabase'
+import { esAdmin } from './acceso'
+import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
+import { hayDatosDePrueba, sinBackend } from './base'
+import type { ArchivoDeContenido, ArchivoSubido, DatosDeContenido, DatosDeTema, EstadoMarId, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
 
 const ESTADOS: EstadoMarId[] = ['calma', 'olas_suaves', 'agitado', 'tormenta', 'profundidades', 'mareas', 'corrientes', 'horizonte']
 const NO_ES_ADMIN = { ok: false, mensaje: 'No tenés permiso para hacer esto.' } as const
 const NO_EXISTE = { ok: false, mensaje: 'Eso ya no existe. Recargá la página.' } as const
-const esAdmin = () => rolSimulado() === 'admin'
+const ERROR_GENERICO = { ok: false, mensaje: 'No pudimos guardar. Probá de nuevo en un rato.' } as const
 
 export const LIMITE_DE_ARCHIVO_MB: Record<'video' | 'meditacion', number> = { video: 2048, meditacion: 500 }
 
-// Los archivos subidos, por pieza. Al empezar, las piezas de las ventanas publicadas ya tienen el suyo.
+// Los archivos "subidos", por pieza — ver el comentario de arriba: de mentira, en memoria.
 const archivos = new Map<string, ArchivoDeContenido>()
-let sembrado = false
-
-async function sembrar() {
-  if (sembrado) return
-  sembrado = true
-  const { temas, contenidos } = await cargarPrueba()
-  contenidos.forEach((c) => {
-    const tema = temas.find((t) => t.id === c.temaId)
-    if (c.tipo !== 'ejercitacion' && tema?.publicado) archivos.set(c.id, { nombre: `${tema.slug}-${c.tipo}.${c.tipo === 'video' ? 'mp4' : 'mp3'}`, bytes: (c.tipo === 'video' ? 180 : 24) * 1024 * 1024 })
-  })
-}
-
-export async function archivoDe(c: Contenido): Promise<ArchivoDeContenido | null> {
-  await sembrar()
-  return archivos.get(c.id) ?? null
-}
-
-// Las piezas públicas de una ventana (tipo y duración) se recalculan cada vez que cambian sus contenidos.
-async function recalcularPiezas(temaId: string) {
-  const { temas, contenidos } = await cargarPrueba()
-  const tema = temas.find((t) => t.id === temaId)
-  if (tema) {
-    tema.piezas = contenidos
-      .filter((c) => c.temaId === temaId && c.publicado)
-      .sort((a, b) => a.orden - b.orden)
-      .map(({ tipo, duracionMin }) => ({ tipo, duracionMin }))
-  }
-}
+export const archivoDe = (contenidoId: string): ArchivoDeContenido | null => archivos.get(contenidoId) ?? null
+export const olvidarArchivos = () => archivos.clear()
 
 export async function listarTemasAdmin(): Promise<TemaAdmin[]> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  if (!esAdmin()) return []
-  await sembrar()
-  const { temas, contenidos } = await cargarPrueba()
-  return temas
-    .map((t) => ({
-      ...t,
-      contenidos: contenidos
-        .filter((c) => c.temaId === t.id)
-        .sort((a, b) => a.orden - b.orden)
-        .map((c) => ({ ...c, archivo: archivos.get(c.id) ?? null })),
-    }))
-    .sort((a, b) => a.orden - b.orden)
+  if (!(await esAdmin())) return []
+  const [{ data: temas, error: e1 }, { data: contenidos, error: e2 }] = await Promise.all([
+    supabase.from('temas').select(COLUMNAS_TEMA).order('orden'),
+    supabase.from('contenidos').select(COLUMNAS_CONTENIDO).order('orden'),
+  ])
+  if (e1 || e2) throw e1 ?? e2
+  return temas.map(mapTema).map((t) => ({
+    ...t,
+    contenidos: contenidos
+      .filter((c) => c.tema_id === t.id)
+      .map(mapContenido)
+      .map((c) => ({ ...c, archivo: archivoDe(c.id) })),
+  }))
 }
 
 // ── Ventanas ──────────────────────────────────────────────────────────────────
@@ -70,14 +56,11 @@ const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/
 // Palabras que chocan con rutas del panel: una ventana con esa dirección no se podría volver a editar.
 const RESERVADAS = ['nueva', 'nuevo', 'ventanas', 'contenidos', 'admin']
 const LARGO_MAXIMO_SLUG = 60
-// Los ids no salen del slug: si se renombra o se reutiliza una dirección, dos ventanas no pueden compartir id.
-const nuevoId = (prefijo: string) => `${prefijo}-${Math.random().toString(36).slice(2, 10)}`
 
 export async function guardarTemaAdmin(slugActual: string | null, d: DatosDeTema): Promise<ResultadoAdmin> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  if (!esAdmin()) return NO_ES_ADMIN
-  const { temas } = await cargarPrueba()
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data: temas, error: errorLista } = await supabase.from('temas').select('id,slug,orden')
+  if (errorLista) return ERROR_GENERICO
   const existente = slugActual ? temas.find((t) => t.slug === slugActual) : undefined
   if (slugActual && !existente) return NO_EXISTE
 
@@ -87,59 +70,58 @@ export async function guardarTemaAdmin(slugActual: string | null, d: DatosDeTema
   if (titulo.length < 2 || titulo.length > 80) errores.titulo = 'El título tiene que tener entre 2 y 80 caracteres.'
   if (!SLUG.test(slug) || slug.length > LARGO_MAXIMO_SLUG) errores.slug = `Usá solo minúsculas, números y guiones, hasta ${LARGO_MAXIMO_SLUG} caracteres (por ejemplo: sentido-de-la-vida).`
   else if (RESERVADAS.includes(slug)) errores.slug = 'Esa dirección está reservada. Elegí otra.'
-  else if (temas.some((t) => t.slug === slug && t !== existente)) errores.slug = 'Ya hay una ventana con esa dirección.'
+  else if (temas.some((t) => t.slug === slug && t.id !== existente?.id)) errores.slug = 'Ya hay una ventana con esa dirección.'
   if (d.descripcion.length > 240) errores.descripcion = 'La descripción no puede pasar de 240 caracteres.'
   if (d.estadoMar && !ESTADOS.includes(d.estadoMar)) errores.estadoMar = 'Elegí un estado del mar de la lista.'
   if (Object.keys(errores).length) return { ok: false, mensaje: 'Revisá los campos marcados.', errores }
 
+  const datos = { titulo, slug, descripcion: d.descripcion.trim() || null, estado_mar: d.estadoMar, publicado: d.publicado }
   if (existente) {
-    Object.assign(existente, { titulo, slug, descripcion: d.descripcion.trim(), estadoMar: d.estadoMar, publicado: d.publicado })
+    // `.select().maybeSingle()`: si la RLS bloqueó la escritura (por ejemplo, el rol se revocó justo
+    // ahora), el update no toca ninguna fila y Postgres no lo marca como error — sin este chequeo,
+    // acá se contestaría "guardado" sin haber guardado nada.
+    const { data: fila, error } = await supabase.from('temas').update(datos).eq('id', existente.id).select('id').maybeSingle()
+    if (error) return ERROR_GENERICO
+    if (!fila) return NO_EXISTE
   } else {
     const orden = Math.max(0, ...temas.map((t) => t.orden)) + 1
-    temas.push({ id: nuevoId('t'), slug, titulo, descripcion: d.descripcion.trim(), estadoMar: d.estadoMar, publicado: d.publicado, orden, piezas: [] })
+    const { error } = await supabase.from('temas').insert({ ...datos, orden })
+    if (error) return ERROR_GENERICO
   }
   return { ok: true, slug }
 }
 
 export async function eliminarTemaAdmin(slug: string): Promise<ResultadoAdmin> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  if (!esAdmin()) return NO_ES_ADMIN
-  const { temas, contenidos } = await cargarPrueba()
-  const i = temas.findIndex((t) => t.slug === slug)
-  if (i < 0) return { ok: true } // borrar algo ya borrado es un éxito: el resultado deseado ya es cierto
-  const id = temas[i].id
-  temas.splice(i, 1)
-  for (let j = contenidos.length - 1; j >= 0; j--) {
-    if (contenidos[j].temaId === id) {
-      archivos.delete(contenidos[j].id)
-      contenidos.splice(j, 1)
-    }
-  }
-  return { ok: true }
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { error } = await supabase.from('temas').delete().eq('slug', slug)
+  if (error) return ERROR_GENERICO
+  return { ok: true } // borrar algo ya borrado también es un éxito: el resultado deseado ya es cierto
 }
 
 export async function publicarTemaAdmin(slug: string, publicado: boolean): Promise<ResultadoAdmin> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  if (!esAdmin()) return NO_ES_ADMIN
-  const tema = (await cargarPrueba()).temas.find((t) => t.slug === slug)
-  if (!tema) return NO_EXISTE
-  tema.publicado = publicado
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data, error } = await supabase.from('temas').update({ publicado }).eq('slug', slug).select('id').maybeSingle()
+  if (error) return ERROR_GENERICO
+  if (!data) return NO_EXISTE
   return { ok: true }
 }
 
 // Sube o baja una ventana en el orden del catálogo: intercambia el lugar con la vecina.
 export async function moverTemaAdmin(slug: string, direccion: 'arriba' | 'abajo'): Promise<ResultadoAdmin> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  if (!esAdmin()) return NO_ES_ADMIN
-  const ordenadas = [...(await cargarPrueba()).temas].sort((a, b) => a.orden - b.orden)
-  const i = ordenadas.findIndex((t) => t.slug === slug)
-  const j = direccion === 'arriba' ? i - 1 : i + 1
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data: temas, error: errorLista } = await supabase.from('temas').select('id,slug,orden').order('orden')
+  if (errorLista) return ERROR_GENERICO
+  const i = temas.findIndex((t) => t.slug === slug)
   if (i < 0) return NO_EXISTE
-  if (j < 0 || j >= ordenadas.length) return { ok: true }
-  ;[ordenadas[i].orden, ordenadas[j].orden] = [ordenadas[j].orden, ordenadas[i].orden]
+  const j = direccion === 'arriba' ? i - 1 : i + 1
+  if (j < 0 || j >= temas.length) return { ok: true }
+  const [a, b] = [temas[i], temas[j]]
+  const [{ data: fa, error: e1 }, { data: fb, error: e2 }] = await Promise.all([
+    supabase.from('temas').update({ orden: b.orden }).eq('id', a.id).select('id').maybeSingle(),
+    supabase.from('temas').update({ orden: a.orden }).eq('id', b.id).select('id').maybeSingle(),
+  ])
+  if (e1 || e2) return ERROR_GENERICO
+  if (!fa || !fb) return NO_EXISTE
   return { ok: true }
 }
 
@@ -153,13 +135,14 @@ export async function guardarContenidoAdmin(
   d: DatosDeContenido,
   archivo?: ArchivoSubido | 'quitar',
 ): Promise<ResultadoAdmin> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  if (!esAdmin()) return NO_ES_ADMIN
-  const { temas, contenidos } = await cargarPrueba()
-  const tema = temas.find((t) => t.slug === temaSlug)
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data: tema, error: errorTema } = await supabase.from('temas').select('id').eq('slug', temaSlug).maybeSingle()
+  if (errorTema) return ERROR_GENERICO
+  if (!tema) return NO_EXISTE
+  const { data: contenidos, error: errorLista } = await supabase.from('contenidos').select('id,tipo,orden').eq('tema_id', tema.id)
+  if (errorLista) return ERROR_GENERICO
   const existente = contenidoId ? contenidos.find((c) => c.id === contenidoId) : undefined
-  if (!tema || (contenidoId && !existente)) return NO_EXISTE
+  if (contenidoId && !existente) return NO_EXISTE
 
   const errores: Record<string, string> = {}
   const titulo = d.titulo.trim()
@@ -171,36 +154,33 @@ export async function guardarContenidoAdmin(
     const cuerpo = (d.cuerpo ?? '').trim()
     if (cuerpo.length < 10 || cuerpo.length > 5000) errores.cuerpo = 'La consigna tiene que tener entre 10 y 5000 caracteres.'
   }
-  if (!existente && contenidos.some((c) => c.temaId === tema.id && c.tipo === d.tipo)) {
-    errores.tipo = 'Esta ventana ya tiene una pieza de ese tipo.'
-  }
+  if (!existente && contenidos.some((c) => c.tipo === d.tipo)) errores.tipo = 'Esta ventana ya tiene una pieza de ese tipo.'
   if (Object.keys(errores).length) return { ok: false, mensaje: 'Revisá los campos marcados.', errores }
 
-  const datos = { titulo, duracionMin: d.duracionMin, cuerpo: d.tipo === 'ejercitacion' ? (d.cuerpo ?? '').trim() : null, publicado: d.publicado }
+  const datos = { titulo, duracion_min: d.duracionMin, cuerpo: d.tipo === 'ejercitacion' ? (d.cuerpo ?? '').trim() : null, publicado: d.publicado }
   let id = existente?.id
-  if (existente) Object.assign(existente, datos)
-  else {
-    id = nuevoId('c')
-    const orden = Math.max(0, ...contenidos.filter((c) => c.temaId === tema.id).map((c) => c.orden)) + 1
-    contenidos.push({ id, temaId: tema.id, tipo: d.tipo, orden, ...datos })
+  if (existente) {
+    const { data: fila, error } = await supabase.from('contenidos').update(datos).eq('id', existente.id).select('id').maybeSingle()
+    if (error) return ERROR_GENERICO
+    if (!fila) return NO_EXISTE
+  } else {
+    const orden = Math.max(0, ...contenidos.map((c) => c.orden)) + 1
+    const { data: fila, error } = await supabase.from('contenidos').insert({ tema_id: tema.id, tipo: d.tipo, orden, ...datos }).select('id').single()
+    if (error || !fila) return ERROR_GENERICO
+    id = fila.id
   }
   if (id && archivo === 'quitar') archivos.delete(id)
   else if (id && archivo && archivo !== 'quitar') archivos.set(id, { nombre: archivo.nombre, bytes: archivo.bytes })
-  await recalcularPiezas(tema.id)
+  // `temas.piezas` (la vista pública bloqueada) la recalcula sola un trigger en la base al guardar.
   return { ok: true, id }
 }
 
 export async function eliminarContenidoAdmin(contenidoId: string): Promise<ResultadoAdmin> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  if (!esAdmin()) return NO_ES_ADMIN
-  const { contenidos } = await cargarPrueba()
-  const i = contenidos.findIndex((c) => c.id === contenidoId)
-  if (i < 0) return { ok: true }
-  const temaId = contenidos[i].temaId
-  contenidos.splice(i, 1)
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data: fila, error } = await supabase.from('contenidos').delete().eq('id', contenidoId).select('id').maybeSingle()
+  if (error) return ERROR_GENERICO
+  if (!fila) return NO_EXISTE
   archivos.delete(contenidoId)
-  await recalcularPiezas(temaId)
   return { ok: true }
 }
 
@@ -220,7 +200,7 @@ export async function subirArchivoAdmin(
   senal?: AbortSignal,
 ): Promise<{ ok: true; archivo: ArchivoSubido } | { ok: false; mensaje: string }> {
   if (!hayDatosDePrueba) return sinBackend()
-  if (!esAdmin()) return { ok: false, mensaje: NO_ES_ADMIN.mensaje }
+  if (!(await esAdmin())) return { ok: false, mensaje: NO_ES_ADMIN.mensaje }
   const clase = tipo === 'video' ? 'video/' : 'audio/'
   if (tipo === 'ejercitacion' || !a.tipoMime.startsWith(clase)) {
     return { ok: false, mensaje: tipo === 'video' ? 'Elegí un archivo de video.' : 'Elegí un archivo de audio.' }

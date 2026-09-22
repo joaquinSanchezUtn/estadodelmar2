@@ -1,53 +1,90 @@
-// Única puerta de entrada a los datos. Ningún componente importa mock.ts.
-// Hoy devuelve datos de prueba; mañana el cuerpo de cada función pasa a ser
-// una consulta a Supabase y los componentes no se enteran.
+// Única puerta de entrada a los datos. Ningún componente importa Supabase directo.
 //
-// Igual que la base real, esto NO entrega contenido premium a quien no
-// corresponde: sin acceso, el tema llega como 'bloqueado', sin contenidos.
+// El catálogo (temas y contenidos) ya es real: cada función pide columnas explícitas (nunca
+// select('*')) y la visibilidad la deciden las RLS de la migración 0002 (`temas_catalogo_publico`,
+// `temas_admin`, `contenidos_con_acceso`, `contenidos_admin`), no un chequeo de rol acá. Lo único que
+// este archivo decide es la rama 'bloqueado' vs 'abierto' de un tema, con `tengoAcceso()`.
 //
-// Al pasar a Supabase: pedir columnas explícitas (nunca select('*')) para no
-// traer al navegador nada que deba resolverse en el servidor.
-import { accesoSimulado, rolSimulado } from './sesionSimulada'
+// Lo que sigue simulado (todavía no tiene backend real): pago y suscripción (Mercado Pago), el
+// contacto y el origen del medio (Bunny Stream) — todos Edge Functions pendientes. Esas funciones
+// siguen gateadas por `hayDatosDePrueba` y tiran `sinBackend()` fuera de ese modo.
+import { supabase } from '../lib/supabase'
+import { estados as ESTADOS } from './constantes'
+import { esAdmin, tengoAcceso } from './acceso'
+import { archivoDe } from './admin'
+import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
 import { silencioWav } from './medioSimulado'
 import { estadoDelPago, fijarSuscripcionSimulada, nuevoPago, periodoVigente, suscripcionSimulada, type EstadoDelPago } from './suscripcionSimulada'
-import { archivoDe } from './admin'
-import { cargarPrueba, esperar, hayDatosDePrueba, sinBackend } from './base'
+import { esperar, hayDatosDePrueba, sinBackend } from './base'
 import type { EstadoMar, Suscripcion, Tema, TemaVisible } from './tipos'
 
 export async function listarEstados(): Promise<EstadoMar[]> {
-  await esperar()
-  const { estados } = await cargarPrueba()
-  return [...estados]
+  return [...ESTADOS]
 }
 
-// Catálogo público: solo temas publicados, con título, slug, estado y descripción.
+// Catálogo público: solo temas publicados. El filtro va en la consulta (no alcanza con la RLS): una
+// admin con sesión también vería sus borradores por `temas_admin`, y este listado es el público. Un
+// error de red no puede mostrarse como "no hay ventanas": se propaga para que la pantalla lo diga.
 export async function listarTemas(): Promise<Tema[]> {
-  await esperar()
-  const { temas } = await cargarPrueba()
-  return temas.filter((t) => t.publicado).sort((a, b) => a.orden - b.orden)
+  const { data, error } = await supabase.from('temas').select(COLUMNAS_TEMA).eq('publicado', true).order('orden')
+  if (error) throw error
+  return data.map(mapTema)
 }
 
 // El tema, con sus contenidos si hay acceso; o null si no existe o no es visible.
+// La fila de `temas` ya la filtra la RLS (publicado, o cualquiera si es admin): si no vuelve nada,
+// no existe o no toca mostrarla. Los `contenidos` los filtra `contenidos_con_acceso`/`contenidos_admin`
+// igual de estricto: acá solo falta decidir si mostrarlos o la vista bloqueada.
+//
+// Con sesión de admin, esto también sirve de vista previa de un borrador (ventana o pieza sin
+// publicar): es a propósito, la misma admin es la única que puede verlo. Por eso no repite el filtro
+// `publicado` que sí lleva `listarTemas()` — si en algún momento se quiere que /tema/:slug nunca
+// muestre un borrador ni a la propia admin, hay que sumarlo acá explícitamente.
 export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
-  await esperar()
-  const { temas, contenidos } = await cargarPrueba()
-  const rol = rolSimulado()
-  const tema = temas.find((t) => t.slug === slug)
-  if (!tema || (!tema.publicado && rol !== 'admin')) return null
+  const { data: fila, error } = await supabase.from('temas').select(COLUMNAS_TEMA).eq('slug', slug).maybeSingle()
+  if (error) throw error
+  if (!fila) return null
+  const tema = mapTema(fila)
 
-  if (!accesoSimulado(rol)) return { ...tema, acceso: 'bloqueado' }
+  if (!(await tengoAcceso())) return { ...tema, acceso: 'bloqueado' }
 
-  const propios = contenidos
-    .filter((c) => c.temaId === tema.id && (c.publicado || rol === 'admin'))
-    .sort((a, b) => a.orden - b.orden)
-  return { ...tema, acceso: 'abierto', contenidos: propios }
+  const { data: filas, error: errorContenidos } = await supabase.from('contenidos').select(COLUMNAS_CONTENIDO).eq('tema_id', tema.id).order('orden')
+  if (errorContenidos) throw errorContenidos
+  return { ...tema, acceso: 'abierto', contenidos: filas.map(mapContenido) }
 }
 
 // Estado de la suscripción de la sesión actual, o null si no tiene una.
 export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
-  await esperar()
-  if (rolSimulado() === 'admin') return { estado: 'administradora' }
-  return suscripcionSimulada()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+  if (await esAdmin()) return { estado: 'administradora' }
+
+  const { data } = await supabase
+    .from('suscripciones')
+    .select('estado, acceso_hasta, proximo_cobro, medio_de_pago, ultimo_evento, created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (!data) return null
+
+  // 'iniciada' (el primer cobro todavía no se acreditó) se muestra igual que 'pendiente'. 'en_gracia'
+  // (cobro que falló, con los 3 días de gracia) se muestra igual que 'cancelada': en los dos casos el
+  // mensaje correcto es "tenés acceso hasta tal fecha". Van a necesitar su propio texto cuando el
+  // webhook de Mercado Pago exista de verdad (hoy esas filas no las escribe nadie todavía).
+  switch (data.estado) {
+    case 'activa':
+      return { estado: 'activa', proximoCobro: data.proximo_cobro ?? '', medioDePago: data.medio_de_pago ?? '' }
+    case 'cancelada':
+    case 'en_gracia':
+      return { estado: 'cancelada', accesoHasta: data.acceso_hasta ?? '' }
+    case 'vencida':
+      return { estado: 'vencida', desde: (data.ultimo_evento ?? data.created_at).slice(0, 10) }
+    default:
+      return { estado: 'pendiente' }
+  }
 }
 
 // Adónde mandar a la persona para pagar. Con Mercado Pago es una URL externa (init_point de la
@@ -116,13 +153,11 @@ export type OrigenDeMedio = { url: string; venceEn: number }
 export async function obtenerOrigenDeMedio(contenidoId: string): Promise<OrigenDeMedio | null> {
   if (!hayDatosDePrueba) return sinBackend()
   await esperar()
-  const { contenidos, temas } = await cargarPrueba()
-  const c = contenidos.find((x) => x.id === contenidoId)
-  // Igual que la base: sin acceso no hay URL, aunque se conozca el id de la pieza; y una pieza o una
-  // ventana sin publicar no se entrega a nadie salvo a la dueña (la Edge Function repite las tres condiciones).
-  const visible = c && (rolSimulado() === 'admin' || (c.publicado && temas.find((t) => t.id === c.temaId)?.publicado))
-  if (!c || !visible || c.tipo === 'ejercitacion' || !accesoSimulado(rolSimulado())) return null
-  if (!(await archivoDe(c))) return null // todavía no se subió el archivo
+  // La RLS ya hace todo el trabajo de "¿se le puede mostrar esto a esta sesión?": publicada, con la
+  // ventana publicada, y con acceso (o cualquiera si es admin). Si no vuelve nada, no se muestra.
+  const { data: c } = await supabase.from('contenidos').select('id, tipo').eq('id', contenidoId).maybeSingle()
+  if (!c || c.tipo === 'ejercitacion') return null
+  if (!(await archivoDe(c.id))) return null // todavía no se subió el archivo
   return { url: silencioWav(30), venceEn: Date.now() + 15 * 60 * 1000 }
 }
 

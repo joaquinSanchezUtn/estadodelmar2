@@ -3,7 +3,6 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "build": { "env": { "VITE_DATOS_DE_PRUEBA": "true" } },
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
     {

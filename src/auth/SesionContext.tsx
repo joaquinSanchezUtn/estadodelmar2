@@ -6,11 +6,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-// Puente temporal con la capa de datos, que todavía es simulada (mock.ts): hasta que la Tanda de
-// datos la reemplace por consultas reales, `contenido.ts`/`admin.ts` deciden el acceso mirando
-// `rolSimulado()`. Mantenerlo sincronizado con el rol real evita que el panel de admin (por
-// ejemplo) se vea vacío para una admin de verdad. Se borra entero cuando esa tanda esté lista.
-import { fijarRolSimulado } from '../datos/sesionSimulada'
+import { olvidarArchivos } from '../datos/admin'
 import { vaciarCache } from '../lib/useCarga'
 import type { Rol, Usuario } from '../datos/tipos'
 import { crearAccionesReales } from './accionesReales'
@@ -106,13 +102,14 @@ export function SesionProvider({ children }: { children: ReactNode }) {
     return () => suscripcion.subscription.unsubscribe()
   }, [cargarSesion])
 
-  // El puente con la capa de datos simulada (ver el comentario de arriba) y la invalidación del
-  // caché van con el rol YA confinado: son "lo que se muestra", no "lo que dice la base".
-  useEffect(() => {
-    fijarRolSimulado(rol)
-  }, [rol])
+  // Va con el rol YA confinado (ver arriba): es "lo que se muestra", no "lo que dice la base". El
+  // catálogo (contenido.ts) pregunta el acceso real a la base en cada pedido; esto solo vacía lo que
+  // ya está en pantalla para que ese pedido nuevo no se quede mostrando lo de la sesión anterior.
+  // `olvidarArchivos()` es lo mismo pero para el Map de archivos simulados del panel (ver admin.ts):
+  // es estado privilegiado (de mentira, pero privilegiado) y no debe sobrevivir a un cambio de sesión.
   useEffect(() => {
     vaciarCache()
+    olvidarArchivos()
   }, [rol, usuario?.email])
 
   const valor = useMemo<Sesion>(() => {
