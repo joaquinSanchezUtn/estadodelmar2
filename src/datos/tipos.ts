@@ -90,3 +90,14 @@ export type ArchivoSubido = ArchivoDeContenido & { token: string }
 export type ResultadoAdmin =
   | { ok: true; slug?: string; id?: string }
   | { ok: false; mensaje: string; errores?: Record<string, string> }
+
+// "Quién soy": una sola fila (migración 0004), con los datos de la dueña. `campos` es una lista libre
+// de pares etiqueta/valor que ella arma como quiera (ej. "Formación: Lic. en Psicología (UBA)"), en
+// el orden en que se muestran. nombre/descripcion/fotoUrl pueden estar vacíos: recién puesta la fila,
+// antes de que cargue nada.
+export type CampoPerfil = { etiqueta: string; valor: string }
+export type QuienSoy = { nombre: string | null; descripcion: string | null; fotoUrl: string | null; campos: CampoPerfil[]; publicado: boolean }
+
+// Lo que la dueña edita: acá los campos de texto siempre son string (el formulario no distingue
+// "vacío" de "null"; guardarQuienSoyAdmin guarda vacío como null para no ensuciar la base).
+export type DatosDeQuienSoy = { nombre: string; descripcion: string; fotoUrl: string; campos: CampoPerfil[]; publicado: boolean }

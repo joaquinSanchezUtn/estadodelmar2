@@ -16,12 +16,14 @@ import Tema from './pages/Tema'
 const Admin = lazy(() => import('./pages/Admin'))
 const AdminEditorContenido = lazy(() => import('./pages/AdminEditorContenido'))
 const AdminEditorVentana = lazy(() => import('./pages/AdminEditorVentana'))
+const AdminQuienSoy = lazy(() => import('./pages/AdminQuienSoy'))
 const AdminVentanas = lazy(() => import('./pages/AdminVentanas'))
 const Contacto = lazy(() => import('./pages/Contacto'))
 const CuentaEliminada = lazy(() => import('./pages/CuentaEliminada'))
 const MiCuenta = lazy(() => import('./pages/MiCuenta'))
 const NuevaContrasena = lazy(() => import('./pages/NuevaContrasena'))
 const Privacidad = lazy(() => import('./pages/Privacidad'))
+const QuienSoy = lazy(() => import('./pages/QuienSoy'))
 const Recuperar = lazy(() => import('./pages/Recuperar'))
 const Registrarme = lazy(() => import('./pages/Registrarme'))
 const RetornoAuth = lazy(() => import('./pages/RetornoAuth'))
@@ -56,6 +58,7 @@ export default function Rutas({ location }: { location: Location }) {
         <Route path="/terminos" element={<Terminos />} />
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="/contacto" element={<Contacto />} />
+        <Route path="/quien-soy" element={<QuienSoy />} />
         {import.meta.env.DEV && <Route path="/dev/falla" element={<FallaDeDesarrollo />} />}
         <Route element={<RutaConSesion />}>
           <Route path="/mi-cuenta" element={<MiCuenta />} />
@@ -64,6 +67,7 @@ export default function Rutas({ location }: { location: Location }) {
         </Route>
         <Route element={<RutaDeAdmin />}>
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/quien-soy" element={<AdminQuienSoy />} />
           <Route path="/admin/ventanas" element={<AdminVentanas />} />
           <Route path="/admin/ventanas/nueva" element={<AdminEditorVentana />} />
           <Route path="/admin/ventanas/:slug" element={<AdminEditorVentana />} />

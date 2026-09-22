@@ -4,9 +4,10 @@ import { cn } from '../../lib/cn'
 const enlaces = [
   { to: '/admin', texto: 'Resumen', fin: true },
   { to: '/admin/ventanas', texto: 'Ventanas', fin: false },
+  { to: '/admin/quien-soy', texto: 'Quién soy', fin: false },
 ]
 
-// Las dos secciones del panel. NavLink marca la activa con aria-current="page".
+// Las secciones del panel. NavLink marca la activa con aria-current="page".
 export default function NavegacionAdmin() {
   return (
     <nav aria-label="Panel de administración" className="flex gap-2">

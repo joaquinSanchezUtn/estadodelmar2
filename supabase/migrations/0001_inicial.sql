@@ -6,10 +6,15 @@
 
 begin;
 
--- Las tablas y funciones futuras nacen cerradas: Supabase da acceso a anon y
--- authenticated por defecto, y así una tabla nueva sin revoke quedaría abierta.
+-- Las tablas futuras nacen cerradas: Supabase da acceso a anon y authenticated por defecto, y así una
+-- tabla nueva sin revoke quedaría abierta.
 alter default privileges in schema public revoke all on tables from anon, authenticated;
 alter default privileges in schema public revoke all on sequences from anon, authenticated;
+-- OJO, esto no hace lo mismo para funciones (verificado en la auditoría de la migración 0005): el
+-- EXECUTE de PUBLIC sobre una función nueva no lo toca ningún default privilege. Cada función que se
+-- agregue de acá en más necesita su propio `revoke execute ... from public, anon` explícito (y su
+-- `grant` a `authenticated` si el cliente la tiene que poder llamar), igual que ya hacían `es_admin()`
+-- y `tiene_acceso()` acá abajo.
 alter default privileges in schema public revoke execute on functions from public, anon, authenticated;
 
 -- ─── Tablas ────────────────────────────────────────────────────────────────

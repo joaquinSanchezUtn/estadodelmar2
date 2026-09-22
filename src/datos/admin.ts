@@ -20,7 +20,7 @@ import { supabase } from '../lib/supabase'
 import { esAdmin } from './acceso'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
 import { hayDatosDePrueba, sinBackend } from './base'
-import type { ArchivoDeContenido, ArchivoSubido, DatosDeContenido, DatosDeTema, EstadoMarId, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
+import type { ArchivoDeContenido, ArchivoSubido, DatosDeContenido, DatosDeQuienSoy, DatosDeTema, EstadoMarId, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
 
 const ESTADOS: EstadoMarId[] = ['calma', 'olas_suaves', 'agitado', 'tormenta', 'profundidades', 'mareas', 'corrientes', 'horizonte']
 const NO_ES_ADMIN = { ok: false, mensaje: 'No tenés permiso para hacer esto.' } as const
@@ -181,6 +181,44 @@ export async function eliminarContenidoAdmin(contenidoId: string): Promise<Resul
   if (error) return ERROR_GENERICO
   if (!fila) return NO_EXISTE
   archivos.delete(contenidoId)
+  return { ok: true }
+}
+
+// ── Quién soy ─────────────────────────────────────────────────────────────────
+
+const MAXIMO_CAMPOS = 20
+
+// Siempre hay una sola fila (la sembró la migración 0004; nadie puede insertar ni borrar — ni
+// siquiera la admin: ver el índice único `quien_soy_fila_unica` de la migración 0005). Por eso, si el
+// `update` no devuelve la fila, no es que "ya no existe" (nunca deja de existir): es que la sesión
+// dejó de ser admin justo entre el chequeo de arriba y este pedido.
+export async function guardarQuienSoyAdmin(d: DatosDeQuienSoy): Promise<ResultadoAdmin> {
+  if (!(await esAdmin())) return NO_ES_ADMIN
+
+  const errores: Record<string, string> = {}
+  const nombre = d.nombre.trim()
+  const descripcion = d.descripcion.trim()
+  const fotoUrl = d.fotoUrl.trim()
+  if (nombre.length > 100) errores.nombre = 'El nombre no puede pasar de 100 caracteres.'
+  if (descripcion.length > 2000) errores.descripcion = 'La descripción no puede pasar de 2000 caracteres.'
+  if (fotoUrl && (!/^https:\/\//.test(fotoUrl) || fotoUrl.length > 500)) errores.fotoUrl = 'Tiene que ser un enlace que empiece con https://, de hasta 500 caracteres.'
+  // Una fila con la etiqueta o el valor en blanco no dice nada: se descarta sola, sin marcarla como error.
+  const campos = d.campos.map((c) => ({ etiqueta: c.etiqueta.trim(), valor: c.valor.trim() })).filter((c) => c.etiqueta && c.valor)
+  if (campos.length > MAXIMO_CAMPOS) errores.campos = `Hasta ${MAXIMO_CAMPOS} campos.`
+  else if (campos.some((c) => c.etiqueta.length > 60 || c.valor.length > 300)) errores.campos = 'Algún campo quedó demasiado largo (el nombre hasta 60 caracteres, el valor hasta 300).'
+  if (Object.keys(errores).length) return { ok: false, mensaje: 'Revisá los campos marcados.', errores }
+
+  const { data: fila, error: errorLectura } = await supabase.from('quien_soy').select('id').maybeSingle()
+  if (errorLectura) return ERROR_GENERICO
+  if (!fila) return NO_EXISTE
+  const { data: actualizado, error } = await supabase
+    .from('quien_soy')
+    .update({ nombre: nombre || null, descripcion: descripcion || null, foto_url: fotoUrl || null, campos, publicado: d.publicado })
+    .eq('id', fila.id)
+    .select('id')
+    .maybeSingle()
+  if (error) return ERROR_GENERICO
+  if (!actualizado) return NO_ES_ADMIN
   return { ok: true }
 }
 

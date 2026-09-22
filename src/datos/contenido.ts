@@ -16,7 +16,7 @@ import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mape
 import { silencioWav } from './medioSimulado'
 import { estadoDelPago, fijarSuscripcionSimulada, nuevoPago, periodoVigente, suscripcionSimulada, type EstadoDelPago } from './suscripcionSimulada'
 import { esperar, hayDatosDePrueba, sinBackend } from './base'
-import type { EstadoMar, Suscripcion, Tema, TemaVisible } from './tipos'
+import type { CampoPerfil, EstadoMar, QuienSoy, Suscripcion, Tema, TemaVisible } from './tipos'
 
 export async function listarEstados(): Promise<EstadoMar[]> {
   return [...ESTADOS]
@@ -51,6 +51,22 @@ export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
   const { data: filas, error: errorContenidos } = await supabase.from('contenidos').select(COLUMNAS_CONTENIDO).eq('tema_id', tema.id).order('orden')
   if (errorContenidos) throw errorContenidos
   return { ...tema, acceso: 'abierto', contenidos: filas.map(mapContenido) }
+}
+
+// Los datos de la dueña (migración 0004): siempre una sola fila. La RLS decide igual que en
+// `obtenerTema()` — pública si `publicado`, la admin la ve siempre (para poder editarla aunque esté
+// oculta) — así que acá no hace falta ningún chequeo de más.
+export async function obtenerQuienSoy(): Promise<QuienSoy | null> {
+  const { data, error } = await supabase.from('quien_soy').select('nombre,descripcion,foto_url,campos,publicado').maybeSingle()
+  if (error) throw error
+  if (!data) return null
+  return {
+    nombre: data.nombre,
+    descripcion: data.descripcion,
+    fotoUrl: data.foto_url,
+    campos: Array.isArray(data.campos) ? (data.campos as CampoPerfil[]) : [],
+    publicado: data.publicado,
+  }
 }
 
 // Estado de la suscripción de la sesión actual, o null si no tiene una.
