@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { guardarContenidoAdmin } from '../../datos/contenido'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { descartarArchivoSubido, guardarContenidoAdmin } from '../../datos/contenido'
 import type { ArchivoSubido, ContenidoAdmin, TemaAdmin, TipoContenido } from '../../datos/tipos'
 import { useAccion } from '../../lib/useAccion'
 import AreaTexto from '../base/AreaTexto'
@@ -25,12 +25,28 @@ export default function FormularioContenido({ tema, tipo, inicial, onGuardado }:
   const { pendiente, error, ejecutar } = useAccion()
   const mostrado = archivo === 'quitar' ? null : (archivo ?? inicial?.archivo ?? null)
 
+  // Si se sube un archivo y el formulario se abandona sin guardar (se quita antes de mandarlo, se
+  // navega a otro lado), ese video queda huérfano en Bunny si nadie lo borra: `archivoRef` sigue el
+  // último archivo recién subido y `guardadoRef` marca si sí llegó a guardarse, para no borrar por
+  // error el que se acaba de asociar de verdad.
+  const archivoRef = useRef(archivo)
+  archivoRef.current = archivo
+  const guardadoRef = useRef(false)
+  useEffect(
+    () => () => {
+      const a = archivoRef.current
+      if (!guardadoRef.current && a && a !== 'quitar') void descartarArchivoSubido(a.token)
+    },
+    [],
+  )
+
   const guardar = async (e: FormEvent) => {
     e.preventDefault()
     setErrores({})
     const ok = await ejecutar(async () => {
       const r = await guardarContenidoAdmin(tema.slug, inicial?.id ?? null, { tipo, titulo, duracionMin: duracion.trim() ? Number(duracion) : null, cuerpo: tipo === 'ejercitacion' ? cuerpo : null, publicado }, archivo)
       if (r.ok) {
+        guardadoRef.current = true
         onGuardado(r.id ?? '', !inicial)
         return null
       }
@@ -38,6 +54,18 @@ export default function FormularioContenido({ tema, tipo, inicial, onGuardado }:
       return r.mensaje
     })
     if (!ok) document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+  }
+
+  const quitarArchivo = () => {
+    if (archivo && archivo !== 'quitar') void descartarArchivoSubido(archivo.token)
+    setArchivo('quitar')
+  }
+
+  // Reemplazar sin haber guardado (subir otro archivo antes de mandar el formulario) también deja
+  // huérfano el que se acaba de subir, si no se descarta acá.
+  const archivoSubido = (nuevo: ArchivoSubido) => {
+    if (archivo && archivo !== 'quitar') void descartarArchivoSubido(archivo.token)
+    setArchivo(nuevo)
   }
 
   return (
@@ -62,7 +90,7 @@ export default function FormularioContenido({ tema, tipo, inicial, onGuardado }:
           {errores.cuerpo && <p className="text-meta text-mar-coral">{errores.cuerpo}</p>}
         </div>
       ) : (
-        <SubidaDeArchivo tipo={tipo} archivo={mostrado} onSubido={setArchivo} onQuitar={() => setArchivo('quitar')} />
+        <SubidaDeArchivo tipo={tipo} archivo={mostrado} onSubido={archivoSubido} onQuitar={quitarArchivo} />
       )}
       <Interruptor etiqueta="Publicada" ayuda={publicado ? 'Las suscriptoras la ven en la ventana.' : 'Borrador: todavía no se ve.'} activo={publicado} onCambio={setPublicado} />
       {error && <Aviso>{error}</Aviso>}

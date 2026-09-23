@@ -1,5 +1,5 @@
 // Panel de administración: crear, editar, ordenar, publicar y borrar ventanas y sus piezas, y subir
-// archivos. Ventanas y piezas ya son consultas reales a Supabase.
+// archivos. Ventanas, piezas y archivos ya son consultas reales a Supabase / Bunny Stream.
 //
 // OJO: `esAdmin()` acá es la barrera real solo para lo que ESCRIBE (insert/update/delete): ahí sí,
 // si la sesión no es admin, las policies `temas_admin`/`contenidos_admin` (es_admin()) rechazan la
@@ -11,16 +11,17 @@
 // son policies permisivas que igual matchean. No es una fuga (no ve nada que no pudiera ver por las
 // rutas públicas), pero rompería el "está vacío si no sos admin" que esperan estas funciones.
 //
-// Los archivos (Bunny Stream) siguen simulados: la tabla real `archivos_contenido` solo la escribe una
-// Edge Function con service_role que todavía no existe (ver CLAUDE.md, "Para respaldar en Supabase").
-// Este `Map` en memoria es un reemplazo de mentira nada más para que el panel tenga algo que mostrar
-// mientras tanto; no persiste entre recargas y se vacía al cerrar sesión (`olvidarArchivos`, llamado
-// desde `vaciarCache` en SesionContext).
+// Los archivos: `archivos_contenido` la escribe solo `guardar-archivo-bunny` (service_role) — acá
+// nunca se hace `insert`/`update` directo. La subida a Bunny es directa desde el navegador por TUS
+// (protocolo reanudable): `iniciar-subida-bunny` crea el video en Bunny y firma una autorización
+// temporal; el archivo nunca pasa por un servidor propio (ni el de Supabase ni ningún otro), así uno
+// de hasta 2GB no choca contra ningún límite de tamaño de pedido.
+import * as tus from 'tus-js-client'
 import { supabase } from '../lib/supabase'
 import { esAdmin } from './acceso'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
-import { hayDatosDePrueba, sinBackend } from './base'
-import type { ArchivoDeContenido, ArchivoSubido, DatosDeContenido, DatosDeQuienSoy, DatosDeTema, EstadoMarId, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
+import { invocar } from './base'
+import type { ArchivoSubido, DatosDeContenido, DatosDeQuienSoy, DatosDeTema, EstadoMarId, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
 
 const ESTADOS: EstadoMarId[] = ['calma', 'olas_suaves', 'agitado', 'tormenta', 'profundidades', 'mareas', 'corrientes', 'horizonte']
 const NO_ES_ADMIN = { ok: false, mensaje: 'No tenés permiso para hacer esto.' } as const
@@ -29,24 +30,21 @@ const ERROR_GENERICO = { ok: false, mensaje: 'No pudimos guardar. Probá de nuev
 
 export const LIMITE_DE_ARCHIVO_MB: Record<'video' | 'meditacion', number> = { video: 2048, meditacion: 500 }
 
-// Los archivos "subidos", por pieza — ver el comentario de arriba: de mentira, en memoria.
-const archivos = new Map<string, ArchivoDeContenido>()
-export const archivoDe = (contenidoId: string): ArchivoDeContenido | null => archivos.get(contenidoId) ?? null
-export const olvidarArchivos = () => archivos.clear()
-
 export async function listarTemasAdmin(): Promise<TemaAdmin[]> {
   if (!(await esAdmin())) return []
-  const [{ data: temas, error: e1 }, { data: contenidos, error: e2 }] = await Promise.all([
+  const [{ data: temas, error: e1 }, { data: contenidos, error: e2 }, { data: archivos, error: e3 }] = await Promise.all([
     supabase.from('temas').select(COLUMNAS_TEMA).order('orden'),
     supabase.from('contenidos').select(COLUMNAS_CONTENIDO).order('orden'),
+    supabase.from('archivos_contenido').select('contenido_id, nombre, bytes'),
   ])
-  if (e1 || e2) throw e1 ?? e2
+  if (e1 || e2 || e3) throw e1 ?? e2 ?? e3
+  const archivoPorContenido = new Map(archivos.map((a) => [a.contenido_id, { nombre: a.nombre, bytes: a.bytes }]))
   return temas.map(mapTema).map((t) => ({
     ...t,
     contenidos: contenidos
       .filter((c) => c.tema_id === t.id)
       .map(mapContenido)
-      .map((c) => ({ ...c, archivo: archivoDe(c.id) })),
+      .map((c) => ({ ...c, archivo: archivoPorContenido.get(c.id) ?? null })),
   }))
 }
 
@@ -169,18 +167,35 @@ export async function guardarContenidoAdmin(
     if (error || !fila) return ERROR_GENERICO
     id = fila.id
   }
-  if (id && archivo === 'quitar') archivos.delete(id)
-  else if (id && archivo && archivo !== 'quitar') archivos.set(id, { nombre: archivo.nombre, bytes: archivo.bytes })
+  // El archivo recién se asocia acá, no cuando se subió: una pieza nueva todavía no tenía id en ese
+  // momento (`iniciar-subida-bunny` no lo necesita, sube directo a Bunny) — `archivo.token` es el
+  // `videoId` que devolvió esa función. `guardar-archivo-bunny` es la única que puede escribir
+  // `archivos_contenido` (RLS); si falla, el resto de la pieza ya quedó guardado, pero se avisa igual
+  // para que la admin sepa que el archivo no quedó asociado y pueda reintentar.
+  if (id && archivo === 'quitar') {
+    const r = await invocar<ResultadoAdmin>('guardar-archivo-bunny', { contenidoId: id, accion: 'quitar' })
+    if (!r.ok) return r
+  } else if (id && archivo && archivo !== 'quitar') {
+    const r = await invocar<ResultadoAdmin>('guardar-archivo-bunny', { contenidoId: id, accion: 'guardar', videoId: archivo.token, nombre: archivo.nombre, bytes: archivo.bytes })
+    if (!r.ok) return r
+  }
   // `temas.piezas` (la vista pública bloqueada) la recalcula sola un trigger en la base al guardar.
   return { ok: true, id }
 }
 
 export async function eliminarContenidoAdmin(contenidoId: string): Promise<ResultadoAdmin> {
   if (!(await esAdmin())) return NO_ES_ADMIN
+  // El id del video se lee ANTES de borrar la pieza: `contenidos` borra en cascada la fila de
+  // `archivos_contenido`, así que si no se guarda este id ahora, después de borrar ya no hay forma de
+  // encontrarlo para limpiarlo del lado de Bunny.
+  const { data: archivo } = await supabase.from('archivos_contenido').select('bunny_video_id').eq('contenido_id', contenidoId).maybeSingle()
   const { data: fila, error } = await supabase.from('contenidos').delete().eq('id', contenidoId).select('id').maybeSingle()
   if (error) return ERROR_GENERICO
   if (!fila) return NO_EXISTE
-  archivos.delete(contenidoId)
+  // Mejor esfuerzo, recién ahora que la pieza se borró de verdad: si Bunny está caído, no vale la pena
+  // resucitar la pieza por eso — en el peor caso queda un video huérfano (solo cuesta almacenamiento,
+  // no es una fuga).
+  if (archivo) await invocar('guardar-archivo-bunny', { accion: 'descartar', videoId: archivo.bunny_video_id }).catch(() => undefined)
   return { ok: true }
 }
 
@@ -224,30 +239,72 @@ export async function guardarQuienSoyAdmin(d: DatosDeQuienSoy): Promise<Resultad
 
 // ── Archivos ──────────────────────────────────────────────────────────────────
 
-export type ArchivoParaSubir = { nombre: string; bytes: number; tipoMime: string }
+type InicioDeSubida = { videoId: string; libraryId: string; authorizationSignature: string; authorizationExpire: number }
 
-const PASOS = 12
-const PASO_MS = 220
-
-// Con Bunny Stream la subida es directa desde el navegador a una URL que crea una Edge Function (que
-// verifica que sea admin); acá se simula con una barra que avanza. Se puede cancelar con la señal.
+// Sube un archivo de video o audio directo al navegador de Bunny Stream, por TUS (protocolo
+// reanudable): `iniciar-subida-bunny` crea el video en Bunny y firma una autorización de una hora;
+// de ahí en más, el archivo viaja directo de este navegador a Bunny, nunca por un servidor propio.
+// El resultado (`archivo.token`) es el id del video en Bunny: `guardarContenidoAdmin` recién lo asocia
+// a la pieza cuando se guarda el formulario entero (ver el comentario de esa función).
 export async function subirArchivoAdmin(
   tipo: TipoContenido,
-  a: ArchivoParaSubir,
+  archivo: File,
   alAvanzar: (porcentaje: number) => void,
   senal?: AbortSignal,
 ): Promise<{ ok: true; archivo: ArchivoSubido } | { ok: false; mensaje: string }> {
-  if (!hayDatosDePrueba) return sinBackend()
   if (!(await esAdmin())) return { ok: false, mensaje: NO_ES_ADMIN.mensaje }
   const clase = tipo === 'video' ? 'video/' : 'audio/'
-  if (tipo === 'ejercitacion' || !a.tipoMime.startsWith(clase)) {
+  if (tipo === 'ejercitacion' || !archivo.type.startsWith(clase)) {
     return { ok: false, mensaje: tipo === 'video' ? 'Elegí un archivo de video.' : 'Elegí un archivo de audio.' }
   }
-  if (a.bytes > LIMITE_DE_ARCHIVO_MB[tipo] * 1024 * 1024) return { ok: false, mensaje: `El archivo pesa más de ${LIMITE_DE_ARCHIVO_MB[tipo]} MB.` }
-  for (let i = 1; i <= PASOS; i++) {
-    await new Promise((r) => setTimeout(r, PASO_MS))
-    if (senal?.aborted) return { ok: false, mensaje: 'Cancelaste la subida.' }
-    alAvanzar(Math.round((i / PASOS) * 100))
-  }
-  return { ok: true, archivo: { nombre: a.nombre, bytes: a.bytes, token: `subida-${Math.random().toString(36).slice(2, 10)}` } }
+  if (archivo.size > LIMITE_DE_ARCHIVO_MB[tipo] * 1024 * 1024) return { ok: false, mensaje: `El archivo pesa más de ${LIMITE_DE_ARCHIVO_MB[tipo]} MB.` }
+
+  const inicio = await invocar<InicioDeSubida | { ok: false; mensaje: string }>('iniciar-subida-bunny', {
+    tipo,
+    nombre: archivo.name,
+    bytes: archivo.size,
+    tipoMime: archivo.type,
+  })
+  if ('ok' in inicio) return inicio
+
+  return new Promise((resolver) => {
+    const subida = new tus.Upload(archivo, {
+      endpoint: 'https://video.bunnycdn.com/tusupload',
+      retryDelays: [0, 3000, 5000, 10000, 20000],
+      headers: {
+        AuthorizationSignature: inicio.authorizationSignature,
+        AuthorizationExpire: String(inicio.authorizationExpire),
+        VideoId: inicio.videoId,
+        LibraryId: inicio.libraryId,
+      },
+      metadata: { filetype: archivo.type, title: archivo.name },
+      // El video que creó `iniciar-subida-bunny` queda vacío en Bunny si la subida falla: se descarta
+      // solo, sin bloquear a quien está en el formulario (mejor esfuerzo — si esto también falla,
+      // queda huérfano, ver el comentario de `guardar-archivo-bunny`).
+      onError: () => {
+        void descartarArchivoSubido(inicio.videoId)
+        resolver({ ok: false, mensaje: 'No pudimos subir el archivo. Probá de nuevo.' })
+      },
+      onProgress: (subidos, total) => alAvanzar(Math.round((subidos / total) * 100)),
+      onSuccess: () => resolver({ ok: true, archivo: { nombre: archivo.name, bytes: archivo.size, token: inicio.videoId } }),
+    })
+    // `subida.abort()` no dispara `onError`: hay que resolver acá mismo, o la promesa queda colgada
+    // para siempre y la barra de progreso se congela.
+    senal?.addEventListener('abort', () => {
+      void subida.abort()
+      void descartarArchivoSubido(inicio.videoId)
+      resolver({ ok: false, mensaje: 'Cancelaste la subida.' })
+    })
+    // Sin `findPreviousUploads`/`resumeFromPreviousUpload`: cada intento crea un video nuevo en Bunny
+    // (`iniciar-subida-bunny` de arriba), así que reanudar contra una subida vieja mandaría los bytes
+    // al `videoId` equivocado — el nuevo quedaría vacío pero la función igual reportaría éxito.
+    subida.start()
+  })
+}
+
+// Borra en Bunny un video que se subió pero nunca se guardó (se canceló la subida, se sacó el archivo
+// del formulario antes de mandarlo, o se abandonó el formulario sin guardar). Mejor esfuerzo: no hay
+// ninguna fila en la base que dependa de esto.
+export async function descartarArchivoSubido(videoId: string): Promise<void> {
+  await invocar('guardar-archivo-bunny', { accion: 'descartar', videoId }).catch(() => undefined)
 }

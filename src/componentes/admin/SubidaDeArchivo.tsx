@@ -14,7 +14,7 @@ type Props = {
 }
 
 // Subida de un archivo de video o audio: se elige o se arrastra, muestra el avance, se puede cancelar y
-// reemplazar. Con Bunny Stream sube directo desde el navegador, con una URL que crea una Edge Function.
+// reemplazar. Sube directo desde el navegador a Bunny Stream, por una URL que firma una Edge Function.
 export default function SubidaDeArchivo({ tipo, archivo, onSubido, onQuitar }: Props) {
   const [subiendo, setSubiendo] = useState<{ nombre: string; porcentaje: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -29,7 +29,7 @@ export default function SubidaDeArchivo({ tipo, archivo, onSubido, onQuitar }: P
     setError(null)
     setSubiendo({ nombre: f.name, porcentaje: 0 })
     control.current = new AbortController()
-    const r = await subirArchivoAdmin(tipo, { nombre: f.name, bytes: f.size, tipoMime: f.type }, (porcentaje) => setSubiendo({ nombre: f.name, porcentaje }), control.current.signal)
+    const r = await subirArchivoAdmin(tipo, f, (porcentaje) => setSubiendo({ nombre: f.name, porcentaje }), control.current.signal)
     setSubiendo(null)
     if (r.ok) onSubido(r.archivo)
     else setError(r.mensaje)

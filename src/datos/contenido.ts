@@ -5,20 +5,16 @@
 // `temas_admin`, `contenidos_con_acceso`, `contenidos_admin`), no un chequeo de rol acá. Lo único que
 // este archivo decide es la rama 'bloqueado' vs 'abierto' de un tema, con `tengoAcceso()`.
 //
-// La suscripción y el pago (Mercado Pago) también son reales: cada acción llama a su Edge Function
-// (`iniciar-suscripcion`, `cancelar-suscripcion`, `reactivar-suscripcion`, `cambiar-medio-de-pago`) y
-// ninguna decide una transición acá — solo pide y muestra lo que el servidor contestó.
+// La suscripción y el pago (Mercado Pago), y los archivos de video/audio (Bunny Stream), también son
+// reales: cada acción llama a su Edge Function y ninguna decide una transición o firma acá — solo pide
+// y muestra lo que el servidor contestó.
 //
-// Lo que sigue simulado (todavía no tiene backend real): el contacto y el origen del medio (Bunny
-// Stream) — Edge Functions pendientes. Esas funciones siguen gateadas por `hayDatosDePrueba` y tiran
-// `sinBackend()` fuera de ese modo.
+// Lo que sigue simulado (todavía no tiene backend real): el contacto.
 import { supabase } from '../lib/supabase'
 import { estados as ESTADOS } from './constantes'
 import { esAdmin, tengoAcceso } from './acceso'
-import { archivoDe } from './admin'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
-import { silencioWav } from './medioSimulado'
-import { esperar, hayDatosDePrueba, sinBackend } from './base'
+import { esperar, hayDatosDePrueba, invocar, sinBackend } from './base'
 import type { CampoPerfil, EstadoDelPago, EstadoMar, QuienSoy, Suscripcion, Tema, TemaVisible } from './tipos'
 
 export async function listarEstados(): Promise<EstadoMar[]> {
@@ -104,18 +100,6 @@ export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
   }
 }
 
-// Llama una Edge Function y devuelve lo que haya en el body de la respuesta, sea éxito o el
-// `{ ok: false, mensaje }` que arma cada función para sus propios fracasos esperados (transición
-// inválida, Mercado Pago no contestó, etc.). Tira solo para lo que ninguna función esperaría (red
-// caída): ahí no hay ningún mensaje que leer.
-async function invocar<T>(fn: string): Promise<T> {
-  const { data, error } = await supabase.functions.invoke(fn)
-  if (!error) return data as T
-  const cuerpo = await (error as { context?: Response }).context?.json().catch(() => null)
-  if (cuerpo) return cuerpo as T
-  throw error
-}
-
 // Adónde mandar a la persona para pagar: la URL del checkout alojado por Mercado Pago.
 export type DestinoDePago = { url: string; externo: boolean }
 
@@ -184,20 +168,23 @@ export async function enviarMensajeDeContacto(_mensaje: MensajeDeContacto): Prom
   return { ok: true }
 }
 
-// La dirección con la que se reproduce una pieza. Con Bunny Stream la firma una Edge Function que
-// primero verifica la suscripción, y vence a los ~15 minutos: por eso trae `venceEn` y el reproductor
-// pide otra si hace falta. null = todavía no hay archivo subido para esa pieza.
+// La dirección con la que se reproduce una pieza. La firma `firmar-video-bunny`, que repite ahí las
+// condiciones (pieza publicada, ventana publicada, acceso — o admin, para poder previsualizar un
+// borrador) porque el id de Bunny vive en `archivos_contenido`, aparte de `contenidos`, y esa tabla la
+// RLS se la esconde a cualquiera que no sea la dueña. Vence a los ~15 minutos: por eso trae `venceEn`
+// y el reproductor pide otra si hace falta. null = no hay acceso, o todavía no se subió el archivo (la
+// función no distingue: ninguno de los dos casos se muestra).
 export type OrigenDeMedio = { url: string; venceEn: number }
 
 export async function obtenerOrigenDeMedio(contenidoId: string): Promise<OrigenDeMedio | null> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  // La RLS ya hace todo el trabajo de "¿se le puede mostrar esto a esta sesión?": publicada, con la
-  // ventana publicada, y con acceso (o cualquiera si es admin). Si no vuelve nada, no se muestra.
-  const { data: c } = await supabase.from('contenidos').select('id, tipo').eq('id', contenidoId).maybeSingle()
-  if (!c || c.tipo === 'ejercitacion') return null
-  if (!(await archivoDe(c.id))) return null // todavía no se subió el archivo
-  return { url: silencioWav(30), venceEn: Date.now() + 15 * 60 * 1000 }
+  const r = await invocar<OrigenDeMedio | null | { ok: false; mensaje: string }>('firmar-video-bunny', { contenidoId })
+  if (!r) return null
+  if ('ok' in r) throw new Error(r.mensaje)
+  // Una respuesta que no es ni `null` ni `{ok:false}` pero tampoco tiene lo que se espera (por ejemplo,
+  // el cuerpo de error genérico de un 401 del gateway, sin `ok`) no puede tratarse como si fuera una
+  // URL real: el reproductor quedaría con un `src` vacío en vez de mostrar el aviso de error.
+  if (!('url' in r) || !('venceEn' in r)) throw new Error('No pudimos preparar la reproducción. Probá de nuevo en un rato.')
+  return r
 }
 
 export * from './admin'
