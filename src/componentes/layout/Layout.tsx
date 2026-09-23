@@ -1,4 +1,3 @@
-import ConmutadorDev from '../../auth/ConmutadorDev'
 import AvisoSinConexion from '../soporte/AvisoSinConexion'
 import LimiteDeErrores from '../soporte/LimiteDeErrores'
 import Grano from '../objetos/Grano'
@@ -20,7 +19,6 @@ export default function Layout() {
         <PaginasAnimadas />
       </LimiteDeErrores>
       <PieDePagina />
-      {import.meta.env.DEV && <ConmutadorDev />}
     </div>
   )
 }

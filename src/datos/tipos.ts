@@ -69,10 +69,19 @@ export type Usuario = { nombre: string; email: string; conGoogle: boolean }
 // - vencida: el cobro falló o venció: sin acceso hasta reactivarla.
 export type Suscripcion =
   | { estado: 'activa'; proximoCobro: string; medioDePago: string }
+  // Un cobro rebotó: quedan `acceso_hasta` (3 días) para actualizar el medio de pago. Distinto de
+  // 'cancelada' (fue una decisión de la persona, no un cobro fallido): el camino de vuelta también es
+  // otro — cambiar la tarjeta, no "reactivar".
+  | { estado: 'en_gracia'; accesoHasta: string }
   | { estado: 'cancelada'; accesoHasta: string }
   | { estado: 'pendiente' }
   | { estado: 'vencida'; desde: string }
   | { estado: 'administradora' }
+
+// Cómo le fue a un intento de pago puntual (identificado por su preapproval_id), para la pantalla de
+// vuelta de Mercado Pago. 'procesando' es "todavía no llegó el webhook"; no es lo mismo que 'pendiente'
+// (un medio de pago que tarda días en acreditarse, como una transferencia).
+export type EstadoDelPago = 'aprobado' | 'pendiente' | 'rechazado' | 'procesando' | 'desconocido'
 
 // Solo para el panel de admin: incluye borradores y todos sus contenidos, con el archivo subido a Bunny
 // (si lo hay). El id del video en Bunny sigue sin viajar: solo el nombre y el tamaño del archivo.

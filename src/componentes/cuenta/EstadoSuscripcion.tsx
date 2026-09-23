@@ -4,6 +4,7 @@ import Tarjeta from '../base/Tarjeta'
 import PlanParaSuscribirse from './PlanParaSuscribirse'
 import SuscripcionActiva from './SuscripcionActiva'
 import SuscripcionCancelada from './SuscripcionCancelada'
+import SuscripcionEnGracia from './SuscripcionEnGracia'
 import SuscripcionPendiente from './SuscripcionPendiente'
 import SuscripcionVencida from './SuscripcionVencida'
 
@@ -29,6 +30,8 @@ export default function EstadoSuscripcion({ suscripcion, avisar }: Props) {
       )
     case 'activa':
       return <SuscripcionActiva suscripcion={suscripcion} avisar={avisar} />
+    case 'en_gracia':
+      return <SuscripcionEnGracia suscripcion={suscripcion} />
     case 'cancelada':
       return <SuscripcionCancelada suscripcion={suscripcion} avisar={avisar} />
     case 'pendiente':

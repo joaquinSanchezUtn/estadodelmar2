@@ -5,18 +5,21 @@
 // `temas_admin`, `contenidos_con_acceso`, `contenidos_admin`), no un chequeo de rol acá. Lo único que
 // este archivo decide es la rama 'bloqueado' vs 'abierto' de un tema, con `tengoAcceso()`.
 //
-// Lo que sigue simulado (todavía no tiene backend real): pago y suscripción (Mercado Pago), el
-// contacto y el origen del medio (Bunny Stream) — todos Edge Functions pendientes. Esas funciones
-// siguen gateadas por `hayDatosDePrueba` y tiran `sinBackend()` fuera de ese modo.
+// La suscripción y el pago (Mercado Pago) también son reales: cada acción llama a su Edge Function
+// (`iniciar-suscripcion`, `cancelar-suscripcion`, `reactivar-suscripcion`, `cambiar-medio-de-pago`) y
+// ninguna decide una transición acá — solo pide y muestra lo que el servidor contestó.
+//
+// Lo que sigue simulado (todavía no tiene backend real): el contacto y el origen del medio (Bunny
+// Stream) — Edge Functions pendientes. Esas funciones siguen gateadas por `hayDatosDePrueba` y tiran
+// `sinBackend()` fuera de ese modo.
 import { supabase } from '../lib/supabase'
 import { estados as ESTADOS } from './constantes'
 import { esAdmin, tengoAcceso } from './acceso'
 import { archivoDe } from './admin'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
 import { silencioWav } from './medioSimulado'
-import { estadoDelPago, fijarSuscripcionSimulada, nuevoPago, periodoVigente, suscripcionSimulada, type EstadoDelPago } from './suscripcionSimulada'
 import { esperar, hayDatosDePrueba, sinBackend } from './base'
-import type { CampoPerfil, EstadoMar, QuienSoy, Suscripcion, Tema, TemaVisible } from './tipos'
+import type { CampoPerfil, EstadoDelPago, EstadoMar, QuienSoy, Suscripcion, Tema, TemaVisible } from './tipos'
 
 export async function listarEstados(): Promise<EstadoMar[]> {
   return [...ESTADOS]
@@ -86,15 +89,13 @@ export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
     .maybeSingle()
   if (!data) return null
 
-  // 'iniciada' (el primer cobro todavía no se acreditó) se muestra igual que 'pendiente'. 'en_gracia'
-  // (cobro que falló, con los 3 días de gracia) se muestra igual que 'cancelada': en los dos casos el
-  // mensaje correcto es "tenés acceso hasta tal fecha". Van a necesitar su propio texto cuando el
-  // webhook de Mercado Pago exista de verdad (hoy esas filas no las escribe nadie todavía).
+  // 'iniciada' (el primer cobro todavía no se acreditó) se muestra igual que 'pendiente'.
   switch (data.estado) {
     case 'activa':
       return { estado: 'activa', proximoCobro: data.proximo_cobro ?? '', medioDePago: data.medio_de_pago ?? '' }
-    case 'cancelada':
     case 'en_gracia':
+      return { estado: 'en_gracia', accesoHasta: data.acceso_hasta ?? '' }
+    case 'cancelada':
       return { estado: 'cancelada', accesoHasta: data.acceso_hasta ?? '' }
     case 'vencida':
       return { estado: 'vencida', desde: (data.ultimo_evento ?? data.created_at).slice(0, 10) }
@@ -103,52 +104,74 @@ export async function obtenerSuscripcion(): Promise<Suscripcion | null> {
   }
 }
 
-// Adónde mandar a la persona para pagar. Con Mercado Pago es una URL externa (init_point de la
-// preapproval, creada en una Edge Function); en desarrollo es una pantalla nuestra que lo simula.
+// Llama una Edge Function y devuelve lo que haya en el body de la respuesta, sea éxito o el
+// `{ ok: false, mensaje }` que arma cada función para sus propios fracasos esperados (transición
+// inválida, Mercado Pago no contestó, etc.). Tira solo para lo que ninguna función esperaría (red
+// caída): ahí no hay ningún mensaje que leer.
+async function invocar<T>(fn: string): Promise<T> {
+  const { data, error } = await supabase.functions.invoke(fn)
+  if (!error) return data as T
+  const cuerpo = await (error as { context?: Response }).context?.json().catch(() => null)
+  if (cuerpo) return cuerpo as T
+  throw error
+}
+
+// Adónde mandar a la persona para pagar: la URL del checkout alojado por Mercado Pago.
 export type DestinoDePago = { url: string; externo: boolean }
 
 export async function iniciarSuscripcion(): Promise<DestinoDePago> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  return { url: `/suscripcion/simular-pago?accion=suscribir&pago=${nuevoPago()}`, externo: false }
+  const r = await invocar<DestinoDePago | { ok: false; mensaje: string }>('iniciar-suscripcion')
+  if ('ok' in r) throw new Error(r.mensaje)
+  return r
 }
 
 export async function cambiarMedioDePago(): Promise<DestinoDePago> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  return { url: '/suscripcion/simular-pago?accion=tarjeta', externo: false }
+  const r = await invocar<DestinoDePago | { ok: false; mensaje: string }>('cambiar-medio-de-pago')
+  if ('ok' in r) throw new Error(r.mensaje)
+  return r
 }
 
 export type ResultadoDeAccion = { ok: true } | { ok: false; mensaje: string }
-const noSePudo = { ok: false, mensaje: 'No pudimos hacerlo ahora. Probá de nuevo en un rato.' } as const
 
-// Cómo va un pago puntual. Con Mercado Pago es el estado que dejó el webhook para ese preapproval_id.
-export async function obtenerEstadoDelPago(id: string): Promise<EstadoDelPago> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  return estadoDelPago(id)
+// Cómo va un pago puntual: se lee directo de `suscripciones` (no se vuelve a llamar a Mercado Pago
+// acá) porque el webhook ya escribió ahí el estado real apenas Mercado Pago le avisó. Puede tardar
+// unos segundos en llegar: por eso `SuscripcionResultado.tsx` reintenta esta consulta un rato.
+export async function obtenerEstadoDelPago(preapprovalId: string): Promise<EstadoDelPago> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return 'desconocido'
+  const { data } = await supabase.from('suscripciones').select('estado').eq('preapproval_id', preapprovalId).eq('user_id', user.id).maybeSingle()
+  if (!data) return 'desconocido'
+  switch (data.estado) {
+    case 'activa':
+      return 'aprobado'
+    case 'iniciada':
+      return 'procesando'
+    case 'pendiente':
+      return 'pendiente'
+    case 'vencida':
+      return 'rechazado'
+    // 'cancelada' no entra en 'rechazado': llegar acá con esa fila significa que el pago sí se
+    // aprobó (la suscripción llegó a activarse) y después se dio de baja — "no pudimos cobrar" sería
+    // falso. Cae en 'desconocido', que manda a Mi cuenta a ver el estado real. Encontrado por la
+    // auditoría de verificación de la Tanda de Mercado Pago.
+    default:
+      return 'desconocido'
+  }
 }
 
-// La baja no corta el acceso: sigue hasta el fin del período pago. Devuelve hasta cuándo, para que
-// el aviso diga lo que el servidor decidió. Pendiente: preapproval a 'cancelled' en MP.
-export async function cancelarSuscripcion(): Promise<{ ok: true; accesoHasta: string } | typeof noSePudo> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  const s = suscripcionSimulada()
-  if (s?.estado !== 'activa') return noSePudo
-  fijarSuscripcionSimulada({ estado: 'cancelada', accesoHasta: s.proximoCobro })
-  return { ok: true, accesoHasta: s.proximoCobro }
+// La baja no corta el acceso: sigue hasta el fin del período pago. La transición se valida del lado
+// del servidor (solo desde 'activa'); acá solo se pide y se muestra lo que contestó.
+export async function cancelarSuscripcion(): Promise<{ ok: true; accesoHasta: string } | { ok: false; mensaje: string }> {
+  return invocar('cancelar-suscripcion')
 }
 
 // Solo se puede reactivar una cancelada con el período todavía vigente: no hay cobro nuevo, así que
-// con el período vencido hay que pagar de nuevo.
+// con el período vencido hay que suscribirse de nuevo. La transición también se valida del lado del
+// servidor.
 export async function reactivarSuscripcion(): Promise<ResultadoDeAccion> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  const s = suscripcionSimulada()
-  if (s?.estado !== 'cancelada' || !periodoVigente(s.accesoHasta)) return noSePudo
-  fijarSuscripcionSimulada({ estado: 'activa', proximoCobro: s.accesoHasta, medioDePago: 'Visa terminada en 4242' })
-  return { ok: true }
+  return invocar('reactivar-suscripcion')
 }
 
 // El formulario de contacto. Con backend real es una Edge Function que guarda el mensaje y avisa por

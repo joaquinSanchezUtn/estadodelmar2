@@ -36,9 +36,6 @@ function FallaDeDesarrollo(): never {
   throw new Error('Falla de prueba')
 }
 
-// SOLO DESARROLLO: la pantalla que reemplaza a Mercado Pago no existe (ni se compila) en producción.
-const SimularPago = import.meta.env.DEV ? lazy(() => import('./pages/SimularPago')) : () => null
-
 // Recibe `location` para que la página que sale conserve su ruta mientras se desvanece.
 export default function Rutas({ location }: { location: Location }) {
   return (
@@ -63,7 +60,6 @@ export default function Rutas({ location }: { location: Location }) {
         <Route element={<RutaConSesion />}>
           <Route path="/mi-cuenta" element={<MiCuenta />} />
           <Route path="/suscripcion/resultado" element={<SuscripcionResultado />} />
-          {import.meta.env.DEV && <Route path="/suscripcion/simular-pago" element={<SimularPago />} />}
         </Route>
         <Route element={<RutaDeAdmin />}>
           <Route path="/admin" element={<Admin />} />

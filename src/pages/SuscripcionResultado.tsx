@@ -6,18 +6,22 @@ import Aviso from '../componentes/base/Aviso'
 import Boton from '../componentes/base/Boton'
 import { irAlPago } from '../componentes/cuenta/irAlPago'
 import { iniciarSuscripcion, obtenerEstadoDelPago } from '../datos/contenido'
-import type { EstadoDelPago } from '../datos/suscripcionSimulada'
+import type { EstadoDelPago } from '../datos/tipos'
 import { useAccion } from '../lib/useAccion'
 
 const INTERVALO_MS = 2000
 const INTENTOS = 8
 
-// A donde vuelve la persona desde Mercado Pago. La URL trae solo el identificador del pago
-// (en Mercado Pago, el preapproval_id) y la pantalla le pregunta al servidor cómo le fue A ESE pago:
-// lo que ella misma diga no cambia nada. El servidor lo sabe por el webhook, que puede tardar unos
-// segundos: por eso se consulta hasta que deje de estar "procesando".
+// A donde vuelve la persona desde Mercado Pago. La URL trae el identificador del pago (el
+// preapproval_id, que Mercado Pago agrega solo al volver del checkout) y la pantalla le pregunta al
+// servidor cómo le fue A ESE pago: lo que ella misma diga no cambia nada. El servidor lo sabe por el
+// webhook, que puede tardar unos segundos: por eso se consulta hasta que deje de estar "procesando".
+//
+// OJO: todavía no se verificó contra una vuelta real de Mercado Pago que el parámetro se llame
+// exactamente `preapproval_id` (la documentación pública no lo confirma); revisar en la primera
+// suscripción de prueba de punta a punta y ajustar acá si hace falta.
 export default function SuscripcionResultado() {
-  const id = useSearchParams()[0].get('pago') ?? ''
+  const id = useSearchParams()[0].get('preapproval_id') ?? ''
   const { refrescarSesion } = useSesion()
   const navegar = useNavigate()
   const [estado, setEstado] = useState<EstadoDelPago>('procesando')
