@@ -13,6 +13,9 @@ export const tamano = (bytes: number) =>
 
 export const minutos = (m: number | null) => (m ? `${m} min` : '')
 
+// 15000 -> '$15.000'. El precio del plan, en pesos argentinos y sin decimales.
+export const precio = (ars: number) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(ars)
+
 // '2026-10-05' -> '5 de octubre de 2026'. Se fija el mediodía para evitar corrimientos de zona horaria.
 export const fechaLarga = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString('es-AR', {

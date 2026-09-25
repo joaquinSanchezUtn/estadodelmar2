@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import PaginaLegal, { type Seccion } from '../componentes/legal/PaginaLegal'
+import { usePrecio } from '../lib/usePrecio'
 
-const secciones: Seccion[] = [
+const crearSecciones = (precio: string): Seccion[] => [
   {
     id: 'servicio',
     titulo: 'Qué es este servicio',
@@ -29,7 +30,7 @@ const secciones: Seccion[] = [
     id: 'suscripcion',
     titulo: 'La suscripción y el pago',
     parrafos: [
-      'Hay un solo plan, mensual, de [PRECIO] por mes. Se renueva automáticamente cada mes hasta que lo canceles. El pago lo procesa Mercado Pago: el sitio no guarda los datos de tu tarjeta.',
+      `Hay un solo plan, mensual, de ${precio} por mes. Se renueva automáticamente cada mes hasta que lo canceles. El pago lo procesa Mercado Pago: el sitio no guarda los datos de tu tarjeta.`,
       'Si el precio cambia, te avisamos con anticipación por correo y el cambio rige recién desde la renovación siguiente. Si no lo aceptás, podés cancelar antes.',
     ],
   },
@@ -77,5 +78,6 @@ const secciones: Seccion[] = [
 ]
 
 export default function Terminos() {
-  return <PaginaLegal titulo="Términos y condiciones" actualizado="[FECHA]" secciones={secciones} />
+  const precio = usePrecio()
+  return <PaginaLegal titulo="Términos y condiciones" actualizado="[FECHA]" secciones={crearSecciones(precio)} />
 }

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { iniciarSuscripcion } from '../../datos/contenido'
 import { useAccion } from '../../lib/useAccion'
+import { usePrecio } from '../../lib/usePrecio'
 import Aviso from '../base/Aviso'
 import Boton from '../base/Boton'
 import TarjetaSuscripcion from './TarjetaSuscripcion'
@@ -10,6 +11,7 @@ import { irAlPago } from './irAlPago'
 export default function PlanParaSuscribirse() {
   const navegar = useNavigate()
   const { pendiente, error, ejecutar } = useAccion()
+  const precio = usePrecio()
 
   const suscribirme = () =>
     ejecutar(async () => {
@@ -25,7 +27,7 @@ export default function PlanParaSuscribirse() {
 
       <div className="mb-5 rounded-tarjeta border border-mar-bordeAgua bg-mar-espuma p-5 text-center">
         <p className="mb-2 text-etiqueta uppercase text-mar-agua">Plan mensual</p>
-        <p className="font-titulo text-titulo-l font-light">[PRECIO]</p>
+        <p className="font-titulo text-titulo-l font-light">{precio}</p>
         <p className="mt-1 text-meta text-mar-tintaSuave">por mes · se renueva solo · cancelás cuando quieras</p>
       </div>
 

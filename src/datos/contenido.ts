@@ -21,6 +21,15 @@ export async function listarEstados(): Promise<EstadoMar[]> {
   return [...ESTADOS]
 }
 
+// El precio real del plan, el mismo `MP_PRECIO_ARS` que usa `iniciar-suscripcion` para cobrar — nunca
+// un número aparte que alguien tenga que acordarse de mantener igual. `null` mientras el secreto no
+// esté cargado (ver CLAUDE.md, "Pendientes de decisión"): ahí `usePrecio()` deja el placeholder
+// `[PRECIO]`.
+export async function obtenerPrecio(): Promise<number | null> {
+  const r = await invocar<{ precioArs: number | null }>('obtener-precio')
+  return r.precioArs
+}
+
 // Catálogo público: solo temas publicados. El filtro va en la consulta (no alcanza con la RLS): una
 // admin con sesión también vería sus borradores por `temas_admin`, y este listado es el público. Un
 // error de red no puede mostrarse como "no hay ventanas": se propaga para que la pantalla lo diga.

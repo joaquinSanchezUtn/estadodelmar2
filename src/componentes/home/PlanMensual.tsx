@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useSesion } from '../../auth/SesionContext'
+import { usePrecio } from '../../lib/usePrecio'
 import Boton from '../base/Boton'
 import Burbuja from '../base/Burbuja'
 import Tarjeta from '../base/Tarjeta'
@@ -15,6 +16,7 @@ const incluye = [
 
 export default function PlanMensual() {
   const { accesoActivo, usuario } = useSesion()
+  const precio = usePrecio()
 
   return (
     <Burbuja
@@ -46,7 +48,7 @@ export default function PlanMensual() {
 
       <Tarjeta className="p-6 text-center md:mx-auto md:w-full md:max-w-angosto lg:mx-0 lg:w-96 lg:shrink-0 lg:p-8">
         <p className="mb-4 text-etiqueta uppercase text-mar-agua">Plan mensual</p>
-        <p className="font-titulo text-titulo-xl font-light">[PRECIO]</p>
+        <p className="font-titulo text-titulo-xl font-light">{precio}</p>
         <p className="mb-6 mt-2 text-meta text-mar-tintaSuave">por mes · se renueva solo</p>
         {accesoActivo ? (
           <Boton to="/mi-cuenta" variante="secundario" className="w-full">

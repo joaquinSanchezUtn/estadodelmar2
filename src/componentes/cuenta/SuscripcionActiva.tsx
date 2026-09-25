@@ -5,6 +5,7 @@ import { cambiarMedioDePago, cancelarSuscripcion } from '../../datos/contenido'
 import type { Suscripcion } from '../../datos/tipos'
 import { fechaLarga } from '../../lib/formato'
 import { useAccion } from '../../lib/useAccion'
+import { usePrecio } from '../../lib/usePrecio'
 import Aviso from '../base/Aviso'
 import Boton from '../base/Boton'
 import ConfirmarBaja from './ConfirmarBaja'
@@ -20,6 +21,7 @@ export default function SuscripcionActiva({ suscripcion, avisar }: Props) {
   const botonBaja = useRef<HTMLButtonElement>(null)
   const baja = useAccion()
   const tarjeta = useAccion()
+  const precio = usePrecio()
 
   // Cerrar la confirmación devuelve el foco al botón que la abrió.
   const cerrar = () => {
@@ -46,7 +48,7 @@ export default function SuscripcionActiva({ suscripcion, avisar }: Props) {
     <TarjetaSuscripcion sello={{ tono: 'agua', texto: 'Activa' }}>
       <dl className="flex flex-col gap-1 sm:grid sm:grid-cols-[140px_1fr] sm:gap-x-4 sm:gap-y-3">
         <dt className="text-cuerpo text-mar-tintaSuave">Plan</dt>
-        <dd className="mb-2 text-cuerpo text-mar-tinta sm:mb-0">Mensual · [PRECIO] por mes</dd>
+        <dd className="mb-2 text-cuerpo text-mar-tinta sm:mb-0">Mensual · {precio} por mes</dd>
         <dt className="text-cuerpo text-mar-tintaSuave">Próximo cobro</dt>
         <dd className="mb-2 text-cuerpo text-mar-tinta sm:mb-0">{fechaLarga(suscripcion.proximoCobro)}</dd>
         <dt className="text-cuerpo text-mar-tintaSuave">Medio de pago</dt>
