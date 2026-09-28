@@ -91,8 +91,33 @@ export async function guardarTemaAdmin(slugActual: string | null, d: DatosDeTema
 
 export async function eliminarTemaAdmin(slug: string): Promise<ResultadoAdmin> {
   if (!(await esAdmin())) return NO_ES_ADMIN
-  const { error } = await supabase.from('temas').delete().eq('slug', slug)
+  // Los videos se leen ANTES de borrar la ventana, con la misma lógica que `eliminarContenidoAdmin`:
+  // `temas` borra en cascada `contenidos` y, con eso, `archivos_contenido` — si no se guardan estos
+  // ids ahora, después de borrar ya no hay forma de encontrarlos para limpiarlos del lado de Bunny (a
+  // diferencia de borrar una pieza suelta, acá son varios videos de un saque).
+  const { data: tema, error: errorTema } = await supabase.from('temas').select('id').eq('slug', slug).maybeSingle()
+  if (errorTema) return ERROR_GENERICO
+  let videoIds: string[] = []
+  if (tema) {
+    const { data: contenidos, error: errorContenidos } = await supabase.from('contenidos').select('id').eq('tema_id', tema.id)
+    if (errorContenidos) return ERROR_GENERICO
+    const contenidoIds = (contenidos ?? []).map((c) => c.id)
+    if (contenidoIds.length) {
+      const { data: archivos, error: errorArchivos } = await supabase.from('archivos_contenido').select('bunny_video_id').in('contenido_id', contenidoIds)
+      if (errorArchivos) return ERROR_GENERICO
+      videoIds = (archivos ?? []).map((a) => a.bunny_video_id)
+    }
+  }
+  // `.select().maybeSingle()`, igual que `guardarTemaAdmin`/`publicarTemaAdmin`: si la RLS bloqueó el
+  // borrado (rol revocado, sesión de recuperación) Postgres no lo marca como error — sin este chequeo
+  // se limpiarían igual los videos en Bunny de una ventana que en realidad seguía viva y publicada.
+  const { data: borrada, error } = await supabase.from('temas').delete().eq('slug', slug).select('id').maybeSingle()
   if (error) return ERROR_GENERICO
+  if (tema && !borrada) return NO_ES_ADMIN
+  // Recién ahora que la ventana se borró de verdad, y esperado (no "mejor esfuerzo" al aire): si se
+  // deja sin await, cerrar la pestaña justo después de navegar puede cortar el pedido a mitad de
+  // camino y dejar los videos huérfanos en Bunny — lo mismo que esta limpieza vino a evitar.
+  await Promise.all(videoIds.map((videoId) => invocar('guardar-archivo-bunny', { accion: 'descartar', videoId }).catch(() => undefined)))
   return { ok: true } // borrar algo ya borrado también es un éxito: el resultado deseado ya es cierto
 }
 

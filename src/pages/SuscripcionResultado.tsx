@@ -21,7 +21,10 @@ const INTENTOS = 8
 // exactamente `preapproval_id` (la documentación pública no lo confirma); revisar en la primera
 // suscripción de prueba de punta a punta y ajustar acá si hace falta.
 export default function SuscripcionResultado() {
-  const id = useSearchParams()[0].get('preapproval_id') ?? ''
+  const [parametros, setParametros] = useSearchParams()
+  // Se congela en el primer render: la URL se limpia enseguida (abajo), así que leer de nuevo
+  // `parametros.get(...)` en un render posterior ya no encontraría nada.
+  const [id] = useState(() => parametros.get('preapproval_id') ?? '')
   const { refrescarSesion } = useSesion()
   const navegar = useNavigate()
   const [estado, setEstado] = useState<EstadoDelPago>('procesando')
@@ -31,6 +34,13 @@ export default function SuscripcionResultado() {
   // efecto, o refrescar la sesión lo vuelve a disparar sin fin.
   const refrescar = useRef(refrescarSesion)
   refrescar.current = refrescarSesion
+
+  // El id ya se guardó arriba: sacarlo de la URL apenas se puede, para que no quede pegado en el
+  // historial ni sobreviva a una recarga (una recarga vuelve a "procesando" desde cero, a propósito).
+  useEffect(() => {
+    if (id) setParametros(new URLSearchParams(), { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (!id) return

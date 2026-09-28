@@ -28,6 +28,24 @@ const ESTADO_TERMINADO = 4;
 
 const error = (mensaje: string, status = 400) => Response.json({ ok: false, mensaje }, { status });
 
+// `availableResolutions` de Bunny es un string tipo "360p,720p,1080p": las resoluciones que YA
+// terminó de codificar (nunca asume una fija). Bunny no genera nada más grande que el original, así
+// que un video de bajo lado puede no tener 720p — se usa la más alta que sí exista de verdad, con un
+// techo en 720p (servir 1080p/4K sin necesidad, en un sitio mobile-first sin bitrate adaptativo, sale
+// caro en ancho de banda para quien mira desde el celular con datos). Encontrado en la auditoría de
+// seguridad del fix de resolución.
+const TECHO_ALTURA = 720;
+function mejorResolucion(disponibles: unknown): string | null {
+  if (typeof disponibles !== "string" || !disponibles) return null;
+  const alturas = disponibles
+    .split(",")
+    .map((r) => parseInt(r, 10))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  if (!alturas.length) return null;
+  const hastaElTecho = alturas.filter((n) => n <= TECHO_ALTURA);
+  return `${hastaElTecho.length ? Math.max(...hastaElTecho) : Math.min(...alturas)}p`;
+}
+
 function esSesionDeRecuperacion(claims: Record<string, unknown>): boolean {
   const amr = claims?.amr;
   return Array.isArray(amr) && amr.some((e) => (e as { method?: string })?.method === "recovery");
@@ -95,10 +113,26 @@ export default {
       return error("Bunny todavía no terminó de procesar el archivo. Esperá un momento y volvé a guardar.", 409);
     }
     const bytes = Number(video.storageSize) || 0;
+    const resolucion = mejorResolucion(video.availableResolutions);
+    if (!resolucion) {
+      // No debería pasar con status === 4 (ver arriba), pero si Bunny no confirma ninguna resolución
+      // no hay ningún play_*.mp4 real que firmar después: mejor avisar ahora que dejar una pieza
+      // "guardada" que ninguna suscriptora puede reproducir.
+      console.error("[guardar-archivo-bunny] sin availableResolutions", videoId, video.availableResolutions);
+      // Una meditación es audio puro: la API de Bunny nunca confirmó si genera `availableResolutions`
+      // para un archivo sin pista de video (no probado todavía contra un audio real — ver CLAUDE.md).
+      // Si no las genera, este caso no es transitorio y "probá de nuevo" es un mensaje engañoso: mejor
+      // decirlo distinto para no hacer perder el tiempo reintentando algo que nunca va a cambiar.
+      const { data: contenido } = await ctx.supabaseAdmin.from("contenidos").select("tipo").eq("id", contenidoId).maybeSingle();
+      if (contenido?.tipo === "meditacion") {
+        return error("Bunny no generó ninguna versión reproducible de este audio. Puede ser un problema de fondo con archivos de solo audio, no algo que se resuelva reintentando — avisale a Joaquín antes de seguir insistiendo.", 409);
+      }
+      return error("Bunny no terminó de generar ninguna calidad reproducible para este archivo. Probá de nuevo en un rato.", 409);
+    }
 
     const { error: errorGuardar } = await ctx.supabaseAdmin
       .from("archivos_contenido")
-      .upsert({ contenido_id: contenidoId, bunny_video_id: videoId, nombre: nombreCliente, bytes }, { onConflict: "contenido_id" });
+      .upsert({ contenido_id: contenidoId, bunny_video_id: videoId, nombre: nombreCliente, bytes, resolucion }, { onConflict: "contenido_id" });
     if (errorGuardar) {
       console.error("[guardar-archivo-bunny] upsert archivos_contenido", errorGuardar);
       return error("No pudimos guardar el archivo. Probá de nuevo en un rato.", 500);

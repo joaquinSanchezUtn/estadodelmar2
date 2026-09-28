@@ -22,18 +22,22 @@
 //      tiene reproductor propio y nunca lo usa). Sin esto, alguien con el `bunny_video_id` igual arma
 //      un enlace público que no vence nunca a través de ese reproductor alojado por Bunny.
 //   3. Allowed Referrers: agregar el dominio de producción.
-// Verificación de una línea antes de cerrar: pedir `https://{PULL_ZONE_HOST}/{guid}/play_720p.mp4`
-// SIN `?token=` — tiene que devolver 403. Si devuelve 200, el gate premium de video está abierto.
+// Verificación de una línea antes de cerrar: pedir `https://{PULL_ZONE_HOST}/{guid}/play_{resolucion}.mp4`
+// (la resolución real de un video ya guardado, columna `archivos_contenido.resolucion`) SIN `?token=`
+// — tiene que devolver 403. Si devuelve 200, el gate premium de video está abierto.
 // Encontrado por la auditoría de la Tanda de los videos.
+//
+// OJO con probar a mano pidiendo `play_720p.mp4` sin más: Bunny nunca genera un rendition MÁS GRANDE
+// que la resolución original del video subido, así que un video de bajo lado (algo grabado en menos
+// de 720p) no tiene ese archivo — un 403 ahí no prueba nada sobre el token, prueba que el archivo no
+// existe. Por eso `resolucion` se guarda por video (migración 0008) en vez de asumirse fija: se
+// encontró probando una subida real de punta a punta con un video de prueba en baja resolución.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "jsr:@supabase/server@^1";
 import { crypto } from "jsr:@std/crypto@^1/crypto";
 
 const PULL_ZONE_HOST = Deno.env.get("BUNNY_PULL_ZONE_HOST");
 const TOKEN_KEY = Deno.env.get("BUNNY_TOKEN_KEY");
-// Tiene que ser una resolución que Bunny realmente genere para el video (según el "MP4 Fallback" que
-// esté configurado en la Library); si no existe, la URL firmada devuelve 404.
-const RESOLUCION = "720p";
 const VIGENCIA_SEG = 15 * 60;
 
 const error = (mensaje: string, status = 400) => Response.json({ ok: false, mensaje }, { status });
@@ -77,11 +81,13 @@ export default {
     }
     if (!permitido) return Response.json(null);
 
-    const { data: archivo } = await ctx.supabaseAdmin.from("archivos_contenido").select("bunny_video_id").eq("contenido_id", contenidoId).maybeSingle();
+    const { data: archivo } = await ctx.supabaseAdmin.from("archivos_contenido").select("bunny_video_id, resolucion").eq("contenido_id", contenidoId).maybeSingle();
     if (!archivo) return Response.json(null); // todavía no se subió el archivo
 
     const expira = Math.floor(Date.now() / 1000) + VIGENCIA_SEG;
-    const path = `/${archivo.bunny_video_id}/play_${RESOLUCION}.mp4`;
+    // `resolucion` es la que `guardar-archivo-bunny` confirmó que Bunny terminó de generar para ESTE
+    // video (nunca una fija: Bunny no genera nada más grande que la resolución original subida).
+    const path = `/${archivo.bunny_video_id}/play_${archivo.resolucion}.mp4`;
     const token = await firmar(path, expira);
 
     return Response.json({ url: `https://${PULL_ZONE_HOST}${path}?token=${token}&expires=${expira}`, venceEn: expira * 1000 });
