@@ -13,7 +13,7 @@
 // `auth.uid()` que leen adentro es el correcto. Como esas funciones ya excluyen una sesión de
 // recuperación (`sesion_de_recuperacion()`), acá no hace falta repetir ese chequeo a mano.
 //
-// ⚠️ REQUISITO EN BUNNY, NO EN CÓDIGO — sin esto, todo lo de arriba es cosmético: el `?token=` que
+// ⚠️ REQUISITO EN BUNNY, NO EN CÓDIGO — sin esto, todo lo de arriba es cosmético: el token que
 // arma esta función no protege nada si la Library no lo exige. Antes de dar por cerrada esta tanda,
 // en el panel de bunny.net, para la Library de este proyecto:
 //   1. Security → Token Authentication: ACTIVADO, con la misma clave que `BUNNY_TOKEN_KEY`.
@@ -21,9 +21,10 @@
 //      embebido de Bunny — `iframe.mediadelivery.net/embed|play/...` — directamente, porque este sitio
 //      tiene reproductor propio y nunca lo usa). Sin esto, alguien con el `bunny_video_id` igual arma
 //      un enlace público que no vence nunca a través de ese reproductor alojado por Bunny.
-//   3. Allowed Referrers: agregar el dominio de producción.
+//   3. Allowed domains: el dominio de producción. Bunny compara el Referer CON el puerto: `localhost`
+//      no deja pasar `localhost:5173`; para probar en desarrollo hay que agregar `localhost:<puerto>`.
 // Verificación de una línea antes de cerrar: pedir `https://{PULL_ZONE_HOST}/{guid}/play_{resolucion}.mp4`
-// (la resolución real de un video ya guardado, columna `archivos_contenido.resolucion`) SIN `?token=`
+// (la resolución real de un video ya guardado, columna `archivos_contenido.resolucion`) SIN token
 // — tiene que devolver 403. Si devuelve 200, el gate premium de video está abierto.
 // Encontrado por la auditoría de la Tanda de los videos.
 //
@@ -34,7 +35,6 @@
 // encontró probando una subida real de punta a punta con un video de prueba en baja resolución.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "jsr:@supabase/server@^1";
-import { crypto } from "jsr:@std/crypto@^1/crypto";
 
 const PULL_ZONE_HOST = Deno.env.get("BUNNY_PULL_ZONE_HOST");
 const TOKEN_KEY = Deno.env.get("BUNNY_TOKEN_KEY");
@@ -48,11 +48,14 @@ function base64UrlDeBytes(bytes: Uint8Array): string {
   return btoa(binario).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-// Token Authentication "Basic" de Bunny (MD5), no la variante "Advanced" (HMAC-SHA256): esta pieza no
-// necesita bloqueo por IP ni por país, y la fórmula simple reduce el margen de error. Se puede migrar
-// a Advanced más adelante sin tocar nada del resto del sistema, cambiando solo esta función.
-async function firmar(path: string, expira: number): Promise<string> {
-  const datos = await crypto.subtle.digest("MD5", new TextEncoder().encode(`${TOKEN_KEY}${path}${expira}`));
+// Token Authentication de Bunny, con la misma forma que usa su propio panel (verificada contra una URL
+// que él firmó y dio 200): Base64URL(SHA256(clave + token_path + expires + "token_path=" + token_path)),
+// con el token en el path (`/bcdn_token=...&expires=...&token_path=.../{guid}/archivo`). `token_path` es la
+// carpeta del video: el token vale 15 minutos para todo lo de esa carpeta (todas sus calidades, la
+// miniatura, el HLS y, con "Keep original files" activado, posiblemente el original). Solo de ESA pieza.
+// Reemplaza a la variante MD5 ("Basic"), que Bunny marca como deprecada.
+async function firmar(tokenPath: string, expira: number): Promise<string> {
+  const datos = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${TOKEN_KEY}${tokenPath}${expira}token_path=${tokenPath}`));
   return base64UrlDeBytes(new Uint8Array(datos));
 }
 
@@ -87,9 +90,10 @@ export default {
     const expira = Math.floor(Date.now() / 1000) + VIGENCIA_SEG;
     // `resolucion` es la que `guardar-archivo-bunny` confirmó que Bunny terminó de generar para ESTE
     // video (nunca una fija: Bunny no genera nada más grande que la resolución original subida).
-    const path = `/${archivo.bunny_video_id}/play_${archivo.resolucion}.mp4`;
-    const token = await firmar(path, expira);
+    const carpeta = `/${archivo.bunny_video_id}/`;
+    const token = await firmar(carpeta, expira);
+    const firma = `bcdn_token=${token}&expires=${expira}&token_path=${encodeURIComponent(carpeta)}`;
 
-    return Response.json({ url: `https://${PULL_ZONE_HOST}${path}?token=${token}&expires=${expira}`, venceEn: expira * 1000 });
+    return Response.json({ url: `https://${PULL_ZONE_HOST}/${firma}${carpeta}play_${archivo.resolucion}.mp4`, venceEn: expira * 1000 });
   }),
 };
