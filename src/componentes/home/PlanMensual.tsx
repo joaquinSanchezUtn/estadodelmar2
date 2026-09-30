@@ -47,7 +47,7 @@ export default function PlanMensual() {
       </div>
 
       <Tarjeta className="p-6 text-center md:mx-auto md:w-full md:max-w-angosto lg:mx-0 lg:w-96 lg:shrink-0 lg:p-8">
-        <p className="mb-4 text-etiqueta uppercase text-mar-agua">Plan mensual</p>
+        <p className="mb-4 text-etiqueta uppercase text-mar-atardecerTexto">Plan mensual</p>
         <p className="font-titulo text-titulo-xl font-light">{precio}</p>
         <p className="mb-6 mt-2 text-meta text-mar-tintaSuave">por mes · se renueva solo</p>
         {accesoActivo ? (
@@ -56,12 +56,16 @@ export default function PlanMensual() {
           </Boton>
         ) : (
           <>
-            <p className="text-cuerpo text-mar-tintaSuave">
-              Ingresá o creá tu cuenta: el plan se activa desde Mi cuenta.
+            <Boton to={usuario ? '/mi-cuenta' : '/registrarme'} className="w-full">
+              {usuario ? 'Suscribirme' : 'Crear mi cuenta'}
+            </Boton>
+            <p className="mt-3 text-meta text-mar-tintaSuave">
+              {usuario ? 'El plan se activa desde Mi cuenta.' : (
+                <>
+                  ¿Ya tenés cuenta? <Link to="/ingresar">Ingresá</Link> y activá el plan desde Mi cuenta.
+                </>
+              )}
             </p>
-            <Link to={usuario ? '/mi-cuenta' : '/ingresar'} className="inline-flex min-h-control-sm items-center underline">
-              {usuario ? 'Ir a Mi cuenta' : 'Ingresar'}
-            </Link>
           </>
         )}
         <p className="mt-4 text-meta text-mar-tintaSuave">

@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
 import { useSesion } from '../../auth/SesionContext'
 import { obtenerSuscripcion } from '../../datos/contenido'
 import { useCarga } from '../../lib/useCarga'
 import type { EstadoMarId, Pieza } from '../../datos/tipos'
+import Boton from '../base/Boton'
 import Burbuja from '../base/Burbuja'
 import PiezaBloqueada from './PiezaBloqueada'
 
@@ -45,9 +45,7 @@ export default function ContenidoBloqueado({ piezas, estado }: Props) {
       <Burbuja tono="arena" entrada="ninguna" className="p-6 text-center md:p-8">
         <h2 className="mb-2 text-titulo-m font-normal">{textos[motivo].titulo}</h2>
         <p className="mx-auto mb-5 max-w-angosto text-cuerpo text-mar-tintaSuave">{textos[motivo].texto}</p>
-        <Link to={usuario ? '/mi-cuenta' : '/ingresar'} className="inline-flex min-h-control-sm items-center underline">
-          {usuario ? 'Ir a Mi cuenta' : 'Ingresá o creá tu cuenta'}
-        </Link>
+        <Boton to={usuario ? '/mi-cuenta' : '/ingresar'}>{usuario ? 'Ir a Mi cuenta' : 'Ingresá o creá tu cuenta'}</Boton>
       </Burbuja>
     </div>
   )
