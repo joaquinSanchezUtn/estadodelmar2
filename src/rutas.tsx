@@ -17,6 +17,7 @@ import Tema from './pages/Tema'
 const Admin = lazy(() => import('./pages/Admin'))
 const AdminEditorContenido = lazy(() => import('./pages/AdminEditorContenido'))
 const AdminEditorVentana = lazy(() => import('./pages/AdminEditorVentana'))
+const AdminMensajes = lazy(() => import('./pages/AdminMensajes'))
 const AdminQuienSoy = lazy(() => import('./pages/AdminQuienSoy'))
 const AdminVentanas = lazy(() => import('./pages/AdminVentanas'))
 const Contacto = lazy(() => import('./pages/Contacto'))
@@ -66,6 +67,7 @@ export default function Rutas({ location }: { location: Location }) {
         <Route element={<RutaDeAdmin />}>
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/quien-soy" element={<AdminQuienSoy />} />
+          <Route path="/admin/mensajes" element={<AdminMensajes />} />
           <Route path="/admin/ventanas" element={<AdminVentanas />} />
           <Route path="/admin/ventanas/nueva" element={<AdminEditorVentana />} />
           <Route path="/admin/ventanas/:slug" element={<AdminEditorVentana />} />

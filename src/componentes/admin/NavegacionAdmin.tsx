@@ -5,12 +5,13 @@ const enlaces = [
   { to: '/admin', texto: 'Resumen', fin: true },
   { to: '/admin/ventanas', texto: 'Ventanas', fin: false },
   { to: '/admin/quien-soy', texto: 'Quién soy', fin: false },
+  { to: '/admin/mensajes', texto: 'Mensajes', fin: false },
 ]
 
 // Las secciones del panel. NavLink marca la activa con aria-current="page".
 export default function NavegacionAdmin() {
   return (
-    <nav aria-label="Panel de administración" className="flex gap-2">
+    <nav aria-label="Panel de administración" className="flex flex-wrap gap-2">
       {enlaces.map((e) => (
         <NavLink
           key={e.to}

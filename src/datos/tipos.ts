@@ -19,6 +19,11 @@ export type EstadoMar = {
   ensenanza: string
 }
 
+// Desde dónde se mira el tema (independiente del estado del mar): el pedido original distingue temas
+// psicológicos, filosóficos y transpersonales ("más allá de la personalidad, incluyendo lo espiritual").
+export type EnfoqueId = 'psicologico' | 'filosofico' | 'transpersonal'
+export type Enfoque = { id: EnfoqueId; nombre: string; descripcion: string }
+
 export type TipoContenido = 'video' | 'meditacion' | 'ejercitacion'
 
 // Dato público del tema: qué piezas tiene y cuánto dura cada una.
@@ -34,6 +39,7 @@ export type Tema = {
   titulo: string
   descripcion: string
   estadoMar: EstadoMarId | null
+  enfoque: EnfoqueId | null
   publicado: boolean
   orden: number
   piezas: Pieza[]
@@ -90,7 +96,10 @@ export type ContenidoAdmin = Contenido & { archivo: ArchivoDeContenido | null }
 export type TemaAdmin = Tema & { contenidos: ContenidoAdmin[] }
 
 // Lo que la dueña edita de una ventana y de una pieza.
-export type DatosDeTema = { titulo: string; slug: string; descripcion: string; estadoMar: EstadoMarId | null; publicado: boolean }
+export type DatosDeTema = { titulo: string; slug: string; descripcion: string; estadoMar: EstadoMarId | null; enfoque: EnfoqueId | null; publicado: boolean }
+
+// Un mensaje del formulario de contacto, tal como lo lee la admin.
+export type MensajeDeContactoAdmin = { id: string; nombre: string; email: string; asunto: string; mensaje: string; sospechoso: boolean; leido: boolean; creadoEn: string }
 export type DatosDeContenido = { tipo: TipoContenido; titulo: string; duracionMin: number | null; cuerpo: string | null; publicado: boolean }
 
 // Un archivo ya subido y a la espera de asociarse a una pieza.

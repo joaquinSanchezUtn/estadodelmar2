@@ -1,6 +1,7 @@
 import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import { RADIO_CABECERA, RADIO_OJO_DE_BUEY, idVentana, transicion, transicionLayout, useMovimiento } from '../../animaciones/movimiento'
+import { listarEnfoques } from '../../datos/contenido'
 import type { EstadoMar, Tema } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
 import Esqueleto from '../base/Esqueleto'
@@ -56,8 +57,10 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
           </Link>
           {tema ? (
             <>
-              {estado && (
-                <p className="mb-3 text-etiqueta uppercase text-mar-agua">{estado.nombre}</p>
+              {(estado || tema.enfoque) && (
+                <p className="mb-3 text-etiqueta uppercase text-mar-agua">
+                  {[estado?.nombre, listarEnfoques().find((f) => f.id === tema.enfoque)?.nombre].filter(Boolean).join(' · ')}
+                </p>
               )}
               <h1 className="mb-4 text-titulo-l font-light md:text-titulo-xl">{tema.titulo}</h1>
               <p className="text-destacado text-mar-tintaSuave">{tema.descripcion}</p>

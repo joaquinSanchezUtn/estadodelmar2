@@ -21,9 +21,10 @@ import { supabase } from '../lib/supabase'
 import { esAdmin } from './acceso'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
 import { invocar } from './base'
-import type { ArchivoSubido, DatosDeContenido, DatosDeQuienSoy, DatosDeTema, EstadoMarId, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
+import type { ArchivoSubido, DatosDeContenido, DatosDeQuienSoy, DatosDeTema, EnfoqueId, EstadoMarId, MensajeDeContactoAdmin, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
 
 const ESTADOS: EstadoMarId[] = ['calma', 'olas_suaves', 'agitado', 'tormenta', 'profundidades', 'mareas', 'corrientes', 'horizonte']
+const ENFOQUES: EnfoqueId[] = ['psicologico', 'filosofico', 'transpersonal']
 const NO_ES_ADMIN = { ok: false, mensaje: 'No tenés permiso para hacer esto.' } as const
 const NO_EXISTE = { ok: false, mensaje: 'Eso ya no existe. Recargá la página.' } as const
 const ERROR_GENERICO = { ok: false, mensaje: 'No pudimos guardar. Probá de nuevo en un rato.' } as const
@@ -71,9 +72,10 @@ export async function guardarTemaAdmin(slugActual: string | null, d: DatosDeTema
   else if (temas.some((t) => t.slug === slug && t.id !== existente?.id)) errores.slug = 'Ya hay una ventana con esa dirección.'
   if (d.descripcion.length > 240) errores.descripcion = 'La descripción no puede pasar de 240 caracteres.'
   if (d.estadoMar && !ESTADOS.includes(d.estadoMar)) errores.estadoMar = 'Elegí un estado del mar de la lista.'
+  if (d.enfoque && !ENFOQUES.includes(d.enfoque)) errores.enfoque = 'Elegí un enfoque de la lista.'
   if (Object.keys(errores).length) return { ok: false, mensaje: 'Revisá los campos marcados.', errores }
 
-  const datos = { titulo, slug, descripcion: d.descripcion.trim() || null, estado_mar: d.estadoMar, publicado: d.publicado }
+  const datos = { titulo, slug, descripcion: d.descripcion.trim() || null, estado_mar: d.estadoMar, enfoque: d.enfoque, publicado: d.publicado }
   if (existente) {
     // `.select().maybeSingle()`: si la RLS bloqueó la escritura (por ejemplo, el rol se revocó justo
     // ahora), el update no toca ninguna fila y Postgres no lo marca como error — sin este chequeo,
@@ -334,4 +336,22 @@ export async function subirArchivoAdmin(
 // ninguna fila en la base que dependa de esto.
 export async function descartarArchivoSubido(videoId: string): Promise<void> {
   await invocar('guardar-archivo-bunny', { accion: 'descartar', videoId }).catch(() => undefined)
+}
+
+// ── Mensajes de contacto ──────────────────────────────────────────────────────
+
+// Los escribe solo `enviar-contacto` (service_role); la admin lee y marca como leído (RLS de la 0009).
+export async function listarMensajesAdmin(): Promise<MensajeDeContactoAdmin[]> {
+  if (!(await esAdmin())) return []
+  const { data, error } = await supabase.from('mensajes_contacto').select('id,nombre,email,asunto,mensaje,sospechoso,leido,creado_en').order('creado_en', { ascending: false }).limit(200)
+  if (error) throw error
+  return data.map((m) => ({ id: m.id, nombre: m.nombre, email: m.email, asunto: m.asunto, mensaje: m.mensaje, sospechoso: m.sospechoso, leido: m.leido, creadoEn: m.creado_en }))
+}
+
+export async function marcarMensajeAdmin(id: string, leido: boolean): Promise<ResultadoAdmin> {
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data, error } = await supabase.from('mensajes_contacto').update({ leido }).eq('id', id).select('id').maybeSingle()
+  if (error) return ERROR_GENERICO
+  if (!data) return NO_EXISTE
+  return { ok: true }
 }

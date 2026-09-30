@@ -1,6 +1,6 @@
 // Los ocho estados del mar: no son una tabla (ver CLAUDE.md, "La metáfora marina"), son parte fija
 // de la metáfora. Viven acá, no en mock.ts, porque no son un dato de prueba: están en todo build.
-import type { EstadoMar } from './tipos'
+import type { Enfoque, EstadoMar } from './tipos'
 
 export const estados: EstadoMar[] = [
   {
@@ -51,4 +51,11 @@ export const estados: EstadoMar[] = [
     estadoInterno: 'Propósito, sentido de vida, trascendencia',
     ensenanza: 'Mirar el horizonte evita quedar atrapado en la ola del momento',
   },
+]
+
+// Los tres enfoques de un tema. Como los estados, son parte fija del pedido: no una tabla.
+export const enfoques: Enfoque[] = [
+  { id: 'psicologico', nombre: 'Psicológico', descripcion: 'Emociones, vínculos y conflictos de la vida cotidiana' },
+  { id: 'filosofico', nombre: 'Filosófico', descripcion: 'El sentido, el propósito y la manera de vivir' },
+  { id: 'transpersonal', nombre: 'Transpersonal y espiritual', descripcion: 'Más allá de la personalidad: la conciencia y el Ser' },
 ]

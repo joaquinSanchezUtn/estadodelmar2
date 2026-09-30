@@ -5,20 +5,22 @@
 // `temas_admin`, `contenidos_con_acceso`, `contenidos_admin`), no un chequeo de rol acá. Lo único que
 // este archivo decide es la rama 'bloqueado' vs 'abierto' de un tema, con `tengoAcceso()`.
 //
-// La suscripción y el pago (Mercado Pago), y los archivos de video/audio (Bunny Stream), también son
-// reales: cada acción llama a su Edge Function y ninguna decide una transición o firma acá — solo pide
-// y muestra lo que el servidor contestó.
-//
-// Lo que sigue simulado (todavía no tiene backend real): el contacto.
+// La suscripción y el pago (Mercado Pago), los archivos de video/audio (Bunny Stream) y el contacto
+// también son reales: cada acción llama a su Edge Function y ninguna decide una transición o firma acá
+// — solo pide y muestra lo que el servidor contestó.
 import { supabase } from '../lib/supabase'
-import { estados as ESTADOS } from './constantes'
+import { enfoques as ENFOQUES, estados as ESTADOS } from './constantes'
 import { esAdmin, tengoAcceso } from './acceso'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
-import { esperar, hayDatosDePrueba, invocar, sinBackend } from './base'
-import type { CampoPerfil, EstadoDelPago, EstadoMar, QuienSoy, Suscripcion, Tema, TemaVisible } from './tipos'
+import { invocar } from './base'
+import type { CampoPerfil, Enfoque, EstadoDelPago, EstadoMar, QuienSoy, Suscripcion, Tema, TemaVisible } from './tipos'
 
 export async function listarEstados(): Promise<EstadoMar[]> {
   return [...ESTADOS]
+}
+
+export function listarEnfoques(): Enfoque[] {
+  return [...ENFOQUES]
 }
 
 // El precio real del plan, el mismo `MP_PRECIO_ARS` que usa `iniciar-suscripcion` para cobrar — nunca
@@ -167,14 +169,13 @@ export async function reactivarSuscripcion(): Promise<ResultadoDeAccion> {
   return invocar('reactivar-suscripcion')
 }
 
-// El formulario de contacto. Con backend real es una Edge Function que guarda el mensaje y avisa por
-// correo, con límite de envíos por IP; el campo `sitioWeb` es una trampa para bots y llega vacío si es una persona.
+// El formulario de contacto: lo guarda `enviar-contacto` (valida, limita envíos por IP y descarta bots
+// con el campo trampa `sitioWeb`, que llega vacío si es una persona). La dueña lo lee en /admin/mensajes.
 export type MensajeDeContacto = { nombre: string; email: string; asunto: string; mensaje: string; sitioWeb: string }
 
-export async function enviarMensajeDeContacto(_mensaje: MensajeDeContacto): Promise<ResultadoDeAccion> {
-  if (!hayDatosDePrueba) return sinBackend()
-  await esperar()
-  return { ok: true }
+export async function enviarMensajeDeContacto(mensaje: MensajeDeContacto): Promise<ResultadoDeAccion> {
+  const r = await invocar<{ ok: true } | { ok: false; mensaje: string } | null>('enviar-contacto', mensaje)
+  return r ?? { ok: false, mensaje: 'No pudimos enviar tu mensaje. Probá de nuevo en un rato.' }
 }
 
 // La dirección con la que se reproduce una pieza. La firma `firmar-video-bunny`, que repite ahí las
