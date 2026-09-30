@@ -5,13 +5,14 @@ import RutaConSesion from './auth/RutaConSesion'
 import CatalogoVentanas from './pages/CatalogoVentanas'
 import Home from './pages/Home'
 import Ingresar from './pages/Ingresar'
+import Meditaciones from './pages/Meditaciones'
 import NoEncontrada from './pages/NoEncontrada'
 import PaginaDeEstado from './pages/PaginaDeEstado'
 import Tema from './pages/Tema'
 
 
 // Las pantallas que no son la puerta de entrada se cargan cuando se las visita: el primer JS es más chico.
-// La home, el catálogo, los estados, el tema y Ingresar son parte de la transición de la ventana y del primer
+// La home, el catálogo, las meditaciones, los estados, el tema y Ingresar son parte de la transición de la ventana y del primer
 // recorrido: van directas.
 const Admin = lazy(() => import('./pages/Admin'))
 const AdminEditorContenido = lazy(() => import('./pages/AdminEditorContenido'))
@@ -43,6 +44,7 @@ export default function Rutas({ location }: { location: Location }) {
       <Routes location={location}>
         <Route path="/" element={<Home />} />
         <Route path="/ventanas" element={<CatalogoVentanas />} />
+        <Route path="/meditaciones" element={<Meditaciones />} />
         <Route path="/estado/:id" element={<PaginaDeEstado />} />
         <Route path="/tema/:slug" element={<Tema />} />
         <Route path="/ingresar" element={<Ingresar />} />

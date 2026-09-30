@@ -10,12 +10,13 @@ import MenuCuenta from './MenuCuenta'
 import MenuMovil, { type Enlace } from './MenuMovil'
 
 const ventanas: Enlace = { to: '/ventanas', texto: 'Ventanas' }
+const meditaciones: Enlace = { to: '/meditaciones', texto: 'Meditaciones' }
 
 // Lo que se ofrece en la barra según el rol. Es solo navegación: el acceso real a cada pantalla
 // lo decide la base. Quien tiene cuenta encuentra lo suyo en el menú del ícono (MenuCuenta).
 function enlacesPara(rol: Rol): Enlace[] {
-  if (rol !== 'visitante') return [ventanas]
-  return [ventanas, { to: '/#suscripcion', texto: 'Suscripción' }, { to: '/ingresar', texto: 'Ingresar' }]
+  if (rol !== 'visitante') return [ventanas, meditaciones]
+  return [ventanas, meditaciones, { to: '/#suscripcion', texto: 'Suscripción' }, { to: '/ingresar', texto: 'Ingresar' }]
 }
 
 export default function Encabezado() {

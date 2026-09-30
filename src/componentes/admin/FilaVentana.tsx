@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { eliminarTemaAdmin, moverTemaAdmin, publicarTemaAdmin } from '../../datos/contenido'
-import type { EstadoMar, ResultadoAdmin, TemaAdmin } from '../../datos/tipos'
+import type { EstadoMar, ResultadoAdmin, TemaAdmin, TipoContenido } from '../../datos/tipos'
 import { useAccion } from '../../lib/useAccion'
 import Aviso from '../base/Aviso'
 import Boton from '../base/Boton'
@@ -19,6 +19,8 @@ type Props = {
   onCambio: (aviso: string) => void
 }
 
+const nombresDePieza: Record<TipoContenido, string> = { video: 'video', meditacion: 'meditación', ejercitacion: 'ejercitación' }
+
 const icono = 'flex size-11 items-center justify-center rounded-full border border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-aguaClara disabled:opacity-40'
 
 // Una ventana en la lista: subir y bajar, publicar o despublicar, editar, ver y eliminar.
@@ -27,6 +29,8 @@ export default function FilaVentana({ tema, estados, posicion, total, puedeOrden
   const accion = useAccion()
   const estado = estados.find((e) => e.id === tema.estadoMar)?.nombre ?? 'Sin estado'
   const sinArchivo = tema.contenidos.filter((c) => c.tipo !== 'ejercitacion' && !c.archivo).length
+  // La portada promete las tres piezas en cada ventana: se avisa cuáles faltan.
+  const faltan = (Object.keys(nombresDePieza) as TipoContenido[]).filter((t) => !tema.contenidos.some((c) => c.tipo === t)).map((t) => nombresDePieza[t])
 
   const correr = (hacer: () => Promise<ResultadoAdmin>, aviso: string) =>
     accion.ejecutar(async () => {
@@ -50,6 +54,7 @@ export default function FilaVentana({ tema, estados, posicion, total, puedeOrden
             {estado} · {tema.contenidos.length} {tema.contenidos.length === 1 ? 'pieza' : 'piezas'}
             {sinArchivo > 0 && ` · ${sinArchivo} sin archivo`}
           </p>
+          {faltan.length > 0 && <p className="text-meta text-mar-tintaSuave">Le falta: {faltan.join(', ')}.</p>}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

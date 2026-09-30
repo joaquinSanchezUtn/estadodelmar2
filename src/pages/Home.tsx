@@ -1,4 +1,5 @@
 import EstadosDelMar from '../componentes/home/EstadosDelMar'
+import GimnasioDelAlma from '../componentes/home/GimnasioDelAlma'
 import LaPropuesta from '../componentes/home/LaPropuesta'
 import PlanMensual from '../componentes/home/PlanMensual'
 import Portada from '../componentes/home/Portada'
@@ -15,6 +16,7 @@ export default function Home() {
   return (
     <Pagina ancho="ancho">
       <Portada />
+      <GimnasioDelAlma />
       <EstadosDelMar estados={estados} temas={temas} />
       <Ventanas temas={temas} estados={estados} />
       <LaPropuesta />

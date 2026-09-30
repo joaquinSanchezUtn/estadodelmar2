@@ -21,9 +21,12 @@ export default function Ventanas({ temas, estados }: Props) {
         texto="Cada ventana reúne un video psicoeducativo, una meditación y una ejercitación para poner en práctica. Los títulos los ve cualquiera; el contenido es para suscriptoras."
       />
       <GrillaDeVentanas temas={temas} estados={estados} final={sumando} />
-      <div className="mt-8 flex justify-center">
+      <div className="mt-8 flex flex-col items-center justify-center gap-3 md:flex-row md:gap-4">
         <Boton to="/ventanas" variante="secundario">
           Ver todas y buscar
+        </Boton>
+        <Boton to="/meditaciones" variante="secundario">
+          La ventana de meditaciones
         </Boton>
       </div>
     </Burbuja>
