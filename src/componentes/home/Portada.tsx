@@ -33,7 +33,7 @@ export default function Portada() {
         animate="visible"
         className="flex flex-col gap-4 md:items-center md:gap-6 md:text-center"
       >
-        <motion.p variants={fundido} className="text-etiqueta uppercase text-mar-agua">
+        <motion.p variants={fundido} className="text-etiqueta uppercase text-mar-atardecerTexto">
           Un gimnasio del alma
         </motion.p>
         <motion.h1

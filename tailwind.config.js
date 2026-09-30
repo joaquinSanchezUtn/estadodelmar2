@@ -4,26 +4,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Valores validados: burbujas a ≥5 pts de luminosidad del fondo y ≥6 entre contiguas;
-        // texto a ≥4.5:1 sobre toda superficie (incluidas las ocho tarjetas de estado).
+        // Paleta "Mar profundo y arena" (elegida por Joaquin el 2026-09-30): la orilla. Fondo de arena
+        // cálida, el azul de aguas profundas para lo importante (botones, enlaces) y el coral del atardecer,
+        // muy poco, como acento. Valores validados: burbujas a ≥5 pts de luminosidad (HSL) del fondo y ≥6
+        // entre contiguas; texto a ≥4.5:1 sobre toda superficie (incluidas las ocho tarjetas de estado),
+        // salvo `atardecerTexto`, que nunca va sobre una tarjeta de estado.
         mar: {
-          nube: '#E0E8EE', // fondo de página: apenas más oscuro que las burbujas blancas
+          nube: '#F6F1E9', // fondo de página: arena clara
           blanco: '#FFFFFF', // burbujas y tarjetas blancas
-          aguaClara: '#BEDAEF', // héroe
-          cielo: '#BAD7EB', // ventanas
-          espuma: '#BFDCEE', // suscripción y bloques destacados
-          bordeAgua: '#8BADC6', // borde de 1px sobre blanco
-          bordeCielo: '#79A4C3', // borde de 1px sobre burbujas tintadas
-          bordeControl: '#4F7A99', // borde de campos, chips y botones: ≥3:1 contra blanco, nube y todas las burbujas (WCAG 1.4.11)
-          tinta: '#152A37', // texto principal
-          tintaSuave: '#314A5B', // texto secundario
-          tintaTenue: '#3F5462', // enseñanzas, metadatos (pasa 4.5:1 en todas las superficies)
-          celeste: '#6DB4E3', // botón primario (texto tintaBoton)
-          celesteBorde: '#2970A3', // borde del botón primario: sin él se pierde contra las burbujas tintadas
-          tintaBoton: '#0D2436', // texto sobre el botón primario
+          aguaClara: '#D5E8EB', // héroe
+          cielo: '#D2E5E9', // ventanas (nunca contigua a aguaClara ni a arena)
+          espuma: '#D7E9EC', // fondo del ojo de buey, cabecera del tema, avisos y esqueletos
+          arena: '#E9D5B5', // burbujas destacadas: las prácticas, la suscripción, la invitación a suscribirse
+          bordeAgua: '#D6CFC1', // borde de 1px decorativo sobre blanco y arena
+          bordeCielo: '#B5CBD0', // borde de 1px decorativo sobre burbujas tintadas
+          bordeControl: '#6B7C84', // borde de campos, chips y botones: ≥3:1 contra blanco, nube y todas las burbujas (WCAG 1.4.11)
+          tinta: '#14303F', // texto principal
+          tintaSuave: '#3D5361', // texto secundario
+          tintaTenue: '#3B5060', // enseñanzas, metadatos (pasa 4.5:1 en todas las superficies)
+          primario: '#1A5270', // aguas profundas: botón primario, controles activos (texto sobrePrimario)
+          primarioHover: '#143F57',
+          primarioSuave: '#E1ECF1', // fondo de un chip o pestaña activa (texto primario)
+          sobrePrimario: '#FFFFFF', // texto sobre el botón primario: 8.4:1
+          atardecer: '#D9825B', // acento decorativo: bordes de cita, subrayados, puntos. Nunca texto.
+          atardecerTexto: '#91462A', // acento como texto (etiquetas): ≥4.5:1 sobre fondo y burbujas
+          celeste: '#9CC7D0', // agua decorativa (olas, manchas); ya no es un color de botón
           coral: '#B0523A', // errores y avisos, texto sobre claro
-          agua: '#184F77', // enlaces y acentos
-          aguaSuave: '#88BADD', // bordes de cita, íconos
+          agua: '#1A5270', // enlaces
+          aguaSuave: '#A9CDD4', // burbujitas e íconos decorativos
         },
         // Cada estado del mar tiene su matiz. Roles: fondo (tarjeta), agua (adentro del ojo de
         // buey), linea (el dibujo), aro (anillo de 3px) y aroClaro (anillo exterior de 1px).
@@ -83,6 +91,8 @@ export default {
         ventana: 'inset 0 3px 10px rgba(21,42,55,0.22)',
         elevada: '0 14px 40px -14px rgba(21,42,55,0.3)', // tarjeta enfocada
         encabezado: '0 1px 18px -8px rgba(21,42,55,0.2)', // encabezado con la página scrolleada
+        boton: '0 8px 18px -8px rgba(26,82,112,0.55)', // botón primario: la sombra toma el azul profundo
+        botonHover: '0 12px 24px -8px rgba(26,82,112,0.6)',
       },
       // Textura de papel: ruido fino (feTurbulence) que se repite; se usa con muy poca opacidad (Grano).
       backgroundImage: {

@@ -7,7 +7,8 @@ const tonos = {
   nube: 'bg-mar-nube border-mar-bordeCielo',
   cielo: 'bg-mar-cielo border-mar-bordeCielo',
   aguaClara: 'bg-mar-aguaClara border-mar-bordeAgua',
-  espuma: 'bg-mar-espuma border-mar-bordeAgua',
+  espuma: 'bg-mar-espuma border-mar-bordeCielo',
+  arena: 'bg-mar-arena border-mar-bordeAgua',
   blanco: 'bg-mar-blanco border-mar-bordeAgua',
 }
 

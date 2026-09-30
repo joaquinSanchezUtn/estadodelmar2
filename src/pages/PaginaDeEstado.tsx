@@ -50,7 +50,7 @@ export default function PaginaDeEstado() {
                 <p className="mb-3 text-etiqueta uppercase text-mar-tintaSuave">Estado del mar</p>
                 <h1 className="mb-3 text-titulo-l font-light md:text-titulo-xl">{estado.nombre}</h1>
                 <p className="mb-5 text-destacado text-mar-tintaSuave">{estado.estadoInterno}.</p>
-                <p className="border-l-3 border-mar-aguaSuave pl-4 font-titulo text-titulo-s italic text-mar-tinta">{estado.ensenanza}.</p>
+                <p className="border-l-3 border-mar-atardecer pl-4 font-titulo text-titulo-s italic text-mar-tinta">{estado.ensenanza}.</p>
               </>
             ) : (
               <div role="status" className="flex flex-col gap-3">

@@ -28,7 +28,7 @@ export default function BotonReproducir({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-full bg-mar-celeste text-mar-tintaBoton transition hover:brightness-95 disabled:opacity-50',
+        'flex shrink-0 items-center justify-center rounded-full bg-mar-primario text-mar-sobrePrimario transition hover:brightness-95 disabled:opacity-50',
         medidas[tamano],
       )}
     >

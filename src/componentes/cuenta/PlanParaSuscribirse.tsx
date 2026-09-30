@@ -25,7 +25,7 @@ export default function PlanParaSuscribirse() {
         Con un solo plan accedés a todas las ventanas y a las que se vayan sumando.
       </p>
 
-      <div className="mb-5 rounded-tarjeta border border-mar-bordeAgua bg-mar-espuma p-5 text-center">
+      <div className="mb-5 rounded-tarjeta border border-mar-bordeAgua bg-mar-arena p-5 text-center">
         <p className="mb-2 text-etiqueta uppercase text-mar-agua">Plan mensual</p>
         <p className="font-titulo text-titulo-l font-light">{precio}</p>
         <p className="mt-1 text-meta text-mar-tintaSuave">por mes · se renueva solo · cancelás cuando quieras</p>

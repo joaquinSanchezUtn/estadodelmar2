@@ -4,19 +4,19 @@ import { Link } from 'react-router-dom'
 import { presionar } from '../../animaciones/movimiento'
 import { cn } from '../../lib/cn'
 
-// Botón primario: celeste con texto tintaBoton; nunca texto claro encima.
+// Primario: relleno de aguas profundas con texto blanco y una sombra del mismo azul. Secundario: blanco
+// con borde y texto del primario. Fantasma: un enlace subrayado con el coral del atardecer.
 const variantes = {
-  primario:
-    'border border-mar-celesteBorde bg-mar-celeste font-bold text-mar-tintaBoton shadow-tarjeta hover:brightness-95',
-  secundario: 'border border-mar-celesteBorde bg-mar-blanco/40 font-medium text-mar-tinta hover:bg-mar-blanco/75',
-  fantasma: 'font-medium text-mar-tintaSuave hover:bg-mar-tinta/5 hover:text-mar-tinta',
+  primario: 'border border-mar-primario bg-mar-primario font-bold text-mar-sobrePrimario shadow-boton hover:bg-mar-primarioHover hover:shadow-botonHover',
+  secundario: 'border border-mar-primario bg-mar-blanco font-medium text-mar-primario hover:bg-mar-primarioSuave',
+  fantasma: 'font-medium text-mar-primario underline decoration-mar-atardecer underline-offset-4 hover:bg-mar-primarioSuave/60 hover:decoration-2',
 }
 
 // Las clases de un botón, para lo que no es un <button> ni un <a> pero tiene que verse como uno
 // (por ejemplo el <label> que abre el selector de archivos). Un solo lugar define cómo se ve un botón.
 export const clasesBoton = (variante: keyof typeof variantes = 'primario', compacto = false) =>
   cn(
-    'inline-flex items-center justify-center rounded-full text-center text-cuerpo no-underline transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+    'inline-flex items-center justify-center rounded-full text-center text-cuerpo no-underline transition disabled:cursor-not-allowed disabled:opacity-50',
     compacto ? 'min-h-control-sm px-5' : 'min-h-control px-8',
     variantes[variante],
   )

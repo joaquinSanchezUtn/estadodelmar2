@@ -9,7 +9,7 @@ const twMerge = extendTailwindMerge({
       text: ['etiqueta', 'meta', 'cuerpo', 'destacado', 'titulo-s', 'titulo-m', 'titulo-l', 'titulo-xl'],
       radius: ['control', 'tarjeta', 'burbuja', 'burbujaGrande'],
       container: ['angosto', 'lectura', 'ancho', 'parrafo', 'ojo'],
-      shadow: ['burbuja', 'tarjeta', 'ojo', 'ojoFoco', 'ventana', 'elevada', 'encabezado'],
+      shadow: ['burbuja', 'tarjeta', 'ojo', 'ojoFoco', 'ventana', 'elevada', 'encabezado', 'boton', 'botonHover'],
     },
   },
 })

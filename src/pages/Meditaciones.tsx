@@ -15,7 +15,7 @@ export default function Meditaciones() {
   return (
     <Pagina ancho="ancho">
       <Burbuja tono="aguaClara" entrada="ninguna" className="pb-20 md:pb-24" decoracion={<Olas />}>
-        <p className="mb-3 text-etiqueta uppercase text-mar-agua">Una ventana propia</p>
+        <p className="mb-3 text-etiqueta uppercase text-mar-atardecerTexto">Una ventana propia</p>
         <h1 className="mb-4 text-titulo-l font-light md:text-titulo-xl">Meditaciones</h1>
         <p className="max-w-parrafo text-destacado text-mar-tintaSuave">
           Todas las meditaciones guiadas, reunidas en un solo lugar. Para volver a la profundidad cuando la superficie está agitada, o
@@ -23,7 +23,7 @@ export default function Meditaciones() {
         </p>
       </Burbuja>
 
-      <Burbuja tono="cielo" entrada="ninguna" interior="flex flex-col gap-6">
+      <Burbuja tono="blanco" entrada="ninguna" interior="flex flex-col gap-6">
         <h2 className="text-titulo-m font-light md:text-titulo-l">Elegí por dónde entrar</h2>
         {conMeditacion?.length === 0 ? (
           <p className="rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-cuerpo text-mar-tintaSuave">

@@ -21,7 +21,7 @@ export default function PlanMensual() {
   return (
     <Burbuja
       id="suscripcion"
-      tono="espuma"
+      tono="arena"
       decoracion={
         <>
           <Manchas cantidad={2} />

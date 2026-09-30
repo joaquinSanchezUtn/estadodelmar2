@@ -42,7 +42,7 @@ export default function ContenidoBloqueado({ piezas, estado }: Props) {
         ))}
       </ul>
 
-      <Burbuja tono="espuma" entrada="ninguna" className="p-6 text-center md:p-8">
+      <Burbuja tono="arena" entrada="ninguna" className="p-6 text-center md:p-8">
         <h2 className="mb-2 text-titulo-m font-normal">{textos[motivo].titulo}</h2>
         <p className="mx-auto mb-5 max-w-angosto text-cuerpo text-mar-tintaSuave">{textos[motivo].texto}</p>
         <Link to={usuario ? '/mi-cuenta' : '/ingresar'} className="inline-flex min-h-control-sm items-center underline">

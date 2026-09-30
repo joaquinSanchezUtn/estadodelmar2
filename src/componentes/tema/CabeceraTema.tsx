@@ -58,14 +58,14 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
           {tema ? (
             <>
               {(estado || tema.enfoque) && (
-                <p className="mb-3 text-etiqueta uppercase text-mar-agua">
+                <p className="mb-3 text-etiqueta uppercase text-mar-atardecerTexto">
                   {[estado?.nombre, listarEnfoques().find((f) => f.id === tema.enfoque)?.nombre].filter(Boolean).join(' · ')}
                 </p>
               )}
               <h1 className="mb-4 text-titulo-l font-light md:text-titulo-xl">{tema.titulo}</h1>
               <p className="text-destacado text-mar-tintaSuave">{tema.descripcion}</p>
               {estado && (
-                <blockquote className="mt-6 rounded-r-control border-l-3 border-mar-aguaSuave bg-mar-blanco/60 px-4 py-4 text-cuerpo text-mar-tinta">
+                <blockquote className="mt-6 rounded-r-control border-l-3 border-mar-atardecer bg-mar-blanco/60 px-4 py-4 text-cuerpo text-mar-tinta">
                   {estado.ensenanza}.
                 </blockquote>
               )}

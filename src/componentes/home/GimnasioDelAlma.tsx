@@ -29,7 +29,7 @@ const practicas: { titulo: string; texto: string; enlace?: { to: string; texto: 
 // La enseñanza central y las prácticas del "gimnasio del alma".
 export default function GimnasioDelAlma() {
   return (
-    <Burbuja tono="espuma">
+    <Burbuja tono="arena">
       <figure className="mx-auto mb-10 max-w-parrafo text-center md:mb-12">
         <blockquote className="mb-4 font-titulo text-titulo-m font-light text-mar-tinta md:text-titulo-l">
           «El problema no son las olas, sino creer que somos las olas.»
