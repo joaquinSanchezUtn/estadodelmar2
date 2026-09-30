@@ -5,7 +5,7 @@
 // - Campos: largos, formato de email y asunto de una lista cerrada (los mismos `check` de la 0009).
 // - Bots: el campo trampa `sitioWeb` llega vacío si es una persona. Si viene lleno, se responde 200 igual
 //   (para no enseñarle al bot qué lo delató) y no se guarda nada.
-// - Abuso: el límite (3 por IP por hora; pasado el tope global de 60 por hora, se guarda marcado como
+// - Abuso: el límite (3 por IP por hora, IP de `cf-connecting-ip`; pasado el tope global de 60 por hora, se guarda marcado como
 //   sospechoso) lo aplica un trigger de la 0009, en la misma transacción del insert. La IP se guarda
 //   como hash con una sal propia (`CONTACTO_SAL_IP`): si falta, la función no guarda nada.
 // No manda correos: no hay SMTP propio todavía, y así nada de lo que escribe la persona termina
@@ -21,13 +21,11 @@ const EMAIL = /^[A-Za-z0-9._+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 const error = (mensaje: string, status = 400) => Response.json({ ok: false, mensaje }, { status });
 const texto = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 
-// La IP que agrega la plataforma, no la que puede mandar el cliente: en `x-forwarded-for` el cliente
-// controla los primeros valores y el proxy agrega el suyo al final.
+// La IP real la pone Cloudflare (delante de las Edge Functions) en `cf-connecting-ip`, y pisa cualquier
+// valor que mande el cliente — verificado contra producción el 2026-09-30. `x-forwarded-for` NO sirve: su
+// último valor es un proxy interno que cambia en cada pedido, y con él el límite nunca se alcanzaba.
 function ipDe(req: Request): string {
-  const real = req.headers.get("x-real-ip")?.trim();
-  if (real) return real;
-  const cadena = req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
-  return cadena.at(-1) ?? "desconocida";
+  return req.headers.get("cf-connecting-ip")?.trim() || "desconocida";
 }
 
 async function hashDeIp(ip: string, sal: string): Promise<string> {
