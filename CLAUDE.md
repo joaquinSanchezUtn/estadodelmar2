@@ -126,6 +126,8 @@ Los títulos de las ventanas son **públicos** (el menú lo ve cualquiera); el c
 - **Rendimiento del movimiento**: los dibujos de los estados (`DibujoEstado`) solo se mueven mientras están en pantalla (`useInView`): fuera de la vista no gastan procesador. Mientras una página se va (`data-pagina="sale"`) el pie se oculta al instante, porque al dejar de ocupar lugar saltaba a mitad de pantalla y se veía encima de la transición.
 - **Tailwind**: al cambiar `tailwind.config.js` hay que reiniciar el servidor de desarrollo; si no, sirve un CSS viejo (las clases nuevas no existen).
 
+- **Deploy a Vercel: es manual, no automático.** El proyecto de Vercel `estado-del-mar` **no está conectado a GitHub** (conectarlo pide la verificación en dos pasos de GitHub, que quedó sin hacer): subir a GitHub no publica nada. Se publica desde la carpeta del proyecto con `npx vercel --prod` (la carpeta ya está vinculada; `.vercel/` está en `.gitignore`). Se descubrió el 2026-09-30: producción había quedado en la versión de "Quién soy" (22/9), sin Mercado Pago ni Bunny, aunque GitHub ya los tenía. Ese día se publicó `cdc2abd` y se probó en `estado-del-mar.vercel.app` subir un video y reproducirlo (200, y otra calidad con el mismo token, 403).
+
 ## Pendientes de decisión
 
 - El precio del plan mensual. En el prototipo y en el código figura como `[PRECIO]`, literal.
