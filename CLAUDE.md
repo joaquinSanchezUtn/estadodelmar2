@@ -32,7 +32,7 @@ Tono: sereno, cálido, adulto. Sin jerga de autoayuda, sin promesas, sin urgenci
 
 Claro y suave en todo el sitio, con celestes y tonos blancos como el mar. Nada de fondos oscuros ni de saturación alta. Lo que da profundidad es el **rango de valores dentro del registro claro**: el fondo de página es un gris azulado claro, las burbujas blancas flotan por ser más claras, y las tintadas por estar más saturadas.
 
-Tipografías (Google Fonts): **Fraunces** para títulos, **Karla** para texto.
+Tipografías (Google Fonts): **Fraunces** para títulos, con el eje `SOFT` al máximo (terminaciones redondeadas; se aplica en `index.css` a `h1`–`h3` y `.font-titulo`), y **Nunito** para texto. Elegidas por Joaquin el 2026-09-30 entre cinco opciones (antes era Karla, "muy fea").
 
 Los tokens viven en `tailwind.config.js` (`mar.*` y `estado.*`); ahí están los valores y su porqué. Reglas duras, validadas por cálculo:
 - Dos burbujas contiguas nunca están a menos de 6 puntos de luminosidad (HSL) entre sí, y ninguna burbuja a menos de 5 puntos del fondo de página.
