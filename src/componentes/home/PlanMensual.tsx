@@ -2,16 +2,13 @@ import { Link } from 'react-router-dom'
 import { useSesion } from '../../auth/SesionContext'
 import { usePrecio } from '../../lib/usePrecio'
 import Boton from '../base/Boton'
-import Burbuja from '../base/Burbuja'
-import Tarjeta from '../base/Tarjeta'
 import { Check } from '../base/iconos'
-import Burbujitas from '../objetos/Burbujitas'
-import Manchas from '../objetos/Manchas'
 
 const incluye = [
   'Videos psicoeducativos de cada tema',
   'Meditaciones guiadas',
   'Una ejercitación práctica por cada malestar',
+  'Desde el celular, la tablet o la compu',
 ]
 
 export default function PlanMensual() {
@@ -19,36 +16,27 @@ export default function PlanMensual() {
   const precio = usePrecio()
 
   return (
-    <Burbuja
-      id="suscripcion"
-      tono="arena"
-      decoracion={
-        <>
-          <Manchas cantidad={2} />
-          <Burbujitas />
-        </>
-      }
-      interior="flex flex-col gap-8 md:gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-14"
-    >
-      <div className="lg:max-w-parrafo">
-        <h2 className="mb-4 text-titulo-m font-normal md:text-titulo-l">Una suscripción, todo adentro</h2>
+    <section id="suscripcion" className="grid scroll-mt-24 items-center gap-8 py-6 md:py-10 lg:grid-cols-2 lg:gap-14">
+      <div>
+        <p className="mb-4 inline-block rounded-full bg-mar-primarioSuave px-4 py-1 text-meta font-bold text-mar-primario">Un solo plan</p>
+        <h2 className="mb-4 text-titulo-m md:text-titulo-l">Una suscripción, todo adentro</h2>
         <p className="mb-5 text-cuerpo text-mar-tintaSuave">
           Acceso completo a todas las ventanas y a las que se vayan sumando. Sin permanencia: te das de
           baja cuando quieras, desde tu cuenta, y seguís teniendo acceso hasta que termine el mes pago.
         </p>
-        <ul className="flex flex-col gap-3 text-cuerpo text-mar-tinta">
+        <ul className="flex flex-col gap-3 text-cuerpo font-medium text-mar-tinta">
           {incluye.map((texto) => (
             <li key={texto} className="flex items-center gap-3">
-              <Check className="size-5 shrink-0 text-mar-agua" />
+              <Check className="size-5 shrink-0 text-mar-primario" />
               {texto}
             </li>
           ))}
         </ul>
       </div>
 
-      <Tarjeta className="p-6 text-center md:mx-auto md:w-full md:max-w-angosto lg:mx-0 lg:w-96 lg:shrink-0 lg:p-8">
+      <div className="rounded-burbujaGrande border-2 border-mar-primario bg-mar-blanco p-6 text-center shadow-alzada md:p-10">
         <p className="mb-4 text-etiqueta uppercase text-mar-atardecerTexto">Plan mensual</p>
-        <p className="font-titulo text-titulo-xl font-light">{precio}</p>
+        <p className="font-titulo text-titulo-xl">{precio}</p>
         <p className="mb-6 mt-2 text-meta text-mar-tintaSuave">por mes · se renueva solo</p>
         {accesoActivo ? (
           <Boton to="/mi-cuenta" variante="secundario" className="w-full">
@@ -69,9 +57,9 @@ export default function PlanMensual() {
           </>
         )}
         <p className="mt-4 text-meta text-mar-tintaSuave">
-          Pago con Mercado Pago. Cancelás cuando quieras.
+          Pago seguro con Mercado Pago. Cancelás cuando quieras.
         </p>
-      </Tarjeta>
-    </Burbuja>
+      </div>
+    </section>
   )
 }

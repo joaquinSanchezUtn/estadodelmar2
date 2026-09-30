@@ -1,26 +1,33 @@
+import ComoFunciona from '../componentes/home/ComoFunciona'
 import EstadosDelMar from '../componentes/home/EstadosDelMar'
 import GimnasioDelAlma from '../componentes/home/GimnasioDelAlma'
-import LaPropuesta from '../componentes/home/LaPropuesta'
+import MeditacionesInicio from '../componentes/home/MeditacionesInicio'
 import PlanMensual from '../componentes/home/PlanMensual'
 import Portada from '../componentes/home/Portada'
-import Ventanas from '../componentes/home/Ventanas'
+import PreguntasFrecuentes from '../componentes/home/PreguntasFrecuentes'
+import QuienTeAcompana from '../componentes/home/QuienTeAcompana'
+import TemasInicio from '../componentes/home/TemasInicio'
 import Pagina from '../componentes/layout/Pagina'
 import { listarEstados, listarTemas } from '../datos/contenido'
 import { useCarga } from '../lib/useCarga'
 
+// El recorrido de la home, en el orden en que alguien nuevo se pregunta las cosas: qué es, cómo estoy,
+// cómo funciona, qué hay adentro, quién está detrás, cuánto cuesta y las dudas de siempre.
 export default function Home() {
-
   const { datos: estados } = useCarga('estados', listarEstados, true)
   const { datos: temas } = useCarga('temas', listarTemas, true)
 
   return (
-    <Pagina ancho="ancho">
+    <Pagina ancho="ancho" className="gap-0 md:gap-0">
       <Portada />
-      <GimnasioDelAlma />
       <EstadosDelMar estados={estados} temas={temas} />
-      <Ventanas temas={temas} estados={estados} />
-      <LaPropuesta />
+      <ComoFunciona />
+      <TemasInicio temas={temas} estados={estados} />
+      <MeditacionesInicio temas={temas} />
+      <GimnasioDelAlma />
+      <QuienTeAcompana />
       <PlanMensual />
+      <PreguntasFrecuentes />
     </Pagina>
   )
 }

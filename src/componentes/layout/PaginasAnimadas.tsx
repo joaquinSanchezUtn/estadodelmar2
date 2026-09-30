@@ -26,8 +26,9 @@ type Navegacion = { cambiaPagina: boolean; compartida: boolean; salida: number; 
 const scrollGuardado = new Map<string, number>()
 let contadorGrupos = 0
 const esTema = (ruta: string) => ruta.startsWith('/tema/')
-// Las pantallas que muestran ojos de buey: la home, el catálogo, las meditaciones y la página de cada estado.
-const esListado = (ruta: string) => ruta === '/' || ruta === '/ventanas' || ruta === '/meditaciones' || ruta.startsWith('/estado/')
+// Las pantallas que muestran ojos de buey: el catálogo, las meditaciones y la página de cada estado. La home
+// no: desde el rediseño muestra tarjetas de tema (sin cáscara compartida), así que de ahí al tema solo hay fundido.
+const esListado = (ruta: string) => ruta === '/ventanas' || ruta === '/meditaciones' || ruta.startsWith('/estado/')
 
 // Solo se comparte la cáscara entre un listado de ventanas y un tema: al hacer clic en una ventana o al
 // volver con "atrás". Los enlaces con ancla usan solo el fundido.

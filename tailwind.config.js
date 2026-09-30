@@ -4,34 +4,39 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Paleta "Mar profundo y arena" (elegida por Joaquin el 2026-09-30): la orilla. Fondo de arena
-        // cálida, el azul de aguas profundas para lo importante (botones, enlaces) y el coral del atardecer,
-        // muy poco, como acento. Valores validados: burbujas a ≥5 pts de luminosidad (HSL) del fondo y ≥6
-        // entre contiguas; texto a ≥4.5:1 sobre toda superficie (incluidas las ocho tarjetas de estado),
-        // salvo `atardecerTexto`, que nunca va sobre una tarjeta de estado.
+        // Paleta "Océano amable" (rediseño visual del 2026-09-30, dirección "app de bienestar"): fondo crema,
+        // superficies blancas, el azul océano para todo lo que se toca, los pasteles de los ocho estados como
+        // color de las tarjetas, y una sola franja nocturna (meditaciones). Valores validados: superficies
+        // tintadas a ≥5 pts de luminosidad (HSL) del fondo; texto a ≥4.5:1 sobre toda superficie clara
+        // (incluidas las tarjetas de estado), salvo `primario` y `atardecerTexto`, que nunca van como texto
+        // sobre una tarjeta de estado.
         mar: {
-          nube: '#F6F1E9', // fondo de página: arena clara
-          blanco: '#FFFFFF', // burbujas y tarjetas blancas
-          aguaClara: '#D5E8EB', // héroe
-          cielo: '#D2E5E9', // ventanas (nunca contigua a aguaClara ni a arena)
-          espuma: '#D7E9EC', // fondo del ojo de buey, cabecera del tema, avisos y esqueletos
-          arena: '#E9D5B5', // burbujas destacadas: las prácticas, la suscripción, la invitación a suscribirse
-          bordeAgua: '#D6CFC1', // borde de 1px decorativo sobre blanco y arena
-          bordeCielo: '#B5CBD0', // borde de 1px decorativo sobre burbujas tintadas
-          bordeControl: '#6B7C84', // borde de campos, chips y botones: ≥3:1 contra blanco, nube y todas las burbujas (WCAG 1.4.11)
-          tinta: '#14303F', // texto principal
-          tintaSuave: '#3D5361', // texto secundario
-          tintaTenue: '#3B5060', // enseñanzas, metadatos (pasa 4.5:1 en todas las superficies)
-          primario: '#1A5270', // aguas profundas: botón primario, controles activos (texto sobrePrimario)
-          primarioHover: '#143F57',
-          primarioSuave: '#E1ECF1', // fondo de un chip o pestaña activa (texto primario)
-          sobrePrimario: '#FFFFFF', // texto sobre el botón primario: 8.4:1
-          atardecer: '#D9825B', // acento decorativo: bordes de cita, subrayados, puntos. Nunca texto.
-          atardecerTexto: '#91462A', // acento como texto (etiquetas): ≥4.5:1 sobre fondo y burbujas
-          celeste: '#9CC7D0', // agua decorativa (olas, manchas); ya no es un color de botón
+          nube: '#FBF8F3', // fondo de página: crema
+          blanco: '#FFFFFF', // tarjetas y superficies
+          aguaClara: '#DDEAF6', // superficies tintadas de páginas internas (héroe de estado, panel)
+          cielo: '#D8E6F4', // idem, un punto más profundo
+          espuma: '#DEEAF6', // fondo del ojo de buey, cabecera del tema, avisos y esqueletos
+          arena: '#F7E6D6', // destacado cálido (invitación a suscribirse)
+          bordeAgua: '#ECE5DA', // borde de 1px decorativo sobre blanco y crema
+          bordeCielo: '#CFDDEB', // borde de 1px decorativo sobre superficies tintadas
+          bordeControl: '#6B7A89', // borde de campos, chips y botones: ≥3:1 contra toda superficie clara (WCAG 1.4.11)
+          tinta: '#1C2B39', // texto principal
+          tintaSuave: '#3E4E5E', // texto secundario
+          tintaTenue: '#3B4A59', // enseñanzas, metadatos
+          primario: '#1A62A0', // azul océano: botones, enlaces, controles activos (texto sobrePrimario)
+          primarioHover: '#154F82',
+          primarioSuave: '#E7F0FA', // fondo de chip o pestaña activa, sellos (texto primario)
+          sobrePrimario: '#FFFFFF', // texto sobre el botón primario: 6.4:1
+          atardecer: '#FF8B6A', // acento decorativo (bordes de cita, subrayados, puntos). Nunca texto.
+          atardecerTexto: '#A8431F', // acento como texto (etiquetas): ≥4.5:1 sobre las superficies claras
+          noche: '#14233A', // franja nocturna (meditaciones): fondo oscuro
+          nocheProfunda: '#1C3150', // el otro extremo del degradé de la franja
+          sobreNoche: '#FFFFFF', // texto principal sobre noche: 15.8:1
+          sobreNocheSuave: '#B8C8DA', // texto secundario sobre noche: 9.3:1
+          celeste: '#9FC4E4', // agua decorativa (olas, ilustraciones)
           coral: '#B0523A', // errores y avisos, texto sobre claro
-          agua: '#1A5270', // enlaces
-          aguaSuave: '#A9CDD4', // burbujitas e íconos decorativos
+          agua: '#1A62A0', // enlaces
+          aguaSuave: '#B7D3EC', // burbujitas e íconos decorativos
         },
         // Cada estado del mar tiene su matiz. Roles: fondo (tarjeta), agua (adentro del ojo de
         // buey), linea (el dibujo), aro (anillo de 3px) y aroClaro (anillo exterior de 1px).
@@ -91,8 +96,11 @@ export default {
         ventana: 'inset 0 3px 10px rgba(21,42,55,0.22)',
         elevada: '0 14px 40px -14px rgba(21,42,55,0.3)', // tarjeta enfocada
         encabezado: '0 1px 18px -8px rgba(21,42,55,0.2)', // encabezado con la página scrolleada
-        boton: '0 8px 18px -8px rgba(26,82,112,0.55)', // botón primario: la sombra toma el azul profundo
-        botonHover: '0 12px 24px -8px rgba(26,82,112,0.6)',
+        boton: '0 10px 22px -10px rgba(26,98,160,0.6)', // botón primario: la sombra toma el azul océano
+        botonHover: '0 14px 28px -10px rgba(26,98,160,0.65)',
+        suave: '0 1px 2px rgba(28,43,57,0.05), 0 12px 28px -16px rgba(28,43,57,0.28)', // tarjeta de la home en reposo
+        alzada: '0 2px 4px rgba(28,43,57,0.06), 0 22px 40px -20px rgba(28,43,57,0.45)', // tarjeta al pasar el mouse
+        ilustracion: '0 30px 60px -30px rgba(20,35,58,0.5)', // la ilustración del héroe
       },
       // Textura de papel: ruido fino (feTurbulence) que se repite; se usa con muy poca opacidad (Grano).
       backgroundImage: {

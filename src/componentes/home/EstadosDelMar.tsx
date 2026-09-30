@@ -1,23 +1,18 @@
 import { motion } from 'motion/react'
 import { cascada, emerger, viewportUnaVez } from '../../animaciones/movimiento'
 import type { EstadoMar, Tema } from '../../datos/tipos'
-import Burbuja from '../base/Burbuja'
 import Esqueleto from '../base/Esqueleto'
 import TarjetaEstado from './TarjetaEstado'
-import TituloBurbuja from './TituloBurbuja'
+import Seccion from './Seccion'
 
 type Props = { estados: EstadoMar[] | null; temas: Tema[] | null }
 
-const grilla = 'grid gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:gap-5'
+const grilla = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5'
 
 // La metáfora como navegación: la persona ubica su estado y de ahí llega a las ventanas.
 export default function EstadosDelMar({ estados, temas }: Props) {
   return (
-    <Burbuja tono="blanco">
-      <TituloBurbuja
-        titulo="¿Cómo está tu mar hoy?"
-        texto="Empezá por donde estás. Cada estado abre las ventanas que le corresponden."
-      />
+    <Seccion id="estados" titulo="¿Cómo está tu mar hoy?" texto="Elegí cómo te sentís y te mostramos por dónde empezar.">
       {estados ? (
         // La lista con animación se monta recién cuando llegan los datos. Si se montara antes,
         // con esqueletos, y entrara en pantalla mientras carga (monitores altos), quedaría
@@ -44,6 +39,6 @@ export default function EstadosDelMar({ estados, temas }: Props) {
           ))}
         </ul>
       )}
-    </Burbuja>
+    </Seccion>
   )
 }
