@@ -199,10 +199,12 @@ export async function guardarContenidoAdmin(
   // para que la admin sepa que el archivo no quedó asociado y pueda reintentar.
   if (id && archivo === 'quitar') {
     const r = await invocar<ResultadoAdmin>('guardar-archivo-bunny', { contenidoId: id, accion: 'quitar' })
-    if (!r.ok) return r
+    if (!r.ok) return { ...r, id }
   } else if (id && archivo && archivo !== 'quitar') {
     const r = await invocar<ResultadoAdmin>('guardar-archivo-bunny', { contenidoId: id, accion: 'guardar', videoId: archivo.token, nombre: archivo.nombre, bytes: archivo.bytes })
-    if (!r.ok) return r
+    // Con `id` aunque falle: una pieza nueva ya quedó creada, y el formulario tiene que reintentar sobre
+    // ella en vez de crear otra (si no, rebota con "ya tiene una pieza de ese tipo").
+    if (!r.ok) return { ...r, id }
   }
   // `temas.piezas` (la vista pública bloqueada) la recalcula sola un trigger en la base al guardar.
   return { ok: true, id }

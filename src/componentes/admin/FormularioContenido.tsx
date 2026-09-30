@@ -32,6 +32,9 @@ export default function FormularioContenido({ tema, tipo, inicial, onGuardado }:
   const archivoRef = useRef(archivo)
   archivoRef.current = archivo
   const guardadoRef = useRef(false)
+  // Si la pieza se creó pero el archivo no se pudo asociar (Bunny todavía procesando), el reintento va
+  // sobre esa misma pieza.
+  const creadaRef = useRef<string | null>(null)
   useEffect(
     () => () => {
       const a = archivoRef.current
@@ -44,12 +47,13 @@ export default function FormularioContenido({ tema, tipo, inicial, onGuardado }:
     e.preventDefault()
     setErrores({})
     const ok = await ejecutar(async () => {
-      const r = await guardarContenidoAdmin(tema.slug, inicial?.id ?? null, { tipo, titulo, duracionMin: duracion.trim() ? Number(duracion) : null, cuerpo: tipo === 'ejercitacion' ? cuerpo : null, publicado }, archivo)
+      const r = await guardarContenidoAdmin(tema.slug, inicial?.id ?? creadaRef.current, { tipo, titulo, duracionMin: duracion.trim() ? Number(duracion) : null, cuerpo: tipo === 'ejercitacion' ? cuerpo : null, publicado }, archivo)
       if (r.ok) {
         guardadoRef.current = true
         onGuardado(r.id ?? '', !inicial)
         return null
       }
+      if (r.id) creadaRef.current = r.id
       setErrores(r.errores ?? {})
       return r.mensaje
     })

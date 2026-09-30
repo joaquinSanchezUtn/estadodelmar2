@@ -50,9 +50,9 @@ function base64UrlDeBytes(bytes: Uint8Array): string {
 
 // Token Authentication de Bunny, con la misma forma que usa su propio panel (verificada contra una URL
 // que él firmó y dio 200): Base64URL(SHA256(clave + token_path + expires + "token_path=" + token_path)),
-// con el token en el path (`/bcdn_token=...&expires=...&token_path=.../{guid}/archivo`). `token_path` es la
-// carpeta del video: el token vale 15 minutos para todo lo de esa carpeta (todas sus calidades, la
-// miniatura, el HLS y, con "Keep original files" activado, posiblemente el original). Solo de ESA pieza.
+// con el token en el path (`/bcdn_token=...&expires=...&token_path=.../{guid}/play_{res}.mp4`).
+// `token_path` es el archivo exacto, no la carpeta: Bunny compara por prefijo, así que el token no abre las
+// otras calidades, la miniatura, el HLS ni el original de la pieza (auditoría de `seguridad`, 2026-09-30).
 // Reemplaza a la variante MD5 ("Basic"), que Bunny marca como deprecada.
 async function firmar(tokenPath: string, expira: number): Promise<string> {
   const datos = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${TOKEN_KEY}${tokenPath}${expira}token_path=${tokenPath}`));
@@ -90,10 +90,10 @@ export default {
     const expira = Math.floor(Date.now() / 1000) + VIGENCIA_SEG;
     // `resolucion` es la que `guardar-archivo-bunny` confirmó que Bunny terminó de generar para ESTE
     // video (nunca una fija: Bunny no genera nada más grande que la resolución original subida).
-    const carpeta = `/${archivo.bunny_video_id}/`;
-    const token = await firmar(carpeta, expira);
-    const firma = `bcdn_token=${token}&expires=${expira}&token_path=${encodeURIComponent(carpeta)}`;
+    const path = `/${archivo.bunny_video_id}/play_${archivo.resolucion}.mp4`;
+    const token = await firmar(path, expira);
+    const firma = `bcdn_token=${token}&expires=${expira}&token_path=${encodeURIComponent(path)}`;
 
-    return Response.json({ url: `https://${PULL_ZONE_HOST}/${firma}${carpeta}play_${archivo.resolucion}.mp4`, venceEn: expira * 1000 });
+    return Response.json({ url: `https://${PULL_ZONE_HOST}/${firma}${path}`, venceEn: expira * 1000 });
   }),
 };

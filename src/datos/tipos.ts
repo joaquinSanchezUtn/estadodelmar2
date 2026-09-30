@@ -98,7 +98,7 @@ export type ArchivoSubido = ArchivoDeContenido & { token: string }
 
 export type ResultadoAdmin =
   | { ok: true; slug?: string; id?: string }
-  | { ok: false; mensaje: string; errores?: Record<string, string> }
+  | { ok: false; mensaje: string; errores?: Record<string, string>; id?: string }
 
 // "Quién soy": una sola fila (migración 0004), con los datos de la dueña. `campos` es una lista libre
 // de pares etiqueta/valor que ella arma como quiera (ej. "Formación: Lic. en Psicología (UBA)"), en
