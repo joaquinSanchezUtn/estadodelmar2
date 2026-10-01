@@ -3,8 +3,7 @@
 // cargado se saltea. Si algo falla después de crear el video en Bunny, lo descarta para no dejarlo suelto.
 //
 // Uso:  node scripts/cargar-videos.mjs --email tu@mail.com [--solo <slug>] [--simular] [--carpeta <ruta>]
-// Pide la contraseña y el código de 6 números de la app de autenticación (la cuenta tiene que ser admin
-// y tener el segundo factor configurado). Lee la URL y la clave pública de Supabase de `.env.local`.
+// Pide la contraseña (la cuenta tiene que ser admin). Lee la URL y la clave pública de Supabase de `.env.local`.
 // Correrlo de a una vez (no dos terminales en paralelo). Nunca publica: todo queda en borrador, y no toca
 // ventanas ni piezas que ya estén publicadas.
 import { execFileSync } from 'node:child_process'
@@ -168,14 +167,6 @@ const email = arg('email') ?? (await preguntar('Email de la cuenta admin: '))
 const clave = await preguntar('Contraseña (no se muestra): ', true)
 const { error: errorSesion } = await supabase.auth.signInWithPassword({ email, password: clave })
 if (errorSesion) { console.error('No se pudo iniciar sesión:', errorSesion.message); process.exit(1) }
-// Desde la migración 0011, ser admin exige el segundo factor en esta sesión: el mismo código de 6 números
-// que pide el panel. Si la cuenta todavía no lo configuró, se configura entrando una vez a /admin.
-const { data: factores } = await supabase.auth.mfa.listFactors()
-const factor = factores?.totp.find((f) => f.status === 'verified')
-if (!factor) { console.error('Esta cuenta no tiene configurado el código de seguridad: entrá una vez a /admin en el sitio y seguí los pasos.'); process.exit(1) }
-const codigo = (await preguntar('Código de 6 números de tu app de autenticación: ')).replace(/\s/g, '')
-const { error: errorCodigo } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: codigo })
-if (errorCodigo) { console.error('El código no coincide o ya cambió:', errorCodigo.message); process.exit(1) }
 const { data: admin } = await supabase.rpc('es_admin')
 if (!admin) { console.error('Esa cuenta no es admin.'); process.exit(1) }
 

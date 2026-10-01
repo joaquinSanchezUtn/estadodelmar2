@@ -1,5 +1,4 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import SegundoFactor from '../componentes/acceso/SegundoFactor'
 import { useSesion } from './SesionContext'
 
 // Solo experiencia de usuario: oculta el panel a quien no es admin.
@@ -14,10 +13,5 @@ export default function RutaDeAdmin() {
   if (enRecuperacion) return <Navigate to="/nueva-contrasena" replace />
   if (!usuario) return <Navigate to="/ingresar" replace state={{ desde: pathname + search }} />
   if (rol !== 'admin') return <Navigate to="/" replace />
-  // El panel pide el segundo factor (ver SegundoFactor y la migración 0011).
-  return (
-    <SegundoFactor>
-      <Outlet />
-    </SegundoFactor>
-  )
+  return <Outlet />
 }

@@ -38,9 +38,7 @@ export default function MiCuenta() {
         ) : cargando ? (
           <Esqueleto className="h-44" />
         ) : (
-          // La admin ve su acceso aunque la sesión todavía no tenga el segundo factor (sin él, la base no la
-          // reconoce como admin y la vería como alguien sin suscripción).
-          <EstadoSuscripcion suscripcion={rol === 'admin' ? { estado: 'administradora' } : suscripcion} avisar={setAviso} />
+          <EstadoSuscripcion suscripcion={suscripcion} avisar={setAviso} />
         )}
         <div className="flex flex-col gap-6">
           <DatosCuenta usuario={usuario} avisar={setAviso} />
