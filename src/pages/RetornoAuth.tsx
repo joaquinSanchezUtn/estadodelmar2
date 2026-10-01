@@ -38,6 +38,15 @@ export default function RetornoAuth() {
     )
   }
 
+  // Desde Google no hay "enlace que venció": lo más común es que la persona cerró o canceló el permiso.
+  if (params.get('tipo') === 'google') {
+    return (
+      <PaginaDeAcceso titulo="No pudimos entrar con Google" texto="Se canceló o no se pudo completar. Probá de nuevo, o entrá con tu email.">
+        <Boton to="/ingresar">Volver a ingresar</Boton>
+      </PaginaDeAcceso>
+    )
+  }
+
   return (
     <PaginaDeAcceso titulo="No pudimos completar el acceso" texto={mensajeDeError[error]}>
       <div className="flex flex-col gap-3">

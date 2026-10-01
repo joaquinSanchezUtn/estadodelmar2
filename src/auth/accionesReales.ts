@@ -29,10 +29,12 @@ export function crearAccionesReales({ refrescarPerfil }: Enganche): AccionesDeAc
       return error ? { ok: false, error: mapearError(error) } : ok
     },
 
-    // Diferido: falta crear las credenciales en Google Cloud y cargarlas en Supabase. El botón ya
-    // avisa que todavía no está disponible; ni siquiera intenta la llamada.
+    // Lleva a Google y vuelve a /auth/callback?tipo=google con `?code=` (PKCE): ahí `completarRetorno`
+    // arma la sesión. Si sale bien, el navegador ya se fue a Google: este `ok` casi nunca se llega a usar.
+    // El perfil lo crea el trigger `crear_perfil` con el nombre que manda Google (`full_name`/`name`).
     async ingresarConGoogle() {
-      return { ok: false, error: 'no-disponible' }
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: vuelta('google') } })
+      return error ? { ok: false, error: mapearError(error) } : ok
     },
 
     async registrar(nombre, email, contrasena) {
