@@ -154,6 +154,8 @@ Los títulos de las ventanas son **públicos** (el menú lo ve cualquiera); el c
   - **Privacidad**: la política de privacidad menciona los datos del formulario de contacto y Vercel (Google Fonts ya no, desde que las tipografías son propias), y la baja desde Mi cuenta (real desde `eliminar-cuenta`).
   - **Resuelto el mismo día, después**: baja de cuenta real (`eliminar-cuenta`), `cancelar-suscripcion` escribe primero en la base y después en Mercado Pago (revierte si Mercado Pago falla o no responde; y si igual quedara 'cancelada' con Mercado Pago cobrando, el webhook la vuelve a 'activa' al llegar el cobro). Queda una carrera chica sin cubrir: un webhook de `authorized` que ya estaba en vuelo puede reactivar la fila entre el update y la pausa, tipografías propias, términos fechados para Google (0010), `scripts/cargar-videos.mjs` versionado. Queda: completar los datos entre corchetes de Términos y Privacidad.
 
+- **Email del sitio: `mareainterior26@gmail.com`** (Joaquin, 2026-10-01). Es el de contacto en Términos y Privacidad, y el remitente previsto para los mails de Supabase Auth por SMTP de Gmail (con una contraseña de aplicación de Google, que se carga solo en *Authentication → Emails → SMTP Settings*, nunca en el repo ni en el chat).
+
 ## Pendientes de decisión
 
 - El precio del plan mensual. En el prototipo y en el código figura como `[PRECIO]`, literal.

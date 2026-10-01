@@ -5,7 +5,7 @@ const secciones: Seccion[] = [
   {
     id: 'responsable',
     titulo: 'Quién es responsable de tus datos',
-    parrafos: ['[RAZÓN SOCIAL], CUIT [CUIT], con domicilio en [DOMICILIO]. Contacto para temas de privacidad: [EMAIL DE CONTACTO].'],
+    parrafos: ['[RAZÓN SOCIAL], CUIT [CUIT], con domicilio en [DOMICILIO]. Contacto para temas de privacidad: mareainterior26@gmail.com.'],
   },
   {
     id: 'datos',

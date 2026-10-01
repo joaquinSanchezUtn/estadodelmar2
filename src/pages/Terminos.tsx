@@ -72,7 +72,7 @@ const crearSecciones = (precio: string): Seccion[] => [
     id: 'ley',
     titulo: 'Ley aplicable y contacto',
     parrafos: [
-      <>Estos términos se rigen por las leyes de la República Argentina. Por cualquier duda, escribinos desde la página de <Link to="/contacto" className="underline">contacto</Link> o a [EMAIL DE CONTACTO].</>,
+      <>Estos términos se rigen por las leyes de la República Argentina. Por cualquier duda, escribinos desde la página de <Link to="/contacto" className="underline">contacto</Link> o a mareainterior26@gmail.com.</>,
     ],
   },
 ]
