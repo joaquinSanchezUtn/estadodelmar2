@@ -16,7 +16,7 @@ export default function FiltroDeEnfoques({ enfoques, activo, cantidades, onElegi
     marcado ? 'border-mar-primario bg-mar-primarioSuave font-bold text-mar-primario' : 'border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-primarioSuave'
 
   return (
-    <div role="group" aria-label="Filtrar por enfoque" className="flex flex-wrap items-center gap-2">
+    <div role="group" aria-label="Filtrar por enfoque" className="flex flex-wrap items-center justify-center gap-2">
       <span className="mr-1 text-cuerpo text-mar-tintaSuave">Enfoque:</span>
       <button type="button" aria-pressed={!activo} onClick={() => onElegir(null)} className={cn(chip, variante(!activo))}>
         Todos

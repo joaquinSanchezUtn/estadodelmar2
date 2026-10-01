@@ -17,7 +17,7 @@ export default function FiltroDeEstados({ estados, activo, cantidades, onElegir 
     marcado ? 'border-mar-primario bg-mar-primarioSuave font-bold text-mar-primario' : 'border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-primarioSuave'
 
   return (
-    <div role="group" aria-label="Filtrar por estado del mar" className="flex flex-wrap gap-2">
+    <div role="group" aria-label="Filtrar por estado del mar" className="flex flex-wrap justify-center gap-2">
       <button type="button" aria-pressed={!activo} onClick={() => onElegir(null)} className={cn(chip, variante(!activo))}>
         Todas <span className="text-meta">{total}</span>
       </button>

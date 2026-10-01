@@ -21,7 +21,7 @@ const preguntas = [
 export default function PreguntasFrecuentes() {
   return (
     <Seccion id="preguntas" titulo="Preguntas frecuentes">
-      <div className="flex max-w-lectura flex-col gap-3">
+      <div className="mx-auto flex max-w-lectura flex-col gap-3">
         {preguntas.map(({ p, r }) => (
           <details key={p} className="group rounded-burbuja border border-mar-bordeAgua bg-mar-blanco px-5 py-4 shadow-suave">
             <summary className="flex min-h-control-sm cursor-pointer list-none items-center justify-between gap-4 font-bold text-mar-tinta">

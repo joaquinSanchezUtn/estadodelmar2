@@ -9,7 +9,8 @@ import Seccion from './Seccion'
 type Props = { temas: Tema[] | null; estados: EstadoMar[] | null }
 
 const CANTIDAD = 6
-const grilla = 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5'
+// Pistas de ancho fijo y centradas: con pocos temas, la fila queda en el medio y no pegada a la izquierda.
+const grilla = 'grid grid-cols-[repeat(auto-fit,minmax(17rem,22rem))] justify-center gap-4 lg:gap-5'
 
 // Los primeros temas del catálogo, como tarjetas. El resto, en /ventanas.
 export default function TemasInicio({ temas, estados }: Props) {

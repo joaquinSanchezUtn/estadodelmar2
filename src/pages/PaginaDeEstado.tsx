@@ -64,9 +64,9 @@ export default function PaginaDeEstado() {
       </section>
 
       <section className="flex flex-col gap-6 py-4">
-        <h2 className="text-titulo-m md:text-titulo-l">Temas de este estado</h2>
+        <h2 className="text-center text-titulo-m md:text-titulo-l">Temas de este estado</h2>
         {propias?.length === 0 ? (
-          <p className="rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-cuerpo text-mar-tintaSuave">
+          <p className="mx-auto w-full max-w-parrafo rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-center text-cuerpo text-mar-tintaSuave">
             Todavía no hay temas en este estado. Se van sumando con el tiempo.
           </p>
         ) : (
@@ -75,7 +75,7 @@ export default function PaginaDeEstado() {
       </section>
 
       {otros && (
-        <nav aria-label="Otros estados del mar" className="flex flex-wrap items-center gap-2">
+        <nav aria-label="Otros estados del mar" className="flex flex-wrap items-center justify-center gap-2">
           <span className="mr-2 text-cuerpo text-mar-tintaSuave">Otros estados:</span>
           {otros.map((e) => (
             <Link key={e.id} to={urlDeEstado(e.id)} className="inline-flex min-h-control-sm items-center rounded-full border border-mar-bordeControl bg-mar-blanco px-4 text-cuerpo text-mar-tinta no-underline hover:bg-mar-primarioSuave">

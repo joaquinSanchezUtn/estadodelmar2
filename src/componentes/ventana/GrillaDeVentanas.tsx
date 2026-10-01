@@ -26,7 +26,7 @@ export default function GrillaDeVentanas({ temas, estados, final }: Props) {
   const estadoDe = (t: Tema) => estados?.find((e) => e.id === t.estadoMar)
 
   return (
-    <ul aria-busy={!temas} className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+    <ul aria-busy={!temas} className="relative grid grid-cols-[repeat(auto-fit,minmax(17rem,22rem))] justify-center gap-4 lg:gap-5">
       {temas ? (
         <AnimatePresence mode="popLayout">
           {temas.map((tema, i) => (

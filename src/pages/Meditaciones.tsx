@@ -13,7 +13,7 @@ export default function Meditaciones() {
 
   return (
     <Pagina ancho="ancho">
-      <header className="mt-2 rounded-burbujaGrande bg-gradient-to-b from-mar-noche to-mar-nocheProfunda px-6 py-10 text-mar-sobreNoche md:px-10 md:py-16">
+      <header className="mt-2 flex flex-col items-center rounded-burbujaGrande bg-gradient-to-b from-mar-noche to-mar-nocheProfunda px-6 py-10 text-center text-mar-sobreNoche md:px-10 md:py-16">
         <p className="mb-3 text-etiqueta uppercase text-mar-sobreNocheSuave">Una ventana propia</p>
         <h1 className="mb-4 text-titulo-l text-mar-sobreNoche md:text-titulo-xl">Meditaciones</h1>
         <p className="max-w-parrafo text-destacado text-mar-sobreNocheSuave">
@@ -23,9 +23,9 @@ export default function Meditaciones() {
       </header>
 
       <section className="flex flex-col gap-6 py-4">
-        <h2 className="text-titulo-m md:text-titulo-l">Elegí por dónde entrar</h2>
+        <h2 className="text-center text-titulo-m md:text-titulo-l">Elegí por dónde entrar</h2>
         {conMeditacion?.length === 0 ? (
-          <p className="rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-cuerpo text-mar-tintaSuave">
+          <p className="mx-auto w-full max-w-parrafo rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-center text-cuerpo text-mar-tintaSuave">
             Todavía no hay meditaciones publicadas. Se van sumando con cada tema.
           </p>
         ) : (

@@ -44,9 +44,9 @@ export default function CatalogoVentanas() {
 
   return (
     <Pagina ancho="ancho">
-      <header className="pt-4 md:pt-8">
+      <header className="mx-auto flex max-w-parrafo flex-col items-center pt-4 text-center md:pt-8">
         <h1 className="mb-3 text-titulo-l md:text-titulo-xl">Todos los temas</h1>
-        <p className="max-w-parrafo text-destacado text-mar-tintaSuave">
+        <p className="text-destacado text-mar-tintaSuave">
           Buscá por nombre, o elegí cómo está tu mar o desde dónde querés mirarlo. Los títulos los ve cualquiera; el contenido es para
           suscriptoras.
         </p>
@@ -65,7 +65,7 @@ export default function CatalogoVentanas() {
         <FiltroDeEnfoques enfoques={enfoques} activo={enfoque} cantidades={cantidadesEnfoque} onElegir={(id) => cambiar(consulta, activo, id)} />
       </div>
 
-      <p role="status" className="text-cuerpo font-medium text-mar-tintaSuave">
+      <p role="status" className="text-center text-cuerpo font-medium text-mar-tintaSuave">
         {visibles ? `${visibles.length} ${visibles.length === 1 ? 'tema' : 'temas'}` : 'Cargando los temas…'}
       </p>
 

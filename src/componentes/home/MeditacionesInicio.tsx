@@ -10,10 +10,10 @@ export default function MeditacionesInicio({ temas }: { temas: Tema[] | null }) 
 
   return (
     <section id="meditaciones" className="relative my-6 scroll-mt-24 overflow-hidden rounded-burbujaGrande bg-gradient-to-b from-mar-noche to-mar-nocheProfunda px-5 py-10 text-mar-sobreNoche md:my-10 md:px-10 md:py-12">
-      <div className="mb-6 flex flex-col gap-2 md:mb-8 md:flex-row md:items-end md:justify-between md:gap-6">
+      <div className="mx-auto mb-8 flex max-w-parrafo flex-col items-center gap-2 text-center md:mb-10">
         <div>
           <h2 className="text-titulo-m text-mar-sobreNoche md:text-titulo-l">Meditaciones</h2>
-          <p className="mt-2 max-w-parrafo text-destacado text-mar-sobreNocheSuave">
+          <p className="mt-2 text-destacado text-mar-sobreNocheSuave">
             Para volver a la profundidad cuando la superficie está agitada, o para quedarse un rato ahí aunque esté en calma.
           </p>
         </div>
@@ -23,11 +23,11 @@ export default function MeditacionesInicio({ temas }: { temas: Tema[] | null }) 
       </div>
 
       {con.length === 0 ? (
-        <p className="max-w-parrafo rounded-burbuja border border-mar-sobreNoche/20 bg-mar-sobreNoche/5 p-5 text-cuerpo text-mar-sobreNocheSuave">
+        <p className="mx-auto max-w-parrafo rounded-burbuja border border-mar-sobreNoche/20 bg-mar-sobreNoche/5 p-5 text-center text-cuerpo text-mar-sobreNocheSuave">
           Las meditaciones guiadas se van sumando con cada tema. Muy pronto vas a encontrarlas acá.
         </p>
       ) : (
-        <ul className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
+        <ul className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-2 md:mx-0 md:justify-center md:px-0">
           {con.map(({ tema, duracion }) => (
             <li key={tema.id} className="w-64 shrink-0">
               <Link to={`/tema/${tema.slug}`} className="flex h-full flex-col gap-3 rounded-burbuja border border-mar-sobreNoche/15 bg-mar-sobreNoche/5 p-5 text-mar-sobreNoche no-underline transition-colors hover:bg-mar-sobreNoche/10">
