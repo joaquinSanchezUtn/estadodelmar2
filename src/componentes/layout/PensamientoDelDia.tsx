@@ -72,13 +72,14 @@ export default function PensamientoDelDia() {
         aria-expanded={abierta}
         aria-controls="pensamiento-del-dia"
         onClick={() => (abierta ? cerrar(false) : setAbierta(true))}
-        className="fixed right-0 top-1/2 z-flotante flex -translate-y-1/2 flex-col items-center gap-2 rounded-l-burbuja bg-mar-primario px-2 py-4 text-mar-sobrePrimario shadow-boton transition-colors hover:bg-mar-primarioHover"
+        className="fixed right-0 top-1/2 z-flotante flex -translate-y-1/2 flex-col items-center gap-2 rounded-l-burbuja bg-mar-primario px-3 py-3 md:px-2 md:py-4 text-mar-sobrePrimario shadow-boton transition-colors hover:bg-mar-primarioHover"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <circle cx="12" cy="12" r="4" />
           <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
         </svg>
-        <span className="rotate-180 text-meta font-bold [writing-mode:vertical-rl]">Pensamiento del día</span>
+        {/* En celular, solo el ícono: la pestaña con texto tapaba el borde derecho de las tarjetas. */}
+        <span className="sr-only md:not-sr-only md:rotate-180 md:text-meta md:font-bold md:[writing-mode:vertical-rl]">Pensamiento del día</span>
         {!vista && (
           <>
             <span aria-hidden="true" className="size-2 rounded-full bg-mar-atardecer" />

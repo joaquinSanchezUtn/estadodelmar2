@@ -50,7 +50,7 @@ export default function QuienSoy() {
 
   return (
     <Pagina ancho="ancho">
-      <header className="grid items-center gap-6 rounded-burbujaGrande border border-mar-bordeAgua bg-gradient-to-br from-mar-arena via-mar-nube to-mar-aguaClara p-6 shadow-suave md:grid-cols-[auto_minmax(0,1fr)] md:gap-10 md:p-12">
+      <header className="grid items-center justify-items-center gap-6 text-center md:justify-items-start md:text-left rounded-burbujaGrande border border-mar-bordeAgua bg-gradient-to-br from-mar-arena via-mar-nube to-mar-aguaClara p-6 shadow-suave md:grid-cols-[auto_minmax(0,1fr)] md:gap-10 md:p-12">
         {datos.fotoUrl ? (
           <img
             src={datos.fotoUrl}
@@ -62,11 +62,11 @@ export default function QuienSoy() {
             {iniciales}
           </span>
         )}
-        <div className="flex flex-col items-start gap-4">
+        <div className="flex flex-col items-center gap-4 md:items-start">
           <p className="text-etiqueta uppercase text-mar-atardecerTexto">Quién te acompaña</p>
           <h1 className="text-titulo-l md:text-titulo-xl">{datos.nombre || 'Quién soy'}</h1>
           {datos.campos.length > 0 && (
-            <ul className="flex flex-wrap gap-2">
+            <ul className="flex flex-wrap justify-center gap-2 md:justify-start">
               {datos.campos.slice(0, 2).map((c) => (
                 <li key={c.etiqueta} className="rounded-full bg-mar-blanco px-4 py-2 text-meta font-bold text-mar-primario shadow-suave">
                   {c.valor}
