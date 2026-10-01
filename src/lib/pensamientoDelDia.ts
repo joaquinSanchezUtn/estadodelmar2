@@ -1,8 +1,8 @@
-// Qué frase toca hoy. Las frases se recorren en "vueltas": cada vuelta es un orden mezclado de toda la
-// lista, así que ninguna se repite hasta haber mostrado todas. Cada vuelta se mezcla distinto (la semilla
-// es el número de vuelta), y si la primera de una vuelta coincide con la última de la anterior, se cambian
-// de lugar: tampoco se repite justo en el cambio de vuelta. Todo es determinístico: el mismo día da la
-// misma frase en cualquier dispositivo, sin guardar nada.
+// Qué pensamiento toca hoy. Los pensamientos se recorren en "vueltas": cada vuelta es un orden mezclado de toda la
+// lista, así que ninguno se repite hasta haber mostrado todos. Cada vuelta se mezcla distinto (la semilla
+// es el número de vuelta), y si el primero de una vuelta coincide con el último de la anterior, se cambian
+// de lugar: tampoco se repite justo en el cambio de vuelta. Todo es determinístico: el mismo día da el
+// mismo pensamiento en cualquier dispositivo, sin guardar nada.
 const ORIGEN = Date.UTC(2026, 0, 1)
 const DIA_MS = 86_400_000
 
@@ -27,7 +27,7 @@ function ordenDeVuelta(vuelta: number, n: number): number[] {
   return orden
 }
 
-// El número de día según la fecha local de quien mira (a medianoche cambia la frase).
+// El número de día según la fecha local de quien mira (a medianoche cambia el pensamiento).
 export const numeroDeDia = (fecha: Date) => Math.floor((Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()) - ORIGEN) / DIA_MS)
 
 export function indiceDelDia(dia: number, n: number): number {

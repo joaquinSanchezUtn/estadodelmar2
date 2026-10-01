@@ -4,14 +4,14 @@ import Grano from '../objetos/Grano'
 import Manchas from '../objetos/Manchas'
 import { useLocation } from 'react-router-dom'
 import Encabezado from './Encabezado'
-import FraseDelDia from './FraseDelDia'
+import PensamientoDelDia from './PensamientoDelDia'
 import PaginasAnimadas from './PaginasAnimadas'
 import PieDePagina from './PieDePagina'
 
 // overflow-x-clip (y no hidden) recorta lo que se sale sin volver este contenedor un
 // scroll: el encabezado sigue pegado arriba. overflow-anchor: none, ver PaginasAnimadas.
 export default function Layout() {
-  // La frase del día es para quien visita, no para el panel.
+  // El pensamiento del día es para quien visita, no para el panel.
   const { pathname } = useLocation()
 
   return (
@@ -24,7 +24,7 @@ export default function Layout() {
         <PaginasAnimadas />
       </LimiteDeErrores>
       <PieDePagina />
-      {!pathname.startsWith('/admin') && <FraseDelDia />}
+      {!pathname.startsWith('/admin') && <PensamientoDelDia />}
     </div>
   )
 }
