@@ -6,7 +6,7 @@
 // OJO: esto no está probado contra un cambio de tarjeta real todavía (falta esa parte del flujo en
 // el sandbox); antes de confiar en esto para producción, probarlo de punta a punta.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const error = (mensaje: string, status = 409) => Response.json({ ok: false, mensaje }, { status });
 

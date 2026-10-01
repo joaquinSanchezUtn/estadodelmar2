@@ -7,8 +7,8 @@ import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
 import BienvenidaCuenta from '../componentes/cuenta/BienvenidaCuenta'
 import CambiarContrasena from '../componentes/cuenta/CambiarContrasena'
 import DatosCuenta from '../componentes/cuenta/DatosCuenta'
-import EliminarCuenta from '../componentes/cuenta/EliminarCuenta'
 import EstadoSuscripcion from '../componentes/cuenta/EstadoSuscripcion'
+import PedirBajaDeCuenta from '../componentes/cuenta/PedirBajaDeCuenta'
 import Pagina from '../componentes/layout/Pagina'
 import { obtenerSuscripcion } from '../datos/contenido'
 import { useCarga } from '../lib/useCarga'
@@ -43,8 +43,7 @@ export default function MiCuenta() {
         <div className="flex flex-col gap-6">
           <DatosCuenta usuario={usuario} avisar={setAviso} />
           <CambiarContrasena usuario={usuario} avisar={setAviso} />
-          {/* Sin saber el estado de la suscripción no se ofrece borrar la cuenta: no se podría decir qué pasa con ella. */}
-          {!cargando && !error && <EliminarCuenta suscripcion={suscripcion} />}
+          <PedirBajaDeCuenta />
         </div>
       </div>
     </Pagina>

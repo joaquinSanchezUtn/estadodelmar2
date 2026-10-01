@@ -16,7 +16,7 @@
 // nunca se asocia a una pieza: si se guardara igual, la pieza quedaría publicada con un archivo que
 // nunca va a reproducirse.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const LIBRARY_ID = Deno.env.get("BUNNY_LIBRARY_ID");
 const API_KEY = Deno.env.get("BUNNY_STREAM_API_KEY");
@@ -51,11 +51,18 @@ function esSesionDeRecuperacion(claims: Record<string, unknown>): boolean {
   return Array.isArray(amr) && amr.some((e) => (e as { method?: string })?.method === "recovery");
 }
 
+// Una sola definición de admin para todo el proyecto: la función `es_admin()` de la base, llamada con
+// el JWT de quien pide (igual que `firmar-video-bunny`). Si algún día exige más (por ejemplo, un
+// segundo factor), estas funciones lo heredan solas en vez de leer `profiles.role` por su cuenta.
 // deno-lint-ignore no-explicit-any
-async function esAdmin(supabaseAdmin: any, userId: string): Promise<boolean> {
-  const { data } = await supabaseAdmin.from("profiles").select("role").eq("id", userId).maybeSingle();
-  return data?.role === "admin";
+async function esAdmin(supabase: any): Promise<boolean> {
+  const { data, error } = await supabase.rpc("es_admin");
+  return !error && data === true;
 }
+
+// Los ids de Bunny son GUID: cualquier otra cosa se rechaza antes de armar una URL de su API con ella
+// (un `../` cambiaría la ruta del pedido).
+const ID_VALIDO = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function borrarEnBunny(videoId: string) {
   const resp = await fetch(`https://video.bunnycdn.com/library/${LIBRARY_ID}/videos/${videoId}`, {
@@ -74,13 +81,18 @@ export default {
       return error("No pudimos guardar el archivo. Probá de nuevo en un rato.", 500);
     }
     if (esSesionDeRecuperacion(ctx.userClaims!)) return error("Iniciá sesión de nuevo para hacer esto.", 403);
-    if (!(await esAdmin(ctx.supabaseAdmin, ctx.userClaims!.id as string))) return error("No tenés permiso para hacer esto.", 403);
+    if (!(await esAdmin(ctx.supabase))) return error("No tenés permiso para hacer esto.", 403);
 
     const cuerpo = await req.json().catch(() => null);
 
     if (cuerpo?.accion === "descartar") {
       const videoId = typeof cuerpo?.videoId === "string" ? cuerpo.videoId : "";
-      if (!videoId) return error("Falta el archivo a descartar.");
+      if (!ID_VALIDO.test(videoId)) return error("Falta el archivo a descartar.");
+      // Solo se descarta lo que nunca se asoció a una pieza: un video en uso no se borra por esta vía
+      // (ni por un error de la limpieza del formulario ni con una sesión de admin robada). Borrar una
+      // pieza o un tema lo libera primero (la fila se va en cascada) y recién después lo descarta.
+      const { data: enUso } = await ctx.supabaseAdmin.from("archivos_contenido").select("contenido_id").eq("bunny_video_id", videoId).maybeSingle();
+      if (enUso) return error("Ese archivo está en uso en una pieza: no se descarta.", 409);
       await borrarEnBunny(videoId);
       return Response.json({ ok: true });
     }
@@ -98,7 +110,10 @@ export default {
 
     const videoId = typeof cuerpo?.videoId === "string" ? cuerpo.videoId : "";
     const nombreCliente = typeof cuerpo?.nombre === "string" ? cuerpo.nombre.slice(0, 200) : "archivo";
-    if (!videoId) return error("Falta el archivo subido.");
+    if (!ID_VALIDO.test(videoId)) return error("Falta el archivo subido.");
+    // Un mismo video no puede quedar en dos piezas: al quitarlo de una se borraría de la otra.
+    const { data: deOtra } = await ctx.supabaseAdmin.from("archivos_contenido").select("contenido_id").eq("bunny_video_id", videoId).neq("contenido_id", contenidoId).maybeSingle();
+    if (deOtra) return error("Ese archivo ya está en otra pieza. Subilo de nuevo.", 409);
 
     const resp = await fetch(`https://video.bunnycdn.com/library/${LIBRARY_ID}/videos/${videoId}`, {
       headers: { Accept: "application/json", AccessKey: API_KEY },

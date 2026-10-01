@@ -15,7 +15,7 @@
 // documentación pública no la detalla del todo). Se loguea lo mínimo para poder revisarlo la primera
 // vez que llegue un cobro rebotado de verdad, sin volcar el objeto completo (trae datos del pagador).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 const WEBHOOK_SECRET = Deno.env.get("MP_WEBHOOK_SECRET");
@@ -214,12 +214,15 @@ async function procesarPreapproval(supabaseAdmin: any, preapprovalId: string) {
   // Bloqueo optimista: si el estado de la fila cambió entre la lectura de arriba y este update (por
   // ejemplo, canceló mientras este webhook estaba en vuelo), no se pisa — gana el cambio más nuevo,
   // no el que tardó más en llegar.
-  const { data: actualizada } = await supabaseAdmin
+  const { data: actualizada, error: errorUpdate } = await supabaseAdmin
     .from("suscripciones")
     .update(datos)
     .eq("id", fila.id)
     .eq("estado", fila.estado)
     .select("id");
+  // Un error de la base (no "la fila cambió") se tira: libera la reserva del evento y Mercado Pago
+  // reintenta, en vez de quedar marcado como procesado sin haberse guardado.
+  if (errorUpdate) throw new Error(`update suscripciones (${preapprovalId}): ${errorUpdate.message}`);
   if (!actualizada?.length) {
     console.warn("[webhook-mercado-pago] la fila cambió mientras se procesaba, se descarta este evento", preapprovalId);
   }
@@ -264,12 +267,14 @@ async function procesarCobro(supabaseAdmin: any, cobroId: string) {
       datos.estado = "activa";
       datos.acceso_hasta = null;
     }
-    await supabaseAdmin.from("suscripciones").update(datos).eq("id", fila.id).eq("estado", fila.estado).select("id");
+    const { error: errorCobro } = await supabaseAdmin.from("suscripciones").update(datos).eq("id", fila.id).eq("estado", fila.estado).select("id");
+    if (errorCobro) throw new Error(`update suscripciones por cobro (${preapprovalId}): ${errorCobro.message}`);
   } else if (["rejected", "cancelled"].includes(estado) && fila.estado === "activa") {
-    await supabaseAdmin
+    const { error: errorRebote } = await supabaseAdmin
       .from("suscripciones")
       .update({ estado: "en_gracia", acceso_hasta: enDias(3), ultimo_evento: new Date().toISOString() })
       .eq("id", fila.id)
       .eq("estado", "activa");
+    if (errorRebote) throw new Error(`update suscripciones por rebote (${preapprovalId}): ${errorRebote.message}`);
   }
 }

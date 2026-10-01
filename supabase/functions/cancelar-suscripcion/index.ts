@@ -2,7 +2,7 @@
 // ser `acceso_hasta`). La transición se valida acá, del lado del servidor (solo desde 'activa'):
 // el cliente no decide esto, solo lo pide.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 

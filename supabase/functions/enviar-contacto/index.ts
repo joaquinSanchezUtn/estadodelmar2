@@ -11,7 +11,7 @@
 // No manda correos: no hay SMTP propio todavía, y así nada de lo que escribe la persona termina
 // interpolado en una cabecera de correo.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const SAL = Deno.env.get("CONTACTO_SAL_IP");
 const ASUNTOS = ["consulta", "cuenta", "pagos", "datos", "otro"];

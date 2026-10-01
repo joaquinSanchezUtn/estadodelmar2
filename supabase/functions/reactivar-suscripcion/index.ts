@@ -9,7 +9,7 @@
 // `cancelar-suscripcion` (que busca 'activa') — quedaba incancelable desde el sitio. Encontrado por la
 // auditoría de verificación de la Tanda de Mercado Pago.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 

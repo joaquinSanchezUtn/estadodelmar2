@@ -8,7 +8,7 @@
 // todavía no está cargado (ver CLAUDE.md, "Pendientes de decisión"), no es un error: se devuelve
 // `precioArs: null` y el front sigue mostrando el placeholder `[PRECIO]`.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const PRECIO = Deno.env.get("MP_PRECIO_ARS");
 

@@ -34,7 +34,7 @@
 // existe. Por eso `resolucion` se guarda por video (migración 0008) en vez de asumirse fija: se
 // encontró probando una subida real de punta a punta con un video de prueba en baja resolución.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const PULL_ZONE_HOST = Deno.env.get("BUNNY_PULL_ZONE_HOST");
 const TOKEN_KEY = Deno.env.get("BUNNY_TOKEN_KEY");

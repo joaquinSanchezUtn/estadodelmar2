@@ -12,6 +12,7 @@ const secciones: Seccion[] = [
     titulo: 'Qué datos guardamos',
     parrafos: [
       'Tu nombre y tu email, cómo ingresás (email o Google) y el estado de tu suscripción (activa, cancelada, vencida). Si ingresás con Google, recibimos de Google tu nombre y tu email; nada más.',
+      'Si nos escribís por el formulario de contacto, guardamos tu nombre, tu email y tu mensaje para poder responderte, y una huella cifrada de tu conexión (no tu dirección IP) para frenar envíos abusivos.',
       'Las notas que escribís en una ejercitación quedan solo en tu pantalla: no se envían ni se guardan.',
     ],
   },
@@ -29,7 +30,7 @@ const secciones: Seccion[] = [
     id: 'terceros',
     titulo: 'Con quién los compartimos',
     parrafos: [
-      'Con los servicios que hacen posible el sitio, solo lo necesario para que funcionen: Supabase (cuentas y base de datos), Mercado Pago (pagos) y Bunny Stream (entrega de videos y audios). Estos proveedores pueden almacenar datos fuera de la Argentina [DETALLAR PAÍSES Y GARANTÍAS CON ASESORÍA LEGAL].',
+      'Con los servicios que hacen posible el sitio, solo lo necesario para que funcionen: Supabase (cuentas y base de datos), Mercado Pago (pagos), Bunny Stream (entrega de videos y audios), Vercel (donde está alojado el sitio) y Google Fonts (las tipografías, que tu navegador descarga de Google). Estos proveedores pueden almacenar datos fuera de la Argentina [DETALLAR PAÍSES Y GARANTÍAS CON ASESORÍA LEGAL].',
     ],
   },
   {
@@ -48,7 +49,7 @@ const secciones: Seccion[] = [
     id: 'derechos',
     titulo: 'Tus derechos',
     parrafos: [
-      'Según la Ley 25.326 de Protección de Datos Personales, podés acceder a tus datos, rectificarlos, actualizarlos y pedir su supresión. Podés cambiar tu nombre y tu contraseña, o eliminar tu cuenta, desde Mi cuenta; y para cualquier otro pedido escribinos.',
+      'Según la Ley 25.326 de Protección de Datos Personales, podés acceder a tus datos, rectificarlos, actualizarlos y pedir su supresión. Podés cambiar tu nombre y tu contraseña desde Mi cuenta. Para eliminar tu cuenta o hacer cualquier otro pedido, escribinos.',
       'La Agencia de Acceso a la Información Pública, como órgano de control de la ley, tiene la atribución de atender las denuncias y reclamos de quienes se vean afectados en sus derechos [VERIFICAR TEXTO CON ASESORÍA LEGAL].',
       <>Para ejercer tus derechos, escribinos desde la página de <Link to="/contacto" className="underline">contacto</Link>.</>,
     ],

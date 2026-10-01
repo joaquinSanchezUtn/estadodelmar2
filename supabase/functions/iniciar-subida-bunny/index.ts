@@ -8,7 +8,7 @@
 // ese momento (se sube el archivo apenas se elige, no cuando se manda el formulario) — ver el
 // comentario de esa función.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const LIBRARY_ID = Deno.env.get("BUNNY_LIBRARY_ID");
 const API_KEY = Deno.env.get("BUNNY_STREAM_API_KEY");
@@ -24,10 +24,13 @@ function esSesionDeRecuperacion(claims: Record<string, unknown>): boolean {
   return Array.isArray(amr) && amr.some((e) => (e as { method?: string })?.method === "recovery");
 }
 
+// Una sola definición de admin para todo el proyecto: la función `es_admin()` de la base, llamada con
+// el JWT de quien pide (igual que `firmar-video-bunny`). Si algún día exige más (por ejemplo, un
+// segundo factor), estas funciones lo heredan solas en vez de leer `profiles.role` por su cuenta.
 // deno-lint-ignore no-explicit-any
-async function esAdmin(supabaseAdmin: any, userId: string): Promise<boolean> {
-  const { data } = await supabaseAdmin.from("profiles").select("role").eq("id", userId).maybeSingle();
-  return data?.role === "admin";
+async function esAdmin(supabase: any): Promise<boolean> {
+  const { data, error } = await supabase.rpc("es_admin");
+  return !error && data === true;
 }
 
 async function firmaTus(videoId: string, expira: number): Promise<string> {
@@ -43,7 +46,7 @@ export default {
       return error("No pudimos iniciar la subida. Probá de nuevo en un rato.", 500);
     }
     if (esSesionDeRecuperacion(ctx.userClaims!)) return error("Iniciá sesión de nuevo para hacer esto.", 403);
-    if (!(await esAdmin(ctx.supabaseAdmin, ctx.userClaims!.id as string))) return error("No tenés permiso para hacer esto.", 403);
+    if (!(await esAdmin(ctx.supabase))) return error("No tenés permiso para hacer esto.", 403);
 
     const cuerpo = await req.json().catch(() => null);
     const tipo = cuerpo?.tipo as "video" | "meditacion" | undefined;

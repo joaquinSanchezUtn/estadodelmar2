@@ -5,7 +5,7 @@
 //
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "jsr:@supabase/server@^1";
+import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://estado-del-mar.vercel.app";
