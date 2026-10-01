@@ -109,8 +109,8 @@ export default {
       },
       opacity: { 4: '0.04' },
       fontFamily: {
-        titulo: ['Fraunces', 'Georgia', 'serif'],
-        sans: ['Nunito', 'system-ui', 'sans-serif'],
+        titulo: ['Fraunces Variable', 'Georgia', 'serif'],
+        sans: ['Nunito Variable', 'system-ui', 'sans-serif'],
       },
     },
   },

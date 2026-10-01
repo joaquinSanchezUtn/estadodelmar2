@@ -45,25 +45,15 @@ export default {
     if (errorLectura) return error("No pudimos hacerlo ahora. Probá de nuevo en un rato.", 500);
     if (!sub) return error("No pudimos hacerlo ahora. Probá de nuevo en un rato.");
 
-    // "paused" y no "cancelled": en Mercado Pago un preapproval cancelado es terminal (nunca vuelve a
-    // "authorized"), y acá la persona tiene que poder arrepentirse mientras el período siga pago —
-    // ver `reactivar-suscripcion`.
-    const resp = await fetch(`https://api.mercadopago.com/preapproval/${sub.preapproval_id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${ACCESS_TOKEN}` },
-      body: JSON.stringify({ status: "paused" }),
-    });
-    if (!resp.ok) {
-      console.error("[cancelar-suscripcion] MP respondió", resp.status, await resp.text());
-      return error("No pudimos hacerlo ahora. Probá de nuevo en un rato.", 502);
-    }
-
+    // Primero la base y después Mercado Pago, como `reactivar-suscripcion`. Al revés había una carrera:
+    // el webhook de "paused" podía llegar antes de este update, encontrar la fila todavía 'activa' y
+    // pasarla a 'vencida' sin acceso, y la persona perdía los días ya pagos (auditoría del 2026-10-01).
+    // Con la fila ya en 'cancelada', ese webhook sabe que la pausa la pidió ella.
+    //
     // Puede no haber `proximo_cobro` todavía (el webhook de autorización no llegó, caso raro): en ese
-    // caso no queda acceso extra, se corta hoy.
+    // caso no queda acceso extra, se corta hoy. Guardado con `.eq('estado', 'activa')`: si el webhook
+    // cambió la fila justo en el medio (un cobro rebotó), no se pisa nada.
     const accesoHasta = sub.proximo_cobro ?? hoyISO();
-    // Guardado con `.eq('estado', 'activa')`: si el webhook cambió la fila a 'en_gracia' justo en el
-    // medio (un cobro rebotó mientras esto estaba en vuelo), este update no pisa nada — se descarta en
-    // vez de cortar el acceso antes de tiempo. Encontrado por la auditoría de verificación.
     const { data: actualizada, error: errorUpdate } = await ctx.supabaseAdmin
       .from("suscripciones")
       .update({ estado: "cancelada", acceso_hasta: accesoHasta, ultimo_evento: new Date().toISOString() })
@@ -75,9 +65,28 @@ export default {
       return error("No pudimos hacerlo ahora. Probá de nuevo en un rato.", 500);
     }
     if (!actualizada?.length) {
-      // En Mercado Pago ya quedó "paused" (eso no se revierte acá, tampoco hace falta): la próxima vez
-      // que la persona mire Mi cuenta ve el estado real, que es el que corresponde.
       return error("Tu suscripción cambió mientras hacíamos esto. Volvé a mirar el estado y probá de nuevo.", 409);
+    }
+
+    // "paused" y no "cancelled": en Mercado Pago un preapproval cancelado es terminal (nunca vuelve a
+    // "authorized"), y acá la persona tiene que poder arrepentirse mientras el período siga pago —
+    // ver `reactivar-suscripcion`.
+    const resp = await fetch(`https://api.mercadopago.com/preapproval/${sub.preapproval_id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${ACCESS_TOKEN}` },
+      body: JSON.stringify({ status: "paused" }),
+    });
+    if (!resp.ok) {
+      console.error("[cancelar-suscripcion] MP respondió", resp.status, await resp.text());
+      // Mercado Pago no pausó: si la fila quedara 'cancelada', le seguirían cobrando sin que el sitio
+      // lo supiera. Se vuelve a 'activa' (solo si nadie la cambió mientras tanto) y se avisa.
+      const { error: errorReversa } = await ctx.supabaseAdmin
+        .from("suscripciones")
+        .update({ estado: "activa", acceso_hasta: null, ultimo_evento: new Date().toISOString() })
+        .eq("id", sub.id)
+        .eq("estado", "cancelada");
+      if (errorReversa) console.error("[cancelar-suscripcion] no se pudo revertir la fila", sub.id, errorReversa);
+      return error("No pudimos hacerlo ahora. Probá de nuevo en un rato.", 502);
     }
 
     return Response.json({ ok: true, accesoHasta });

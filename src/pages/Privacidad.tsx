@@ -30,7 +30,7 @@ const secciones: Seccion[] = [
     id: 'terceros',
     titulo: 'Con quién los compartimos',
     parrafos: [
-      'Con los servicios que hacen posible el sitio, solo lo necesario para que funcionen: Supabase (cuentas y base de datos), Mercado Pago (pagos), Bunny Stream (entrega de videos y audios), Vercel (donde está alojado el sitio) y Google Fonts (las tipografías, que tu navegador descarga de Google). Estos proveedores pueden almacenar datos fuera de la Argentina [DETALLAR PAÍSES Y GARANTÍAS CON ASESORÍA LEGAL].',
+      'Con los servicios que hacen posible el sitio, solo lo necesario para que funcionen: Supabase (cuentas y base de datos), Mercado Pago (pagos), Bunny Stream (entrega de videos y audios) y Vercel (donde está alojado el sitio). Estos proveedores pueden almacenar datos fuera de la Argentina [DETALLAR PAÍSES Y GARANTÍAS CON ASESORÍA LEGAL].',
     ],
   },
   {

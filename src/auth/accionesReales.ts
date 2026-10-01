@@ -67,6 +67,10 @@ export function crearAccionesReales({ refrescarPerfil }: Enganche): AccionesDeAc
       const { data, error } = await supabase.auth.getSession()
       window.history.replaceState({}, '', window.location.pathname) // el código no queda en el historial
       if (error || !data.session) return { ok: false, error: 'enlace-invalido' }
+      // Con Google no hay casilla de términos: el botón avisa que continuar es aceptarlos, y acá queda
+      // fechado por el servidor (solo la primera vez; ver migración 0010). Si falla no se corta el
+      // ingreso: la próxima vez que entre con Google se vuelve a intentar.
+      if (tipo === 'google') await supabase.rpc('aceptar_terminos').then(({ error: e }) => e && console.error('aceptar_terminos', e))
       // `recuperacion` es solo para saber a qué pantalla ir: el acceso real de esa pantalla lo decide
       // el evento PASSWORD_RECOVERY que ya escuchó SesionContext, no este parámetro de la URL.
       return { ok: true, recuperacion: tipo === 'recuperacion' }
