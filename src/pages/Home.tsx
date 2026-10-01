@@ -9,6 +9,7 @@ import QuienTeAcompana from '../componentes/home/QuienTeAcompana'
 import TemasInicio from '../componentes/home/TemasInicio'
 import Pagina from '../componentes/layout/Pagina'
 import { listarEstados, listarTemas } from '../datos/contenido'
+import { hayMeditaciones } from '../lib/meditaciones'
 import { useCarga } from '../lib/useCarga'
 
 // El recorrido de la home, en el orden en que alguien nuevo se pregunta las cosas: qué es, cómo estoy,
@@ -23,8 +24,8 @@ export default function Home() {
       <EstadosDelMar estados={estados} temas={temas} />
       <ComoFunciona />
       <TemasInicio temas={temas} estados={estados} />
-      <MeditacionesInicio temas={temas} />
-      <GimnasioDelAlma />
+      {hayMeditaciones(temas) && <MeditacionesInicio temas={temas} />}
+      <GimnasioDelAlma conMeditaciones={hayMeditaciones(temas)} />
       <QuienTeAcompana />
       <PlanMensual />
       <PreguntasFrecuentes />

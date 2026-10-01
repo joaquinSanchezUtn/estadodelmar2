@@ -72,13 +72,14 @@ export default function PensamientoDelDia() {
         aria-expanded={abierta}
         aria-controls="pensamiento-del-dia"
         onClick={() => (abierta ? cerrar(false) : setAbierta(true))}
-        className="fixed right-0 top-1/2 z-flotante flex -translate-y-1/2 flex-col items-center gap-2 rounded-l-burbuja bg-mar-primario px-3 py-3 md:px-2 md:py-4 text-mar-sobrePrimario shadow-boton transition-colors hover:bg-mar-primarioHover"
+        className="fixed bottom-4 right-4 z-flotante flex size-12 flex-col items-center justify-center gap-2 rounded-full bg-mar-primario text-mar-sobrePrimario shadow-boton transition-colors hover:bg-mar-primarioHover md:bottom-auto md:right-0 md:top-1/2 md:size-auto md:-translate-y-1/2 md:rounded-l-burbuja md:rounded-r-none md:px-2 md:py-4"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <circle cx="12" cy="12" r="4" />
           <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
         </svg>
-        {/* En celular, solo el ícono: la pestaña con texto tapaba el borde derecho de las tarjetas. */}
+        {/* En celular es un círculo con el ícono en la esquina de abajo: como pestaña al medio del costado tapaba
+            botones y textos. Desde `md`, la pestaña vertical con el texto. */}
         <span className="sr-only md:not-sr-only md:rotate-180 md:text-meta md:font-bold md:[writing-mode:vertical-rl]">Pensamiento del día</span>
         {!vista && (
           <>
@@ -90,7 +91,7 @@ export default function PensamientoDelDia() {
 
       <AnimatePresence>
         {abierta && (
-          <div className="fixed right-14 top-1/2 z-flotante -translate-y-1/2">
+          <div className="fixed bottom-20 right-4 z-flotante md:bottom-auto md:right-14 md:top-1/2 md:-translate-y-1/2">
             <motion.div
               id="pensamiento-del-dia"
               ref={panel}

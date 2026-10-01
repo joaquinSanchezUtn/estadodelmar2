@@ -3,7 +3,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSesion } from '../../auth/SesionContext'
 import { transicion } from '../../animaciones/movimiento'
+import { listarTemas } from '../../datos/contenido'
 import type { Rol } from '../../datos/tipos'
+import { hayMeditaciones } from '../../lib/meditaciones'
+import { useCarga } from '../../lib/useCarga'
 import Boton from '../base/Boton'
 import { Menu } from '../base/iconos'
 import LogoDelSitio from './LogoDelSitio'
@@ -12,11 +15,12 @@ import MenuMovil, { type Enlace } from './MenuMovil'
 
 // El mismo recorrido para todos: por dónde empezar, los temas, las meditaciones y quién acompaña. Es solo
 // navegación: el acceso real a cada pantalla lo decide la base. Quien tiene cuenta encuentra lo suyo en el
-// menú del ícono (MenuCuenta).
-const recorrido: Enlace[] = [
+// menú del ícono (MenuCuenta). "Meditaciones" aparece recién cuando hay alguna publicada: un enlace a una
+// sección vacía promete algo que todavía no está.
+const recorridoPara = (conMeditaciones: boolean): Enlace[] => [
   { to: '/#estados', texto: 'Cómo estás hoy' },
   { to: '/ventanas', texto: 'Temas' },
-  { to: '/#meditaciones', texto: 'Meditaciones' },
+  ...(conMeditaciones ? [{ to: '/#meditaciones', texto: 'Meditaciones' }] : []),
   { to: '/quien-soy', texto: 'Quién soy' },
 ]
 
@@ -28,9 +32,9 @@ function accionPara(rol: Rol): Enlace | null {
   return null
 }
 
-function enlacesPara(rol: Rol): Enlace[] {
+function enlacesPara(rol: Rol, conMeditaciones: boolean): Enlace[] {
   const accion = accionPara(rol)
-  return [...recorrido, ...(rol === 'visitante' ? [{ to: '/ingresar', texto: 'Ingresar' }] : []), ...(accion ? [accion] : [])]
+  return [...recorridoPara(conMeditaciones), ...(rol === 'visitante' ? [{ to: '/ingresar', texto: 'Ingresar' }] : []), ...(accion ? [accion] : [])]
 }
 
 export default function Encabezado() {
@@ -41,7 +45,9 @@ export default function Encabezado() {
   const [elevado, setElevado] = useState(false)
   const botonMenu = useRef<HTMLButtonElement>(null)
   const cerrar = useCallback(() => setAbierto(false), [])
-  const enlaces = enlacesPara(rol)
+  const { datos: temas } = useCarga('temas', listarTemas, true)
+  const conMeditaciones = hayMeditaciones(temas)
+  const enlaces = enlacesPara(rol, conMeditaciones)
   const accion = accionPara(rol)
 
   // Al scrollear el encabezado gana fondo translúcido, desenfoque y una sombra mínima.
@@ -65,7 +71,7 @@ export default function Encabezado() {
 
         <div className="flex items-center gap-2 md:gap-6 lg:gap-8">
           <nav aria-label="Principal" className="hidden items-center gap-5 text-cuerpo font-medium lg:flex lg:gap-8">
-            {recorrido.map((e) => (
+            {recorridoPara(conMeditaciones).map((e) => (
               <Link key={e.to} to={e.to} className="inline-flex min-h-control-sm items-center text-mar-tintaSuave no-underline hover:text-mar-tinta">
                 {e.texto}
               </Link>

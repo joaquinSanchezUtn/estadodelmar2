@@ -7,7 +7,8 @@ import Seccion from './Seccion'
 
 type Props = { estados: EstadoMar[] | null; temas: Tema[] | null }
 
-const grilla = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5'
+// De a dos ya en el celular: una por fila eran ocho tarjetas altas, casi tres pantallas de scroll.
+const grilla = 'grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5'
 
 // La metáfora como navegación: la persona ubica su estado y de ahí llega a las ventanas.
 export default function EstadosDelMar({ estados, temas }: Props) {

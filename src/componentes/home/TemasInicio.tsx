@@ -9,8 +9,11 @@ import Seccion from './Seccion'
 type Props = { temas: Tema[] | null; estados: EstadoMar[] | null }
 
 const CANTIDAD = 6
-// Pistas de ancho fijo y centradas: con pocos temas, la fila queda en el medio y no pegada a la izquierda.
-const grilla = 'grid grid-cols-[repeat(auto-fit,minmax(17rem,22rem))] justify-center gap-4 lg:gap-5'
+// En el celular, una fila que se desliza de costado (una por fila eran seis tarjetas altas); desde `sm`,
+// pistas de ancho fijo y centradas: con pocos temas, la fila queda en el medio y no pegada a la izquierda.
+const grilla =
+  '-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(17rem,22rem))] sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0 lg:gap-5'
+const item = 'w-72 shrink-0 snap-start sm:w-auto'
 
 // Los primeros temas del catálogo, como tarjetas. El resto, en /ventanas.
 export default function TemasInicio({ temas, estados }: Props) {
@@ -28,7 +31,7 @@ export default function TemasInicio({ temas, estados }: Props) {
         // Se monta recién con los datos: ver "Trampas de Motion" en CLAUDE.md.
         <motion.ul variants={cascada(0.06)} initial="oculto" whileInView="visible" viewport={viewportUnaVez} className={grilla}>
           {temas.slice(0, CANTIDAD).map((t) => (
-            <motion.li key={t.id} variants={emerger}>
+            <motion.li key={t.id} variants={emerger} className={item}>
               <TarjetaTema tema={t} estado={estados?.find((e) => e.id === t.estadoMar)} bloqueada={!accesoActivo} />
             </motion.li>
           ))}
@@ -36,7 +39,7 @@ export default function TemasInicio({ temas, estados }: Props) {
       ) : (
         <ul aria-busy="true" className={grilla}>
           {Array.from({ length: 3 }, (_, i) => (
-            <li key={i}>
+            <li key={i} className={item}>
               <Esqueleto className="h-64" />
             </li>
           ))}

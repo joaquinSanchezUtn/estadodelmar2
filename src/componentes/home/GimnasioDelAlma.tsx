@@ -16,7 +16,7 @@ const practicas: { titulo: string; texto: string; enlace?: { to: string; texto: 
 ]
 
 // La enseñanza central del documento y las cuatro prácticas del "gimnasio del alma".
-export default function GimnasioDelAlma() {
+export default function GimnasioDelAlma({ conMeditaciones }: { conMeditaciones: boolean }) {
   return (
     <Seccion titulo="Un gimnasio del alma" texto="Cuatro prácticas que se entrenan como se entrena el cuerpo: de a poco y con constancia.">
       <figure className="mb-8 rounded-burbuja border-l-3 border-mar-atardecer bg-mar-blanco p-6 shadow-suave md:p-8">
@@ -30,7 +30,7 @@ export default function GimnasioDelAlma() {
           <motion.li key={p.titulo} variants={emerger} className="flex flex-col rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave">
             <h3 className="mb-2 text-titulo-s">{p.titulo}</h3>
             <p className="text-cuerpo text-mar-tintaSuave">{p.texto}</p>
-            {p.enlace && (
+            {p.enlace && conMeditaciones && (
               <Link to={p.enlace.to} className="mt-auto inline-flex min-h-control-sm items-center pt-3 font-bold text-mar-primario">
                 {p.enlace.texto} →
               </Link>
