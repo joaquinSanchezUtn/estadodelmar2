@@ -53,8 +53,10 @@ export default {
     const userId = ctx.userClaims!.id as string;
 
     // La cuenta administradora no se borra desde acá: dejaría el sitio sin nadie que lo maneje.
-    const { data: perfil } = await ctx.supabaseAdmin.from("profiles").select("role").eq("id", userId).maybeSingle();
-    if (perfil?.role === "admin") return error("La cuenta administradora no se puede eliminar desde Mi cuenta.", 403);
+    // Si no se puede leer el perfil, no se sigue: con `null` el chequeo de admin pasaría de largo.
+    const { data: perfil, error: errorPerfil } = await ctx.supabaseAdmin.from("profiles").select("role").eq("id", userId).maybeSingle();
+    if (errorPerfil || !perfil) return error(FALLO, 500);
+    if (perfil.role === "admin") return error("La cuenta administradora no se puede eliminar desde Mi cuenta.", 403);
 
     // 1) Mercado Pago, todas las que tenga.
     const { data: filas, error: errorLectura } = await ctx.supabaseAdmin
@@ -80,6 +82,13 @@ export default {
     const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
     const { error: errorSesiones } = await ctx.supabaseAdmin.auth.admin.signOut(jwt, "global");
     if (errorSesiones) console.error("[eliminar-cuenta] signOut global", errorSesiones);
+
+    // Una suscripción que se haya iniciado mientras tanto (otra pestaña, un doble clic) quedaría cobrable
+    // y sin dueño: se vuelve a mirar justo antes de borrar.
+    const { data: nuevas } = await ctx.supabaseAdmin.from("suscripciones").select("id, preapproval_id").eq("user_id", userId);
+    for (const fila of (nuevas ?? []).filter((n) => !(filas ?? []).some((f) => f.id === n.id))) {
+      if (fila.preapproval_id && !(await cancelarEnMercadoPago(fila.preapproval_id))) return error(FALLO, 502);
+    }
 
     // 3) El usuario (y en cascada su perfil, sus identidades y sus factores).
     const { error: errorBorrado } = await ctx.supabaseAdmin.auth.admin.deleteUser(userId);

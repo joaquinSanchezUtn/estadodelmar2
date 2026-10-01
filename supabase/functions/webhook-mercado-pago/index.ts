@@ -263,7 +263,11 @@ async function procesarCobro(supabaseAdmin: any, cobroId: string) {
 
     // deno-lint-ignore no-explicit-any
     const datos: Record<string, any> = { proximo_cobro: proximoCobro, ultimo_evento: new Date().toISOString() };
-    if (fila.estado === "en_gracia") {
+    // Red de contención: un cobro aprobado sobre una fila 'cancelada' con el preapproval todavía
+    // 'authorized' en Mercado Pago quiere decir que la pausa de `cancelar-suscripcion` nunca llegó (se
+    // cortó entre la base y Mercado Pago). Le están cobrando: tiene que tener acceso.
+    const sigueCobrando = fila.estado === "cancelada" && preapproval.status === "authorized";
+    if (fila.estado === "en_gracia" || sigueCobrando) {
       datos.estado = "activa";
       datos.acceso_hasta = null;
     }

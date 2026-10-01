@@ -1,9 +1,13 @@
+import type { AMREntry } from '@supabase/supabase-js'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { supabase } from '../../lib/supabase'
 import { vaciarCache } from '../../lib/useCarga'
 import Boton from '../base/Boton'
 import Campo from '../base/Campo'
 import PaginaDeAcceso from './PaginaDeAcceso'
+
+// 12 horas (lo que pide `es_admin()`) menos 10 minutos de margen.
+const VIGENCIA_S = 12 * 3600 - 600
 
 type Paso =
   | { tipo: 'cargando' }
@@ -24,14 +28,22 @@ export default function SegundoFactor({ children }: { children: ReactNode }) {
     let vivo = true
     ;(async () => {
       const { data: nivel } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
-      if (nivel?.currentLevel === 'aal2') return vivo && setPaso({ tipo: 'listo' })
+      // `es_admin()` además pide que el código se haya verificado hace menos de 12 horas (0011): pasado
+      // ese plazo se vuelve a pedir acá, con un margen para no llegar justo al límite.
+      // Viene en formato detallado ({ method, timestamp }); sin fecha no se puede saber si sigue vigente.
+      const metodos = (nivel?.currentAuthenticationMethods ?? []) as Array<string | AMREntry>
+      const totp = metodos.find((m): m is AMREntry => typeof m === 'object' && m.method === 'totp')
+      const reciente = !!totp && Date.now() / 1000 - totp.timestamp < VIGENCIA_S
+      if (nivel?.currentLevel === 'aal2' && reciente) return vivo && setPaso({ tipo: 'listo' })
       const { data: factores, error: errorLista } = await supabase.auth.mfa.listFactors()
       if (errorLista) return vivo && setPaso({ tipo: 'fallo' })
       const verificado = factores.totp.find((f) => f.status === 'verified')
       if (verificado) return vivo && setPaso({ tipo: 'codigo', factorId: verificado.id })
       // Un intento anterior que quedó a medias (se cerró la pestaña antes de escribir el código).
-      await Promise.all(factores.all.filter((f) => f.status === 'unverified').map((f) => supabase.auth.mfa.unenroll({ factorId: f.id })))
-      const { data: nuevo, error: errorAlta } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Panel de Estado del mar' })
+      const bajas = await Promise.all(factores.all.filter((f) => f.status === 'unverified').map((f) => supabase.auth.mfa.unenroll({ factorId: f.id })))
+      if (bajas.some((b) => b.error)) return vivo && setPaso({ tipo: 'fallo' })
+      // Nombre con sufijo: dos pestañas (o el doble montaje de StrictMode) no chocan por el mismo nombre.
+      const { data: nuevo, error: errorAlta } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: `Estado del mar ${crypto.randomUUID().slice(0, 8)}` })
       if (!vivo) return
       if (errorAlta || !nuevo) return setPaso({ tipo: 'fallo' })
       setPaso({ tipo: 'configurar', factorId: nuevo.id, qr: nuevo.totp.qr_code, secreto: nuevo.totp.secret })

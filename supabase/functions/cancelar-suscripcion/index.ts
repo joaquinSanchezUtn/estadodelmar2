@@ -71,13 +71,17 @@ export default {
     // "paused" y no "cancelled": en Mercado Pago un preapproval cancelado es terminal (nunca vuelve a
     // "authorized"), y acá la persona tiene que poder arrepentirse mientras el período siga pago —
     // ver `reactivar-suscripcion`.
+    // Un corte de red (excepción) cuenta igual que una respuesta de error: hay que revertir.
     const resp = await fetch(`https://api.mercadopago.com/preapproval/${sub.preapproval_id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${ACCESS_TOKEN}` },
       body: JSON.stringify({ status: "paused" }),
+    }).catch((e) => {
+      console.error("[cancelar-suscripcion] no se pudo llamar a MP", e);
+      return null;
     });
-    if (!resp.ok) {
-      console.error("[cancelar-suscripcion] MP respondió", resp.status, await resp.text());
+    if (!resp?.ok) {
+      if (resp) console.error("[cancelar-suscripcion] MP respondió", resp.status, await resp.text());
       // Mercado Pago no pausó: si la fila quedara 'cancelada', le seguirían cobrando sin que el sitio
       // lo supiera. Se vuelve a 'activa' (solo si nadie la cambió mientras tanto) y se avisa.
       const { error: errorReversa } = await ctx.supabaseAdmin
