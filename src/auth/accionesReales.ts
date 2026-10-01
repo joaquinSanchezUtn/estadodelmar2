@@ -3,6 +3,7 @@
 // supabase.auth.onAuthStateChange, que se dispara solo cada vez que una de estas acciones cambia
 // la sesión. Por eso casi ninguna función de acá actualiza estado a mano.
 import type { AuthError } from '@supabase/supabase-js'
+import { invocar } from '../datos/base'
 import { supabase } from '../lib/supabase'
 import type { AccionesDeAcceso, AccionesDeCuenta, ErrorAuth, ResultadoAuth, ResultadoRetorno, TipoRetorno } from './tipos'
 
@@ -101,11 +102,15 @@ export function crearAccionesReales({ refrescarPerfil }: Enganche): AccionesDeAc
       return error ? { ok: false, error: mapearError(error) } : ok
     },
 
-    // Pendiente: necesita una Edge Function con service_role que, en este orden, cancele la
-    // suscripción en Mercado Pago, revoque todas las sesiones y recién ahí borre la cuenta (ver
-    // CLAUDE.md, "Para respaldar en Supabase"). El cliente no puede hacer nada de eso por su cuenta.
+    // Todo lo hace la Edge Function `eliminar-cuenta` (con service_role): cancela en Mercado Pago, cierra
+    // todas las sesiones y recién ahí borra. El cliente solo la pide; si algo falla, no se borró nada.
     async eliminarCuenta() {
-      return { ok: false, error: 'no-disponible' }
+      try {
+        const r = await invocar<{ ok: boolean }>('eliminar-cuenta')
+        return r?.ok ? ok : { ok: false, error: 'baja-fallida' }
+      } catch {
+        return { ok: false, error: 'red' }
+      }
     },
 
     async refrescarSesion() {

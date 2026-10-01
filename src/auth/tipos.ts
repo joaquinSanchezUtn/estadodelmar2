@@ -8,6 +8,7 @@ export type ErrorAuth =
   | 'contrasena-actual' // la contraseña actual no es la correcta
   | 'enlace-invalido' // el enlace del correo venció o ya se usó
   | 'no-disponible' // todavía no hay backend conectado
+  | 'baja-fallida' // no se pudo eliminar la cuenta (Mercado Pago o la base no respondieron): no se borró nada
   | 'red'
 
 export type ResultadoAuth = { ok: true } | { ok: false; error: ErrorAuth }

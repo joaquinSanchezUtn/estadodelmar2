@@ -8,5 +8,6 @@ export const mensajeDeError: Record<ErrorAuth, string> = {
   'contrasena-actual': 'La contraseña actual no es correcta.',
   'enlace-invalido': 'Este enlace venció o ya se usó. Podés pedir uno nuevo.',
   'no-disponible': 'El acceso todavía no está disponible. Volvé a intentarlo más adelante.',
+  'baja-fallida': 'No pudimos eliminar tu cuenta ahora. Probá de nuevo en un rato o escribinos desde Contacto.',
   red: 'No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.',
 }

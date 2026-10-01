@@ -8,7 +8,7 @@ import BienvenidaCuenta from '../componentes/cuenta/BienvenidaCuenta'
 import CambiarContrasena from '../componentes/cuenta/CambiarContrasena'
 import DatosCuenta from '../componentes/cuenta/DatosCuenta'
 import EstadoSuscripcion from '../componentes/cuenta/EstadoSuscripcion'
-import PedirBajaDeCuenta from '../componentes/cuenta/PedirBajaDeCuenta'
+import EliminarCuenta from '../componentes/cuenta/EliminarCuenta'
 import Pagina from '../componentes/layout/Pagina'
 import { obtenerSuscripcion } from '../datos/contenido'
 import { useCarga } from '../lib/useCarga'
@@ -38,12 +38,16 @@ export default function MiCuenta() {
         ) : cargando ? (
           <Esqueleto className="h-44" />
         ) : (
-          <EstadoSuscripcion suscripcion={suscripcion} avisar={setAviso} />
+          // La admin ve su acceso aunque la sesión todavía no tenga el segundo factor (sin él, la base no la
+          // reconoce como admin y la vería como alguien sin suscripción).
+          <EstadoSuscripcion suscripcion={rol === 'admin' ? { estado: 'administradora' } : suscripcion} avisar={setAviso} />
         )}
         <div className="flex flex-col gap-6">
           <DatosCuenta usuario={usuario} avisar={setAviso} />
           <CambiarContrasena usuario={usuario} avisar={setAviso} />
-          <PedirBajaDeCuenta />
+          {/* Sin saber el estado de la suscripción no se ofrece borrar la cuenta: no se podría decir qué pasa con ella.
+              La cuenta administradora no se borra desde acá (la función también lo rechaza). */}
+          {!cargando && !error && rol !== 'admin' && <EliminarCuenta suscripcion={suscripcion} />}
         </div>
       </div>
     </Pagina>

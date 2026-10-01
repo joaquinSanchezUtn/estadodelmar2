@@ -49,7 +49,7 @@ const secciones: Seccion[] = [
     id: 'derechos',
     titulo: 'Tus derechos',
     parrafos: [
-      'Según la Ley 25.326 de Protección de Datos Personales, podés acceder a tus datos, rectificarlos, actualizarlos y pedir su supresión. Podés cambiar tu nombre y tu contraseña desde Mi cuenta. Para eliminar tu cuenta o hacer cualquier otro pedido, escribinos.',
+      'Según la Ley 25.326 de Protección de Datos Personales, podés acceder a tus datos, rectificarlos, actualizarlos y pedir su supresión. Podés cambiar tu nombre y tu contraseña, o eliminar tu cuenta, desde Mi cuenta; y para cualquier otro pedido escribinos.',
       'La Agencia de Acceso a la Información Pública, como órgano de control de la ley, tiene la atribución de atender las denuncias y reclamos de quienes se vean afectados en sus derechos [VERIFICAR TEXTO CON ASESORÍA LEGAL].',
       <>Para ejercer tus derechos, escribinos desde la página de <Link to="/contacto" className="underline">contacto</Link>.</>,
     ],
