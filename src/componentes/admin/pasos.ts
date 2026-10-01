@@ -1,6 +1,7 @@
 import type { QuienSoy, TemaAdmin, TipoContenido } from '../../datos/tipos'
 
-export type Paso = { texto: string; to: string; accion: string }
+// `publicar`: el paso se resuelve con un toque, sin salir del resumen.
+export type Paso = { texto: string; to: string; accion: string; publicar?: { pieza: string } | { tema: string } }
 
 const nombres: Record<TipoContenido, string> = { video: 'el video', meditacion: 'la meditación', ejercitacion: 'la ejercitación' }
 const tipos: TipoContenido[] = ['video', 'meditacion', 'ejercitacion']
@@ -16,11 +17,11 @@ export function proximosPasos(temas: TemaAdmin[], sinLeer: number, quienSoy: Qui
     const base = `/admin/ventanas/${t.slug}`
     for (const c of t.contenidos) {
       const listo = c.tipo === 'ejercitacion' || c.archivo
-      if (listo && !c.publicado) pasos.push({ texto: `Publicar ${nombres[c.tipo]} de «${t.titulo}».`, to: `${base}/contenidos/${c.id}`, accion: 'Abrir' })
+      if (listo && !c.publicado) pasos.push({ texto: `Publicar ${nombres[c.tipo]} de «${t.titulo}».`, to: `${base}/contenidos/${c.id}`, accion: 'Ver', publicar: { pieza: c.id } })
     }
   }
   for (const t of temas) {
-    if (!t.publicado && t.contenidos.some((c) => c.publicado)) pasos.push({ texto: `Publicar el tema «${t.titulo}».`, to: `/admin/ventanas/${t.slug}`, accion: 'Abrir' })
+    if (!t.publicado && t.contenidos.some((c) => c.publicado)) pasos.push({ texto: `Publicar el tema «${t.titulo}».`, to: `/admin/ventanas/${t.slug}`, accion: 'Ver', publicar: { tema: t.slug } })
   }
   for (const t of temas) {
     const base = `/admin/ventanas/${t.slug}`

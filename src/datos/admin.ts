@@ -212,6 +212,16 @@ export async function guardarContenidoAdmin(
   return { ok: true, id }
 }
 
+// Publica o despublica una pieza sin tocar nada más (el botón de "Próximos pasos"). La RLS de
+// `contenidos_admin` es la barrera; `esAdmin()` solo da un mensaje claro antes de intentar.
+export async function publicarContenidoAdmin(contenidoId: string, publicado: boolean): Promise<ResultadoAdmin> {
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data, error } = await supabase.from('contenidos').update({ publicado }).eq('id', contenidoId).select('id').maybeSingle()
+  if (error) return ERROR_GENERICO
+  if (!data) return NO_EXISTE
+  return { ok: true }
+}
+
 export async function eliminarContenidoAdmin(contenidoId: string): Promise<ResultadoAdmin> {
   if (!(await esAdmin())) return NO_ES_ADMIN
   // El id del video se lee ANTES de borrar la pieza: `contenidos` borra en cascada la fila de

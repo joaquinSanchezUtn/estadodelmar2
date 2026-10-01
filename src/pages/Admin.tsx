@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useSesion } from '../auth/SesionContext'
+import Aviso from '../componentes/base/Aviso'
 import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
 import Boton from '../componentes/base/Boton'
 import Esqueleto from '../componentes/base/Esqueleto'
@@ -17,6 +19,11 @@ export default function Admin() {
   const { datos: mensajes } = useCarga('admin:mensajes', listarMensajesAdmin)
   const { datos: quienSoy } = useCarga('admin:quien-soy', obtenerQuienSoy)
   const nombre = usuario?.nombre.trim().split(' ')[0]
+  const [aviso, setAviso] = useState<string | null>(null)
+  const alCambiar = (texto: string) => {
+    setAviso(texto)
+    reintentar()
+  }
 
   return (
     <MarcoAdmin
@@ -37,7 +44,10 @@ export default function Admin() {
           ))}
         </div>
       ) : (
-        <ResumenAdmin temas={datos.temas} estados={datos.estados} sinLeer={mensajes?.filter((m) => !m.leido).length ?? 0} quienSoy={quienSoy ?? null} />
+        <>
+          {aviso && <Aviso tono="info">{aviso}</Aviso>}
+          <ResumenAdmin temas={datos.temas} estados={datos.estados} sinLeer={mensajes?.filter((m) => !m.leido).length ?? 0} quienSoy={quienSoy ?? null} onCambio={alCambiar} />
+        </>
       )}
     </MarcoAdmin>
   )

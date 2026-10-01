@@ -5,9 +5,10 @@ import { cn } from '../../lib/cn'
 import Boton from '../base/Boton'
 import { coloresDe } from '../objetos/estados/colores'
 import EstadoDePiezas from './EstadoDePiezas'
+import FilaPaso from './FilaPaso'
 import { proximosPasos } from './pasos'
 
-type Props = { temas: TemaAdmin[]; estados: EstadoMar[]; sinLeer: number; quienSoy: QuienSoy | null }
+type Props = { temas: TemaAdmin[]; estados: EstadoMar[]; sinLeer: number; quienSoy: QuienSoy | null; onCambio: (aviso: string) => void }
 
 function Cifra({ valor, texto, to }: { valor: string; texto: string; to: string }) {
   return (
@@ -21,7 +22,7 @@ function Cifra({ valor, texto, to }: { valor: string; texto: string; to: string 
 const PRIMEROS = 6
 
 // La entrada al panel: cómo está el sitio, qué conviene hacer ahora y cómo va cada tema.
-export default function ResumenAdmin({ temas, estados, sinLeer, quienSoy }: Props) {
+export default function ResumenAdmin({ temas, estados, sinLeer, quienSoy, onCambio }: Props) {
   const [todos, setTodos] = useState(false)
   const pasos = proximosPasos(temas, sinLeer, quienSoy)
   const piezas = temas.flatMap((t) => t.contenidos)
@@ -45,12 +46,7 @@ export default function ResumenAdmin({ temas, estados, sinLeer, quienSoy }: Prop
           {pasos.length > 0 && (
             <ol className="flex flex-col divide-y divide-mar-bordeAgua">
               {visibles.map((p) => (
-                <li key={p.texto} className="flex items-center justify-between gap-4 py-3">
-                  <span className="text-cuerpo text-mar-tinta">{p.texto}</span>
-                  <Boton to={p.to} compacto variante="secundario" aria-label={`${p.accion}: ${p.texto}`}>
-                    {p.accion}
-                  </Boton>
-                </li>
+                <FilaPaso key={p.texto} paso={p} onCambio={onCambio} />
               ))}
             </ol>
           )}
