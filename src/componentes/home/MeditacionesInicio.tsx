@@ -17,9 +17,6 @@ export default function MeditacionesInicio({ temas }: { temas: Tema[] | null }) 
             Para volver a la profundidad cuando la superficie está agitada, o para quedarse un rato ahí aunque esté en calma.
           </p>
         </div>
-        <Link to="/meditaciones" className="inline-flex min-h-control-sm shrink-0 items-center font-bold text-mar-sobreNoche no-underline hover:underline">
-          Ver todas →
-        </Link>
       </div>
 
       {con.length === 0 ? (

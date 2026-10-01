@@ -7,6 +7,13 @@ import Boton from '../base/Boton'
 import TarjetaSuscripcion from './TarjetaSuscripcion'
 import { irAlPago } from './irAlPago'
 
+// Lo que trae el plan: solo lo que el sitio ya hace, nada prometido de más.
+const incluye = [
+  'Todos los temas, y los que se vayan sumando.',
+  'En cada tema: un video, una meditación guiada y una ejercitación.',
+  'A tu ritmo, desde el celular o la compu.',
+]
+
 // La sección de Mi cuenta desde donde se activa la suscripción: es el único lugar donde se ofrece.
 export default function PlanParaSuscribirse() {
   const navegar = useNavigate()
@@ -30,6 +37,17 @@ export default function PlanParaSuscribirse() {
         <p className="font-titulo text-titulo-l font-light">{precio}</p>
         <p className="mt-1 text-meta text-mar-tintaSuave">por mes · se renueva solo · cancelás cuando quieras</p>
       </div>
+
+      <ul className="mb-6 flex flex-col gap-2">
+        {incluye.map((t) => (
+          <li key={t} className="flex items-start gap-3 text-cuerpo text-mar-tinta">
+            <span aria-hidden="true" className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full bg-mar-primarioSuave text-meta font-bold text-mar-primario">
+              ✓
+            </span>
+            {t}
+          </li>
+        ))}
+      </ul>
 
       <Boton onClick={suscribirme} disabled={pendiente} aria-busy={pendiente} className="w-full sm:w-auto">
         {pendiente ? 'Te llevamos a Mercado Pago…' : 'Suscribirme'}

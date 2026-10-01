@@ -1,4 +1,5 @@
 import { useSesion } from '../auth/SesionContext'
+import Boton from '../componentes/base/Boton'
 import Burbuja from '../componentes/base/Burbuja'
 import Esqueleto from '../componentes/base/Esqueleto'
 import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
@@ -9,6 +10,7 @@ import { useCarga } from '../lib/useCarga'
 
 // La sesión no cambia qué se ve acá salvo para la propia admin (que puede estar previendo un
 // borrador, igual que en /tema/:slug): por eso la clave lleva el rol y no es "pública".
+// Todo lo que se muestra lo cargó la dueña en /admin/quien-soy: nada inventado.
 export default function QuienSoy() {
   const { rol } = useSesion()
   const { datos, cargando, error, reintentar } = useCarga(`quien-soy:${rol}`, obtenerQuienSoy)
@@ -23,10 +25,10 @@ export default function QuienSoy() {
 
   if (cargando) {
     return (
-      <Pagina ancho="lectura">
+      <Pagina ancho="ancho">
         <div role="status">
           <p className="sr-only">Cargando…</p>
-          <Esqueleto className="h-64" />
+          <Esqueleto className="h-80" />
         </div>
       </Pagina>
     )
@@ -44,28 +46,72 @@ export default function QuienSoy() {
     )
   }
 
+  const iniciales = (datos.nombre || 'Quién soy').split(' ').map((p) => p[0]).slice(0, 2).join('')
+
   return (
-    <Pagina ancho="lectura">
-      <Burbuja tono="blanco" entrada="ninguna" interior="flex flex-col gap-6">
-        {datos.fotoUrl && (
-          <img src={datos.fotoUrl} alt={datos.nombre ? `Foto de ${datos.nombre}` : 'Foto'} className="size-32 rounded-full border border-mar-bordeAgua object-cover" />
+    <Pagina ancho="ancho">
+      <header className="grid items-center gap-6 rounded-burbujaGrande border border-mar-bordeAgua bg-gradient-to-br from-mar-arena via-mar-nube to-mar-aguaClara p-6 shadow-suave md:grid-cols-[auto_minmax(0,1fr)] md:gap-10 md:p-12">
+        {datos.fotoUrl ? (
+          <img
+            src={datos.fotoUrl}
+            alt={datos.nombre ? `Foto de ${datos.nombre}` : 'Foto'}
+            className="size-40 rounded-burbujaGrande border-3 border-mar-blanco object-cover shadow-alzada md:size-56"
+          />
+        ) : (
+          <span aria-hidden="true" className="flex size-40 items-center justify-center rounded-burbujaGrande border-3 border-mar-blanco bg-mar-primarioSuave font-titulo text-titulo-xl text-mar-primario shadow-alzada md:size-56">
+            {iniciales}
+          </span>
         )}
-        <div>
-          <h1 className="mb-2 text-titulo-m font-light md:text-titulo-l">{datos.nombre || 'Quién soy'}</h1>
-          {datos.descripcion && <p className="max-w-parrafo whitespace-pre-line text-cuerpo text-mar-tintaSuave">{datos.descripcion}</p>}
+        <div className="flex flex-col items-start gap-4">
+          <p className="text-etiqueta uppercase text-mar-atardecerTexto">Quién te acompaña</p>
+          <h1 className="text-titulo-l md:text-titulo-xl">{datos.nombre || 'Quién soy'}</h1>
+          {datos.campos.length > 0 && (
+            <ul className="flex flex-wrap gap-2">
+              {datos.campos.slice(0, 2).map((c) => (
+                <li key={c.etiqueta} className="rounded-full bg-mar-blanco px-4 py-2 text-meta font-bold text-mar-primario shadow-suave">
+                  {c.valor}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+      </header>
+
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
+        {datos.descripcion && (
+          <section className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave md:p-10">
+            <h2 className="mb-4 text-titulo-m">Sobre mí</h2>
+            <p className="max-w-parrafo whitespace-pre-line text-destacado text-mar-tintaSuave">{datos.descripcion}</p>
+          </section>
+        )}
 
         {datos.campos.length > 0 && (
-          <dl className="flex flex-col gap-3">
-            {datos.campos.map((c) => (
-              <div key={c.etiqueta} className="flex flex-col gap-1 border-b border-mar-bordeAgua pb-3 last:border-0 last:pb-0 md:flex-row md:gap-3">
-                <dt className="w-48 shrink-0 font-medium text-mar-tinta">{c.etiqueta}</dt>
-                <dd className="text-mar-tintaSuave">{c.valor}</dd>
-              </div>
-            ))}
-          </dl>
+          <section className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave">
+            <h2 className="mb-4 text-titulo-s">En pocas palabras</h2>
+            <dl className="flex flex-col gap-4">
+              {datos.campos.map((c) => (
+                <div key={c.etiqueta} className="border-l-3 border-mar-atardecer pl-4">
+                  <dt className="text-etiqueta uppercase text-mar-tintaSuave">{c.etiqueta}</dt>
+                  <dd className="mt-1 text-cuerpo font-medium text-mar-tinta">{c.valor}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
         )}
-      </Burbuja>
+      </div>
+
+      <section className="flex flex-col items-center gap-4 rounded-burbujaGrande bg-mar-primarioSuave p-6 text-center md:p-10">
+        <h2 className="text-titulo-m">¿Por dónde empezar?</h2>
+        <p className="max-w-parrafo text-destacado text-mar-tintaSuave">
+          Fijate cómo está tu mar hoy y elegí desde ahí. Si tenés una pregunta, escribime.
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Boton to="/#estados">Ver cómo estoy hoy</Boton>
+          <Boton to="/contacto" variante="secundario">
+            Escribime
+          </Boton>
+        </div>
+      </section>
     </Pagina>
   )
 }

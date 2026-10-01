@@ -16,7 +16,7 @@ import MenuMovil, { type Enlace } from './MenuMovil'
 const recorrido: Enlace[] = [
   { to: '/#estados', texto: 'Cómo estás hoy' },
   { to: '/ventanas', texto: 'Temas' },
-  { to: '/meditaciones', texto: 'Meditaciones' },
+  { to: '/#meditaciones', texto: 'Meditaciones' },
   { to: '/quien-soy', texto: 'Quién soy' },
 ]
 

@@ -18,7 +18,7 @@ export default function EstadoSuscripcion({ suscripcion, avisar }: Props) {
   switch (suscripcion.estado) {
     case 'administradora':
       return (
-        <Tarjeta className="p-6">
+        <Tarjeta className="p-6 shadow-suave">
           <h2 className="mb-2 text-titulo-s font-normal">Acceso de administradora</h2>
           <p className="mb-4 text-cuerpo text-mar-tintaSuave">
             Tu cuenta tiene acceso completo al contenido y al panel del sitio.

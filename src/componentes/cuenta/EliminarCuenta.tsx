@@ -42,7 +42,7 @@ export default function EliminarCuenta({ suscripcion }: { suscripcion: Suscripci
   }
 
   return (
-    <Tarjeta className="p-6">
+    <Tarjeta className="p-6 shadow-suave">
       <h2 className="mb-2 text-titulo-s font-normal">Eliminar mi cuenta</h2>
       <p className="mb-5 text-cuerpo text-mar-tintaSuave">
         Se borran tu cuenta y tus datos. No se puede deshacer.

@@ -7,8 +7,8 @@ import Seccion from './Seccion'
 const practicas: { titulo: string; texto: string; enlace?: { to: string; texto: string } }[] = [
   {
     titulo: 'Meditación',
-    texto: 'Volver a la profundidad, una y otra vez. Cada tema trae una meditación guiada, y todas se reúnen en su propia ventana.',
-    enlace: { to: '/meditaciones', texto: 'Ir a las meditaciones' },
+    texto: 'Volver a la profundidad, una y otra vez. Cada tema trae una meditación guiada.',
+    enlace: { to: '/#meditaciones', texto: 'Ver las meditaciones' },
   },
   { titulo: 'Respiración', texto: 'El puente más corto entre la superficie y el fondo: aquietar el aire para que se aquiete la mente.' },
   { titulo: 'Autoconocimiento', texto: 'Reconocer las propias corrientes —creencias, hábitos, condicionamientos— para dejar de ir a donde nos llevan.' },

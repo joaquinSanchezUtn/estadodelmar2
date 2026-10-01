@@ -53,7 +53,7 @@ export default function CambiarContrasena({ usuario, avisar }: { usuario: Usuari
   }
 
   return (
-    <Tarjeta className="p-6">
+    <Tarjeta className="p-6 shadow-suave">
       <h2 className="mb-2 text-titulo-s font-normal">Contraseña</h2>
 
       {usuario.conGoogle ? (

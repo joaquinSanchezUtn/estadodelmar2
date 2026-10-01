@@ -40,7 +40,7 @@ export default function DatosCuenta({ usuario, avisar }: Props) {
   }
 
   return (
-    <Tarjeta className="p-6">
+    <Tarjeta className="p-6 shadow-suave">
       <h2 className="mb-4 text-titulo-s font-normal">Tus datos</h2>
 
       {editando ? (
@@ -58,11 +58,15 @@ export default function DatosCuenta({ usuario, avisar }: Props) {
         </form>
       ) : (
         <>
-          <dl className="flex flex-col gap-1 sm:grid sm:grid-cols-[140px_1fr] sm:gap-x-4 sm:gap-y-3">
-            <dt className="text-cuerpo text-mar-tintaSuave">Nombre</dt>
-            <dd className="mb-2 text-cuerpo text-mar-tinta sm:mb-0">{usuario.nombre}</dd>
-            <dt className="text-cuerpo text-mar-tintaSuave">Email</dt>
-            <dd className="break-all text-cuerpo text-mar-tinta">{usuario.email}</dd>
+          <dl className="flex flex-col gap-3">
+            <div>
+              <dt className="text-meta text-mar-tintaSuave">Nombre</dt>
+              <dd className="text-cuerpo text-mar-tinta">{usuario.nombre}</dd>
+            </div>
+            <div>
+              <dt className="text-meta text-mar-tintaSuave">Email</dt>
+              <dd className="break-words text-cuerpo text-mar-tinta">{usuario.email}</dd>
+            </div>
           </dl>
           {usuario.conGoogle && <p className="mt-3 text-meta text-mar-tintaSuave">Ingresás con tu cuenta de Google.</p>}
           <Boton ref={botonEditar} compacto variante="secundario" onClick={() => setEditando(true)} className="mt-5">

@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useSesion } from '../auth/SesionContext'
 import Aviso from '../componentes/base/Aviso'
-import Burbuja from '../componentes/base/Burbuja'
 import Esqueleto from '../componentes/base/Esqueleto'
 import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
+import BienvenidaCuenta from '../componentes/cuenta/BienvenidaCuenta'
 import CambiarContrasena from '../componentes/cuenta/CambiarContrasena'
 import DatosCuenta from '../componentes/cuenta/DatosCuenta'
 import EliminarCuenta from '../componentes/cuenta/EliminarCuenta'
@@ -28,11 +28,11 @@ export default function MiCuenta() {
   if (!usuario) return null // la ruta ya redirige a quien no tiene sesión
 
   return (
-    <Pagina ancho="lectura">
-      <Burbuja tono="aguaClara" entrada="ninguna" interior="flex flex-col gap-6">
-        <h1 className="text-titulo-m font-light md:text-titulo-l">Mi cuenta</h1>
-        {aviso && <Aviso tono="info">{aviso}</Aviso>}
-        <DatosCuenta usuario={usuario} avisar={setAviso} />
+    <Pagina ancho="ancho">
+      <BienvenidaCuenta usuario={usuario} />
+      {aviso && <Aviso tono="info">{aviso}</Aviso>}
+      {/* Lo importante (la suscripción) a la izquierda; los datos y lo que casi no se toca, al costado. */}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
         {error ? (
           <ErrorDeCarga texto="No pudimos leer el estado de tu suscripción." onReintentar={reintentar} />
         ) : cargando ? (
@@ -40,10 +40,13 @@ export default function MiCuenta() {
         ) : (
           <EstadoSuscripcion suscripcion={suscripcion} avisar={setAviso} />
         )}
-        <CambiarContrasena usuario={usuario} avisar={setAviso} />
-        {/* Sin saber el estado de la suscripción no se ofrece borrar la cuenta: no se podría decir qué pasa con ella. */}
-        {!cargando && !error && <EliminarCuenta suscripcion={suscripcion} />}
-      </Burbuja>
+        <div className="flex flex-col gap-6">
+          <DatosCuenta usuario={usuario} avisar={setAviso} />
+          <CambiarContrasena usuario={usuario} avisar={setAviso} />
+          {/* Sin saber el estado de la suscripción no se ofrece borrar la cuenta: no se podría decir qué pasa con ella. */}
+          {!cargando && !error && <EliminarCuenta suscripcion={suscripcion} />}
+        </div>
+      </div>
     </Pagina>
   )
 }
