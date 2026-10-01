@@ -3,7 +3,7 @@ import { cn } from '../../lib/cn'
 
 const enlaces = [
   { to: '/admin', texto: 'Resumen', fin: true },
-  { to: '/admin/ventanas', texto: 'Ventanas', fin: false },
+  { to: '/admin/ventanas', texto: 'Temas', fin: false },
   { to: '/admin/quien-soy', texto: 'Quién soy', fin: false },
   { to: '/admin/mensajes', texto: 'Mensajes', fin: false },
 ]

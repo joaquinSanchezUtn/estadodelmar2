@@ -23,31 +23,31 @@ export default function AdminVentanas() {
 
   return (
     <MarcoAdmin
-      titulo="Ventanas"
-      migas={[{ texto: 'Panel', to: '/admin' }, { texto: 'Ventanas' }]}
+      titulo="Temas"
+      migas={[{ texto: 'Panel', to: '/admin' }, { texto: 'Temas' }]}
       acciones={
         <Boton to="/admin/ventanas/nueva" compacto>
-          Nueva ventana
+          Nuevo tema
         </Boton>
       }
     >
       {error ? (
-        <ErrorDeCarga texto="No pudimos leer las ventanas." onReintentar={reintentar} />
+        <ErrorDeCarga texto="No pudimos leer los temas." onReintentar={reintentar} />
       ) : cargando || !datos ? (
         <div role="status" className="flex flex-col gap-3">
-          <p className="sr-only">Cargando las ventanas…</p>
+          <p className="sr-only">Cargando los temas…</p>
           {Array.from({ length: 4 }, (_, i) => (
             <Esqueleto key={i} className="h-24" />
           ))}
         </div>
       ) : (
         <>
-          <Campo etiqueta="Buscar una ventana" type="search" autoComplete="off" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Ansiedad, pareja…" />
+          <Campo etiqueta="Buscar un tema" type="search" autoComplete="off" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Ansiedad, pareja…" />
           {aviso && <Aviso tono="info">{aviso}</Aviso>}
-          {busqueda && <p className="text-meta text-mar-tintaSuave">Para ordenar las ventanas, borrá la búsqueda.</p>}
+          {busqueda && <p className="text-meta text-mar-tintaSuave">Para ordenar los temas, borrá la búsqueda.</p>}
           {visibles.length === 0 ? (
             <p className="rounded-tarjeta border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-6 text-cuerpo text-mar-tintaSuave">
-              {datos.temas.length === 0 ? 'Todavía no hay ventanas. Creá la primera con «Nueva ventana».' : 'No hay ventanas con ese nombre.'}
+              {datos.temas.length === 0 ? 'Todavía no hay temas. Creá el primero con «Nuevo tema».' : 'No hay temas con ese nombre.'}
             </p>
           ) : (
             <ul className="flex flex-col gap-3">

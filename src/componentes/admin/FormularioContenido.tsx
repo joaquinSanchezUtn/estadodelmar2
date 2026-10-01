@@ -73,7 +73,7 @@ export default function FormularioContenido({ tema, tipo, inicial, onGuardado }:
   }
 
   return (
-    <form onSubmit={guardar} noValidate className="flex flex-col gap-5 rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
+    <form onSubmit={guardar} noValidate className="flex flex-col gap-5 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 shadow-suave md:p-8">
       <h2 className="text-titulo-s font-normal">{nombres[tipo]}</h2>
       {errores.tipo && <Aviso>{errores.tipo}</Aviso>}
       <Campo etiqueta="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} error={errores.titulo} autoComplete="off" />
@@ -85,7 +85,7 @@ export default function FormularioContenido({ tema, tipo, inicial, onGuardado }:
         max={600}
         value={duracion}
         onChange={(e) => setDuracion(e.target.value)}
-        ayuda="Se muestra en la ventana, incluso sin suscripción."
+        ayuda="Se muestra en el tema, incluso sin suscripción."
         error={errores.duracionMin}
       />
       {tipo === 'ejercitacion' ? (
@@ -96,11 +96,11 @@ export default function FormularioContenido({ tema, tipo, inicial, onGuardado }:
       ) : (
         <SubidaDeArchivo tipo={tipo} archivo={mostrado} onSubido={archivoSubido} onQuitar={quitarArchivo} />
       )}
-      <Interruptor etiqueta="Publicada" ayuda={publicado ? 'Las suscriptoras la ven en la ventana.' : 'Borrador: todavía no se ve.'} activo={publicado} onCambio={setPublicado} />
+      <Interruptor etiqueta="Publicada" ayuda={publicado ? 'Las suscriptoras la ven en el tema.' : 'Borrador: todavía no se ve.'} activo={publicado} onCambio={setPublicado} />
       {error && <Aviso>{error}</Aviso>}
       <div>
         <Boton type="submit" disabled={pendiente} aria-busy={pendiente}>
-          {pendiente ? 'Guardando…' : inicial ? 'Guardar los cambios' : 'Agregar a la ventana'}
+          {pendiente ? 'Guardando…' : inicial ? 'Guardar los cambios' : 'Agregar al tema'}
         </Boton>
       </div>
     </form>

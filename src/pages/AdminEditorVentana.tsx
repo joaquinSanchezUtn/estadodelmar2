@@ -28,7 +28,7 @@ export default function AdminEditorVentana() {
   const guardado = (nuevoSlug: string, eraNueva: boolean) => {
     if (eraNueva || nuevoSlug !== slug) {
       descartarAdmin()
-      navegar(`/admin/ventanas/${nuevoSlug}`, { replace: !eraNueva, state: { aviso: eraNueva ? 'Creaste la ventana. Ahora agregale sus piezas.' : 'Guardamos los cambios.' } })
+      navegar(`/admin/ventanas/${nuevoSlug}`, { replace: !eraNueva, state: { aviso: eraNueva ? 'Creaste el tema. Ahora agregale sus piezas.' : 'Guardamos los cambios.' } })
     } else {
       setAviso('Guardamos los cambios.')
       reintentar()
@@ -44,13 +44,13 @@ export default function AdminEditorVentana() {
       return null
     })
 
-  const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Ventanas', to: '/admin/ventanas' }, { texto: nueva ? 'Nueva' : (tema?.titulo ?? '…') }]
-  const titulo = nueva ? 'Nueva ventana' : (tema?.titulo ?? 'Ventana')
+  const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Temas', to: '/admin/ventanas' }, { texto: nueva ? 'Nuevo' : (tema?.titulo ?? '…') }]
+  const titulo = nueva ? 'Nuevo tema' : (tema?.titulo ?? 'Tema')
 
   if (!nueva && !cargando && !error && datos && !tema) {
     return (
-      <MarcoAdmin titulo="Ventana" migas={migas}>
-        <EstadoVacio titulo="Esa ventana no existe" texto="Puede que la hayan eliminado." enlace={{ to: '/admin/ventanas', texto: 'Ver todas las ventanas' }} />
+      <MarcoAdmin titulo="Tema" migas={migas}>
+        <EstadoVacio titulo="Ese tema no existe" texto="Puede que lo hayan eliminado." enlace={{ to: '/admin/ventanas', texto: 'Ver todos los temas' }} />
       </MarcoAdmin>
     )
   }
@@ -68,10 +68,10 @@ export default function AdminEditorVentana() {
       }
     >
       {error ? (
-        <ErrorDeCarga texto="No pudimos leer la ventana." onReintentar={reintentar} />
+        <ErrorDeCarga texto="No pudimos leer el tema." onReintentar={reintentar} />
       ) : cargando || !datos ? (
         <div role="status" className="flex flex-col gap-3">
-          <p className="sr-only">Cargando la ventana…</p>
+          <p className="sr-only">Cargando el tema…</p>
           <Esqueleto className="h-96" />
         </div>
       ) : (
@@ -82,13 +82,13 @@ export default function AdminEditorVentana() {
             <>
               <PiezasDeVentana tema={tema} />
               <section className="rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
-                <h2 className="mb-2 text-titulo-s font-normal">Eliminar la ventana</h2>
-                <p className="mb-4 text-cuerpo text-mar-tintaSuave">Se borran la ventana y todas sus piezas, con sus archivos. Si solo querés que deje de verse, desmarcá «Publicada».</p>
+                <h2 className="mb-2 text-titulo-s font-normal">Eliminar el tema</h2>
+                <p className="mb-4 text-cuerpo text-mar-tintaSuave">Se borran el tema y todas sus piezas, con sus archivos. Si solo querés que deje de verse, desmarcá «Publicado».</p>
                 {eliminando ? (
-                  <ConfirmarAccion titulo={`¿Eliminar «${tema.titulo}»?`} texto="No se puede deshacer." confirmar="Sí, eliminar la ventana" pendiente={baja.pendiente} error={baja.error} onConfirmar={eliminar} onCancelar={() => setEliminando(false)} />
+                  <ConfirmarAccion titulo={`¿Eliminar «${tema.titulo}»?`} texto="No se puede deshacer." confirmar="Sí, eliminar el tema" pendiente={baja.pendiente} error={baja.error} onConfirmar={eliminar} onCancelar={() => setEliminando(false)} />
                 ) : (
                   <Boton compacto variante="secundario" onClick={() => setEliminando(true)}>
-                    Eliminar la ventana
+                    Eliminar el tema
                   </Boton>
                 )}
               </section>

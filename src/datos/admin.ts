@@ -69,7 +69,7 @@ export async function guardarTemaAdmin(slugActual: string | null, d: DatosDeTema
   if (titulo.length < 2 || titulo.length > 80) errores.titulo = 'El título tiene que tener entre 2 y 80 caracteres.'
   if (!SLUG.test(slug) || slug.length > LARGO_MAXIMO_SLUG) errores.slug = `Usá solo minúsculas, números y guiones, hasta ${LARGO_MAXIMO_SLUG} caracteres (por ejemplo: sentido-de-la-vida).`
   else if (RESERVADAS.includes(slug)) errores.slug = 'Esa dirección está reservada. Elegí otra.'
-  else if (temas.some((t) => t.slug === slug && t.id !== existente?.id)) errores.slug = 'Ya hay una ventana con esa dirección.'
+  else if (temas.some((t) => t.slug === slug && t.id !== existente?.id)) errores.slug = 'Ya hay un tema con esa dirección.'
   if (d.descripcion.length > 240) errores.descripcion = 'La descripción no puede pasar de 240 caracteres.'
   if (d.estadoMar && !ESTADOS.includes(d.estadoMar)) errores.estadoMar = 'Elegí un estado del mar de la lista.'
   if (d.enfoque && !ENFOQUES.includes(d.enfoque)) errores.enfoque = 'Elegí un enfoque de la lista.'
@@ -179,7 +179,7 @@ export async function guardarContenidoAdmin(
     const cuerpo = (d.cuerpo ?? '').trim()
     if (cuerpo.length < 10 || cuerpo.length > 5000) errores.cuerpo = 'La consigna tiene que tener entre 10 y 5000 caracteres.'
   }
-  if (!existente && contenidos.some((c) => c.tipo === d.tipo)) errores.tipo = 'Esta ventana ya tiene una pieza de ese tipo.'
+  if (!existente && contenidos.some((c) => c.tipo === d.tipo)) errores.tipo = 'Este tema ya tiene una pieza de ese tipo.'
   if (Object.keys(errores).length) return { ok: false, mensaje: 'Revisá los campos marcados.', errores }
 
   const datos = { titulo, duracion_min: d.duracionMin, cuerpo: d.tipo === 'ejercitacion' ? (d.cuerpo ?? '').trim() : null, publicado: d.publicado }

@@ -34,11 +34,11 @@ export default function AdminEditorContenido() {
 
   if (!id && !tipoDeUrl) return <Navigate to={`/admin/ventanas/${slug}`} replace />
 
-  const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Ventanas', to: '/admin/ventanas' }, { texto: tema?.titulo ?? '…', to: `/admin/ventanas/${slug}` }, { texto: pieza?.titulo ?? (tipo ? nuevas[tipo] : '…') }]
+  const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Temas', to: '/admin/ventanas' }, { texto: tema?.titulo ?? '…', to: `/admin/ventanas/${slug}` }, { texto: pieza?.titulo ?? (tipo ? nuevas[tipo] : '…') }]
 
   const guardado = (_: string, eraNueva: boolean) => {
     descartarAdmin()
-    if (eraNueva) navegar(`/admin/ventanas/${slug}`, { state: { aviso: `Agregaste ${tipo === 'ejercitacion' ? 'la ejercitación' : tipo === 'video' ? 'el video' : 'la meditación'} a la ventana.` } })
+    if (eraNueva) navegar(`/admin/ventanas/${slug}`, { state: { aviso: `Agregaste ${tipo === 'ejercitacion' ? 'la ejercitación' : tipo === 'video' ? 'el video' : 'la meditación'} al tema.` } })
     else {
       setAviso('Guardamos los cambios.')
       reintentar()
@@ -57,7 +57,7 @@ export default function AdminEditorContenido() {
   if (!cargando && !error && datos && (!tema || (id && !pieza))) {
     return (
       <MarcoAdmin titulo="Pieza" migas={migas}>
-        <EstadoVacio titulo="No encontramos eso" texto="Puede que la ventana o la pieza ya no existan." enlace={{ to: '/admin/ventanas', texto: 'Ver todas las ventanas' }} />
+        <EstadoVacio titulo="No encontramos eso" texto="Puede que el tema o la pieza ya no existan." enlace={{ to: '/admin/ventanas', texto: 'Ver todos los temas' }} />
       </MarcoAdmin>
     )
   }

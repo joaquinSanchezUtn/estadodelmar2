@@ -1,67 +1,90 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { TemaAdmin } from '../../datos/tipos'
-import Tarjeta from '../base/Tarjeta'
+import type { EstadoMar, QuienSoy, TemaAdmin } from '../../datos/tipos'
+import { cn } from '../../lib/cn'
+import Boton from '../base/Boton'
+import { coloresDe } from '../objetos/estados/colores'
+import EstadoDePiezas from './EstadoDePiezas'
+import { proximosPasos } from './pasos'
 
-const nombresDeTipo = { video: 'Video', meditacion: 'Meditación', ejercitacion: 'Ejercitación' }
+type Props = { temas: TemaAdmin[]; estados: EstadoMar[]; sinLeer: number; quienSoy: QuienSoy | null }
 
-function Cifra({ valor, texto }: { valor: number; texto: string }) {
+function Cifra({ valor, texto, to }: { valor: string; texto: string; to: string }) {
   return (
-    <div className="rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5">
-      <p className="font-titulo text-titulo-l font-light">{valor}</p>
+    <Link to={to} className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 text-mar-tinta no-underline shadow-suave transition-shadow hover:shadow-alzada">
+      <p className="font-titulo text-titulo-l">{valor}</p>
       <p className="text-cuerpo text-mar-tintaSuave">{texto}</p>
-    </div>
+    </Link>
   )
 }
 
-// Cuántas ventanas hay, qué falta publicar y qué piezas todavía no tienen su archivo.
-export default function ResumenAdmin({ temas }: { temas: TemaAdmin[] }) {
-  const borradores = temas.filter((t) => !t.publicado)
-  const piezas = temas.flatMap((t) => t.contenidos.map((c) => ({ tema: t, contenido: c })))
-  const sinArchivo = piezas.filter(({ contenido: c }) => c.tipo !== 'ejercitacion' && !c.archivo)
+const PRIMEROS = 6
+
+// La entrada al panel: cómo está el sitio, qué conviene hacer ahora y cómo va cada tema.
+export default function ResumenAdmin({ temas, estados, sinLeer, quienSoy }: Props) {
+  const [todos, setTodos] = useState(false)
+  const pasos = proximosPasos(temas, sinLeer, quienSoy)
+  const piezas = temas.flatMap((t) => t.contenidos)
+  const visibles = todos ? pasos : pasos.slice(0, PRIMEROS)
 
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-        <Cifra valor={temas.length - borradores.length} texto="ventanas publicadas" />
-        <Cifra valor={borradores.length} texto="borradores" />
-        <Cifra valor={piezas.length} texto="piezas en total" />
-        <Cifra valor={sinArchivo.length} texto="sin archivo subido" />
+        <Cifra valor={`${temas.filter((t) => t.publicado).length} de ${temas.length}`} texto="temas publicados" to="/admin/ventanas" />
+        <Cifra valor={`${piezas.filter((c) => c.publicado).length} de ${piezas.length}`} texto="piezas publicadas" to="/admin/ventanas" />
+        <Cifra valor={String(sinLeer)} texto={sinLeer === 1 ? 'mensaje sin leer' : 'mensajes sin leer'} to="/admin/mensajes" />
+        <Cifra valor={quienSoy?.publicado ? 'Visible' : 'Oculta'} texto="página «Quién soy»" to="/admin/quien-soy" />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Tarjeta className="p-6">
-          <h2 className="mb-3 text-titulo-s font-normal">Para publicar</h2>
-          {borradores.length === 0 ? (
-            <p className="text-cuerpo text-mar-tintaSuave">No hay borradores: todo está publicado.</p>
-          ) : (
-            <ul className="flex flex-col">
-              {borradores.map((t) => (
-                <li key={t.slug}>
-                  <Link to={`/admin/ventanas/${t.slug}`} className="inline-flex min-h-control-sm items-center hover:underline">
-                    {t.titulo}
-                  </Link>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <section className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave md:p-8">
+          <h2 className="mb-1 text-titulo-m">Próximos pasos</h2>
+          <p className="mb-5 text-cuerpo text-mar-tintaSuave">
+            {pasos.length === 0 ? 'No falta nada: el sitio está completo.' : 'Lo que falta, empezando por lo que ya está casi listo.'}
+          </p>
+          {pasos.length > 0 && (
+            <ol className="flex flex-col divide-y divide-mar-bordeAgua">
+              {visibles.map((p) => (
+                <li key={p.texto} className="flex items-center justify-between gap-4 py-3">
+                  <span className="text-cuerpo text-mar-tinta">{p.texto}</span>
+                  <Boton to={p.to} compacto variante="secundario" aria-label={`${p.accion}: ${p.texto}`}>
+                    {p.accion}
+                  </Boton>
                 </li>
               ))}
-            </ul>
+            </ol>
           )}
-        </Tarjeta>
+          {pasos.length > PRIMEROS && (
+            <Boton compacto variante="fantasma" className="mt-3" onClick={() => setTodos(!todos)} aria-expanded={todos}>
+              {todos ? 'Ver menos' : `Ver los ${pasos.length} pasos`}
+            </Boton>
+          )}
+        </section>
 
-        <Tarjeta className="p-6">
-          <h2 className="mb-3 text-titulo-s font-normal">Piezas sin archivo</h2>
-          {sinArchivo.length === 0 ? (
-            <p className="text-cuerpo text-mar-tintaSuave">Todas las piezas de video y audio tienen su archivo.</p>
+        <section className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave md:p-8">
+          <h2 className="mb-1 text-titulo-m">Cómo va cada tema</h2>
+          <p className="mb-5 text-cuerpo text-mar-tintaSuave">Cada tema lleva un video, una meditación y una ejercitación.</p>
+          {temas.length === 0 ? (
+            <p className="text-cuerpo text-mar-tintaSuave">Todavía no hay temas.</p>
           ) : (
-            <ul className="flex flex-col">
-              {sinArchivo.map(({ tema, contenido }) => (
-                <li key={contenido.id}>
-                  <Link to={`/admin/ventanas/${tema.slug}/contenidos/${contenido.id}`} className="inline-flex min-h-control-sm items-center hover:underline">
-                    {tema.titulo} · {nombresDeTipo[contenido.tipo]}
-                  </Link>
+            <ul className="flex flex-col divide-y divide-mar-bordeAgua">
+              {temas.map((t) => (
+                <li key={t.slug} className="flex flex-col gap-2 py-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span aria-hidden="true" className={cn('size-3 rounded-full border', coloresDe(t.estadoMar).agua, coloresDe(t.estadoMar).aroClaro)} />
+                    <Link to={`/admin/ventanas/${t.slug}`} className="inline-flex min-h-control-sm items-center font-titulo text-titulo-s text-mar-tinta no-underline hover:underline">
+                      {t.titulo}
+                    </Link>
+                    <span className="text-meta text-mar-tintaSuave">
+                      {[estados.find((e) => e.id === t.estadoMar)?.nombre, t.publicado ? 'publicado' : 'borrador'].filter(Boolean).join(' · ')}
+                    </span>
+                  </div>
+                  <EstadoDePiezas tema={t} />
                 </li>
               ))}
             </ul>
           )}
-        </Tarjeta>
+        </section>
       </div>
     </div>
   )

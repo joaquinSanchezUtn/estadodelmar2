@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { eliminarTemaAdmin, moverTemaAdmin, publicarTemaAdmin } from '../../datos/contenido'
-import type { EstadoMar, ResultadoAdmin, TemaAdmin, TipoContenido } from '../../datos/tipos'
+import type { EstadoMar, ResultadoAdmin, TemaAdmin } from '../../datos/tipos'
 import { useAccion } from '../../lib/useAccion'
 import Aviso from '../base/Aviso'
 import Boton from '../base/Boton'
 import { Abajo, Arriba } from '../base/iconos'
 import Sello from '../base/Sello'
 import ConfirmarAccion from './ConfirmarAccion'
+import EstadoDePiezas from './EstadoDePiezas'
 
 type Props = {
   tema: TemaAdmin
@@ -19,18 +20,13 @@ type Props = {
   onCambio: (aviso: string) => void
 }
 
-const nombresDePieza: Record<TipoContenido, string> = { video: 'video', meditacion: 'meditación', ejercitacion: 'ejercitación' }
-
 const icono = 'flex size-11 items-center justify-center rounded-full border border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-aguaClara disabled:opacity-40'
 
-// Una ventana en la lista: subir y bajar, publicar o despublicar, editar, ver y eliminar.
+// Un tema en la lista: subir y bajar, publicar o despublicar, editar, ver y eliminar.
 export default function FilaVentana({ tema, estados, posicion, total, puedeOrdenar, onCambio }: Props) {
   const [confirmando, setConfirmando] = useState(false)
   const accion = useAccion()
   const estado = estados.find((e) => e.id === tema.estadoMar)?.nombre ?? 'Sin estado'
-  const sinArchivo = tema.contenidos.filter((c) => c.tipo !== 'ejercitacion' && !c.archivo).length
-  // La portada promete las tres piezas en cada ventana: se avisa cuáles faltan.
-  const faltan = (Object.keys(nombresDePieza) as TipoContenido[]).filter((t) => !tema.contenidos.some((c) => c.tipo === t)).map((t) => nombresDePieza[t])
 
   const correr = (hacer: () => Promise<ResultadoAdmin>, aviso: string) =>
     accion.ejecutar(async () => {
@@ -41,20 +37,17 @@ export default function FilaVentana({ tema, estados, posicion, total, puedeOrden
     })
 
   return (
-    <li className="rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-4">
+    <li className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 shadow-suave">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-3">
             <Link to={`/admin/ventanas/${tema.slug}`} className="inline-flex min-h-control-sm items-center font-titulo text-titulo-s text-mar-tinta no-underline hover:underline">
               {tema.titulo}
             </Link>
-            <Sello tono={tema.publicado ? 'agua' : 'coral'}>{tema.publicado ? 'Publicada' : 'Borrador'}</Sello>
+            <Sello tono={tema.publicado ? 'agua' : 'coral'}>{tema.publicado ? 'Publicado' : 'Borrador'}</Sello>
           </div>
-          <p className="text-meta text-mar-tintaSuave">
-            {estado} · {tema.contenidos.length} {tema.contenidos.length === 1 ? 'pieza' : 'piezas'}
-            {sinArchivo > 0 && ` · ${sinArchivo} sin archivo`}
-          </p>
-          {faltan.length > 0 && <p className="text-meta text-mar-tintaSuave">Le falta: {faltan.join(', ')}.</p>}
+          <p className="text-meta text-mar-tintaSuave">{estado}</p>
+          <EstadoDePiezas tema={tema} />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -68,7 +61,7 @@ export default function FilaVentana({ tema, estados, posicion, total, puedeOrden
               </button>
             </>
           )}
-          <Boton compacto variante="secundario" disabled={accion.pendiente} onClick={() => correr(() => publicarTemaAdmin(tema.slug, !tema.publicado), tema.publicado ? `«${tema.titulo}» pasó a borrador.` : `«${tema.titulo}» ya está publicada.`)}>
+          <Boton compacto variante="secundario" disabled={accion.pendiente} onClick={() => correr(() => publicarTemaAdmin(tema.slug, !tema.publicado), tema.publicado ? `«${tema.titulo}» pasó a borrador.` : `«${tema.titulo}» ya está publicado.`)}>
             {tema.publicado ? 'Despublicar' : 'Publicar'}
           </Boton>
           <Boton compacto to={`/admin/ventanas/${tema.slug}`}>
@@ -85,8 +78,8 @@ export default function FilaVentana({ tema, estados, posicion, total, puedeOrden
         <div className="mt-4">
           <ConfirmarAccion
             titulo={`¿Eliminar «${tema.titulo}»?`}
-            texto="Se borran la ventana y todas sus piezas, con sus archivos. No se puede deshacer. Si solo querés que deje de verse, despublicala."
-            confirmar="Sí, eliminar la ventana"
+            texto="Se borran el tema y todas sus piezas, con sus archivos. No se puede deshacer. Si solo querés que deje de verse, despublicalo."
+            confirmar="Sí, eliminar el tema"
             pendiente={accion.pendiente}
             error={accion.error}
             onConfirmar={() => correr(() => eliminarTemaAdmin(tema.slug), `Eliminaste «${tema.titulo}».`)}

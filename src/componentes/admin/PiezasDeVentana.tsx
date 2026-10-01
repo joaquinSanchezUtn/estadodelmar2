@@ -18,7 +18,7 @@ export default function PiezasDeVentana({ tema }: { tema: TemaAdmin }) {
       </h2>
 
       {tema.contenidos.length === 0 ? (
-        <p className="text-cuerpo text-mar-tintaSuave">Esta ventana todavía no tiene piezas. Agregá un video, una meditación o una ejercitación.</p>
+        <p className="text-cuerpo text-mar-tintaSuave">Este tema todavía no tiene piezas. Agregá un video, una meditación o una ejercitación.</p>
       ) : (
         <ul className="divide-y divide-mar-bordeAgua rounded-tarjeta border border-mar-bordeAgua">
           {tema.contenidos.map((c) => (

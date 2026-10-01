@@ -58,7 +58,7 @@ export default function FormularioQuienSoy({ inicial, onGuardado }: Props) {
   }
 
   return (
-    <form onSubmit={guardar} noValidate className="flex flex-col gap-5 rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
+    <form onSubmit={guardar} noValidate className="flex flex-col gap-5 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 shadow-suave md:p-8">
       <h2 className="text-titulo-s font-normal">Tus datos</h2>
 
       <Campo etiqueta="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} error={errores.nombre} autoComplete="off" />

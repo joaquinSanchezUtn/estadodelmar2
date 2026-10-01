@@ -43,8 +43,8 @@ export default function FormularioVentana({ inicial, estados, onGuardado }: Prop
   }
 
   return (
-    <form onSubmit={guardar} noValidate className="flex flex-col gap-5 rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
-      <h2 className="text-titulo-s font-normal">Datos de la ventana</h2>
+    <form onSubmit={guardar} noValidate className="flex flex-col gap-5 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 shadow-suave md:p-8">
+      <h2 className="text-titulo-s font-normal">Datos del tema</h2>
       <Campo
         etiqueta="Título"
         value={titulo}
@@ -95,11 +95,11 @@ export default function FormularioVentana({ inicial, estados, onGuardado }: Prop
         />
         {errores.descripcion && <p className="text-meta text-mar-coral">{errores.descripcion}</p>}
       </div>
-      <Interruptor etiqueta="Publicada" ayuda={publicado ? 'Aparece en el catálogo del sitio.' : 'Borrador: solo la ves vos.'} activo={publicado} onCambio={setPublicado} />
+      <Interruptor etiqueta="Publicado" ayuda={publicado ? 'Aparece en el catálogo del sitio.' : 'Borrador: solo lo ves vos.'} activo={publicado} onCambio={setPublicado} />
       {error && <Aviso>{error}</Aviso>}
       <div>
         <Boton type="submit" disabled={pendiente} aria-busy={pendiente}>
-          {pendiente ? 'Guardando…' : inicial ? 'Guardar los cambios' : 'Crear la ventana'}
+          {pendiente ? 'Guardando…' : inicial ? 'Guardar los cambios' : 'Crear el tema'}
         </Boton>
       </div>
     </form>
