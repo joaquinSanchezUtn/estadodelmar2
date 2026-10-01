@@ -14,7 +14,10 @@ import { obtenerSuscripcion } from '../datos/contenido'
 import { useCarga } from '../lib/useCarga'
 
 // Lo que se cuenta al volver de Mercado Pago a esta pantalla (viaja por el estado de navegación).
-const avisosDeVuelta: Record<string, string> = { tarjeta: 'Actualizamos tu medio de pago.' }
+const avisosDeVuelta: Record<string, string> = {
+  tarjeta: 'Actualizamos tu medio de pago.',
+  bienvenida: 'Listo, ya tenés tu cuenta. Para abrir los temas, activá el plan acá abajo.',
+}
 const avisoDeVuelta = (clave?: string) => (clave && Object.hasOwn(avisosDeVuelta, clave) ? avisosDeVuelta[clave] : null)
 
 export default function MiCuenta() {

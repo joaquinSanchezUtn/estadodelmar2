@@ -23,7 +23,9 @@ export default function RetornoAuth() {
     const tipo = params.get('tipo') as TipoRetorno | null
     if (!tipo || !tipos.includes(tipo) || params.get('error')) return setError('enlace-invalido')
     completarRetorno(tipo).then((r) => {
-      if (r.ok) navegar(r.recuperacion ? '/nueva-contrasena' : '/', { replace: true })
+      // Quien acaba de confirmar su email va a Mi cuenta, que es donde se activa el plan: si cae en la
+      // home tiene que adivinar dónde seguir.
+      if (r.ok) navegar(r.recuperacion ? '/nueva-contrasena' : tipo === 'confirmacion' ? '/mi-cuenta' : '/', { replace: true, state: tipo === 'confirmacion' ? { aviso: 'bienvenida' } : undefined })
       else setError(r.error)
     })
   }, [params, completarRetorno, navegar])
