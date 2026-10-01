@@ -21,7 +21,7 @@ export default function PlanMensual() {
         <p className="mb-4 inline-block rounded-full bg-mar-primarioSuave px-4 py-1 text-meta font-bold text-mar-primario">Un solo plan</p>
         <h2 className="mb-4 text-titulo-m md:text-titulo-l">Una suscripción, todo adentro</h2>
         <p className="mb-5 text-cuerpo text-mar-tintaSuave">
-          Acceso completo a todas las ventanas y a las que se vayan sumando. Sin permanencia: te das de
+          Acceso completo a todos los temas y a los que se vayan sumando. Sin permanencia: te das de
           baja cuando quieras, desde tu cuenta, y seguís teniendo acceso hasta que termine el mes pago.
         </p>
         <ul className="flex flex-col gap-3 text-cuerpo font-medium text-mar-tinta">

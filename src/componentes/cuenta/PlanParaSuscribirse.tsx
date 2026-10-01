@@ -22,7 +22,7 @@ export default function PlanParaSuscribirse() {
   return (
     <TarjetaSuscripcion sello={{ tono: 'coral', texto: 'Sin suscripción' }}>
       <p className="mb-5 text-cuerpo text-mar-tintaSuave">
-        Con un solo plan accedés a todas las ventanas y a las que se vayan sumando.
+        Con un solo plan accedés a todos los temas y a los que se vayan sumando.
       </p>
 
       <div className="mb-5 rounded-tarjeta border border-mar-bordeAgua bg-mar-arena p-5 text-center">

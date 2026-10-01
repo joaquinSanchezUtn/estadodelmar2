@@ -8,7 +8,7 @@ import SeparadorO from '../componentes/acceso/SeparadorO'
 export default function Registrarme() {
   return (
     <SoloVisitantes>
-      <PaginaDeAcceso titulo="Crear cuenta" texto="Con tu cuenta podés suscribirte y acceder a las ventanas.">
+      <PaginaDeAcceso titulo="Crear cuenta" texto="Con tu cuenta podés suscribirte y acceder a los temas.">
         <BotonGoogle />
         <SeparadorO />
         <FormularioRegistro />

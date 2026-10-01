@@ -26,7 +26,7 @@ export default function SuscripcionCancelada({ suscripcion, avisar }: Props) {
   return (
     <TarjetaSuscripcion sello={{ tono: 'neutro', texto: 'Cancelada' }}>
       <p className="mb-5 text-cuerpo text-mar-tintaSuave">
-        Cancelaste tu suscripción. Seguís teniendo acceso a todas las ventanas hasta el{' '}
+        Cancelaste tu suscripción. Seguís teniendo acceso a todos los temas hasta el{' '}
         <strong className="font-medium text-mar-tinta">{fechaLarga(suscripcion.accesoHasta)}</strong>. Después no se
         renueva y no se te cobra.
       </p>

@@ -8,8 +8,8 @@ export default function EjercitacionContenido({ contenido }: { contenido: Conten
   const [notas, setNotas] = useState('')
 
   return (
-    <div className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
-      <p className="mb-1 text-etiqueta uppercase text-mar-agua">
+    <div className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 shadow-suave md:p-6">
+      <p className="mb-1 text-etiqueta uppercase text-mar-atardecerTexto">
         Ejercitación · {minutos(contenido.duracionMin)}
       </p>
       <h2 className="mb-3 text-titulo-s font-normal">{contenido.titulo}</h2>

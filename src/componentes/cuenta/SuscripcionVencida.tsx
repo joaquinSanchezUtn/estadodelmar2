@@ -17,7 +17,7 @@ export default function SuscripcionVencida({ suscripcion }: { suscripcion: Extra
   return (
     <TarjetaSuscripcion sello={{ tono: 'coral', texto: 'Vencida' }}>
       <p className="mb-5 text-cuerpo text-mar-tintaSuave">
-        No pudimos cobrar tu suscripción y venció el {fechaLarga(suscripcion.desde)}. Perdiste el acceso a las ventanas
+        No pudimos cobrar tu suscripción y venció el {fechaLarga(suscripcion.desde)}. Perdiste el acceso a los temas
         hasta que la reactives. Tu cuenta y tus datos siguen acá.
       </p>
       <div className="flex flex-col gap-3 sm:flex-row">

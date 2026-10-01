@@ -10,16 +10,16 @@ type Props = { piezas: Pieza[]; estado: EstadoMarId | null }
 
 const textos = {
   'sin-plan': {
-    titulo: 'Esta ventana es para suscriptoras',
-    texto: 'Con un solo plan accedés a todas las ventanas y a las que se vayan sumando. La suscripción se activa desde Mi cuenta.',
+    titulo: 'Este tema es para suscriptoras',
+    texto: 'Con un solo plan accedés a todos los temas y a los que se vayan sumando. La suscripción se activa desde Mi cuenta.',
   },
   vencida: {
     titulo: 'Tu suscripción venció',
-    texto: 'Perdiste el acceso a las ventanas hasta que la reactives. Podés hacerlo desde Mi cuenta en un momento.',
+    texto: 'Perdiste el acceso a los temas hasta que la reactives. Podés hacerlo desde Mi cuenta en un momento.',
   },
   pendiente: {
     titulo: 'Estamos esperando tu pago',
-    texto: 'Apenas se acredite, esta ventana se abre sola. Podés ver cómo va desde Mi cuenta.',
+    texto: 'Apenas se acredite, este tema se abre solo. Podés ver cómo va desde Mi cuenta.',
   },
 }
 

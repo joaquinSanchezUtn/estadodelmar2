@@ -1,6 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
 import Boton from '../componentes/base/Boton'
-import Burbuja from '../componentes/base/Burbuja'
 import Campo from '../componentes/base/Campo'
 import Pagina from '../componentes/layout/Pagina'
 import FiltroDeEnfoques from '../componentes/ventana/FiltroDeEnfoques'
@@ -45,16 +44,17 @@ export default function CatalogoVentanas() {
 
   return (
     <Pagina ancho="ancho">
-      <Burbuja tono="cielo" entrada="ninguna" interior="flex flex-col gap-6">
-        <div>
-          <h1 className="mb-2 text-titulo-m font-light md:text-titulo-l">Todas las ventanas</h1>
-          <p className="max-w-parrafo text-cuerpo text-mar-tintaSuave">
-            Buscá por tema, o elegí un estado del mar o un enfoque. Los títulos los ve cualquiera; el contenido es para suscriptoras.
-          </p>
-        </div>
+      <header className="pt-4 md:pt-8">
+        <h1 className="mb-3 text-titulo-l md:text-titulo-xl">Todos los temas</h1>
+        <p className="max-w-parrafo text-destacado text-mar-tintaSuave">
+          Buscá por nombre, o elegí cómo está tu mar o desde dónde querés mirarlo. Los títulos los ve cualquiera; el contenido es para
+          suscriptoras.
+        </p>
+      </header>
 
+      <div className="flex flex-col gap-5 rounded-burbujaGrande border border-mar-bordeAgua bg-mar-blanco p-5 shadow-suave md:p-6">
         <Campo
-          etiqueta="Buscar una ventana"
+          etiqueta="Buscar un tema"
           type="search"
           value={consulta}
           onChange={(e) => cambiar(e.target.value, activo, enfoque)}
@@ -63,19 +63,20 @@ export default function CatalogoVentanas() {
         />
         {estados && <FiltroDeEstados estados={estados} activo={activo} cantidades={cantidades} onElegir={(id) => cambiar(consulta, id, enfoque)} />}
         <FiltroDeEnfoques enfoques={enfoques} activo={enfoque} cantidades={cantidadesEnfoque} onElegir={(id) => cambiar(consulta, activo, id)} />
+      </div>
 
-        <p role="status" className="text-cuerpo text-mar-tintaSuave">
-          {visibles ? `${visibles.length} ${visibles.length === 1 ? 'ventana' : 'ventanas'}` : 'Cargando las ventanas…'}
-        </p>
+      <p role="status" className="text-cuerpo font-medium text-mar-tintaSuave">
+        {visibles ? `${visibles.length} ${visibles.length === 1 ? 'tema' : 'temas'}` : 'Cargando los temas…'}
+      </p>
 
         <GrillaDeVentanas
           temas={visibles}
           estados={estados}
           final={
             visibles?.length === 0 ? (
-              <div className="flex max-w-angosto flex-col items-center gap-4 text-center">
+              <div className="flex flex-col items-start gap-4 rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5">
                 <p className="text-cuerpo text-mar-tintaSuave">
-                  {hayFiltro ? 'No encontramos ventanas con eso. Probá con otra palabra, otro estado u otro enfoque.' : 'Todavía no hay ventanas publicadas.'}
+                  {hayFiltro ? 'No encontramos temas con eso. Probá con otra palabra, otro estado u otro enfoque.' : 'Todavía no hay temas publicados.'}
                 </p>
                 {hayFiltro && (
                   <Boton compacto variante="secundario" onClick={() => cambiar('', null, null)}>
@@ -86,7 +87,6 @@ export default function CatalogoVentanas() {
             ) : null
           }
         />
-      </Burbuja>
     </Pagina>
   )
 }

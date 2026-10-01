@@ -25,8 +25,8 @@ type Props = {
   children: ReactNode
 }
 
-// El componente que define el sitio: una sección que vive dentro de una burbuja, con esquinas
-// muy redondeadas, borde apenas visible y una sombra difusa que la despega del fondo.
+// Una sección de página interna: tarjeta de esquinas muy redondeadas, borde apenas visible y la sombra
+// suave de la home (desde el rediseño, más liviana: ya no es el elemento que define el sitio).
 export default function Burbuja({ tono, decoracion, entrada = 'scroll', id, className, interior, children }: Props) {
   const sinEntrada = entrada === 'ninguna'
 
@@ -38,7 +38,7 @@ export default function Burbuja({ tono, decoracion, entrada = 'scroll', id, clas
       whileInView={sinEntrada ? undefined : 'visible'}
       viewport={viewportUnaVez}
       className={cn(
-        'relative overflow-hidden rounded-burbuja border p-6 shadow-burbuja md:rounded-burbujaGrande md:p-10',
+        'relative overflow-hidden rounded-burbuja border p-6 shadow-suave md:rounded-burbujaGrande md:p-10',
         tonos[tono],
         className,
       )}

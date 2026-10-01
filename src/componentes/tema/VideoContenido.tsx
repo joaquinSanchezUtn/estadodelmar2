@@ -4,7 +4,7 @@ import Reproductor from '../reproductor/Reproductor'
 
 export default function VideoContenido({ contenido }: { contenido: Contenido }) {
   return (
-    <div className="overflow-hidden rounded-burbuja border border-mar-bordeAgua bg-mar-blanco">
+    <div className="overflow-hidden rounded-burbuja border border-mar-bordeAgua bg-mar-blanco shadow-suave">
       <Reproductor tipo="video" contenidoId={contenido.id} titulo={contenido.titulo} />
       <div className="border-t border-mar-bordeAgua p-5">
         <h2 className="mb-1 text-titulo-s font-normal">{contenido.titulo}</h2>

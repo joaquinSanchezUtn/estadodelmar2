@@ -4,7 +4,7 @@ import Reproductor from '../reproductor/Reproductor'
 
 export default function MeditacionContenido({ contenido }: { contenido: Contenido }) {
   return (
-    <div className="overflow-hidden rounded-burbuja border border-mar-bordeAgua bg-mar-blanco">
+    <div className="overflow-hidden rounded-burbuja border border-mar-bordeAgua bg-mar-blanco shadow-suave">
       <Reproductor
         tipo="audio"
         contenidoId={contenido.id}

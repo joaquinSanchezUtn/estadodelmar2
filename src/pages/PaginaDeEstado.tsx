@@ -7,8 +7,6 @@ import Pagina from '../componentes/layout/Pagina'
 import DibujoEstado from '../componentes/objetos/DibujoEstado'
 import { coloresDe } from '../componentes/objetos/estados/colores'
 import GrillaDeVentanas from '../componentes/ventana/GrillaDeVentanas'
-import ReflejoVidrio from '../componentes/ventana/ReflejoVidrio'
-import { RADIO_OJO_DE_BUEY } from '../animaciones/movimiento'
 import { listarEstados, listarTemas } from '../datos/contenido'
 import { cn } from '../lib/cn'
 import { estadoDeUrl, urlDeEstado } from '../lib/estados'
@@ -37,58 +35,50 @@ export default function PaginaDeEstado() {
 
   return (
     <Pagina ancho="ancho">
-      <Burbuja tono="blanco" entrada="ninguna">
-        <Link to="/ventanas" className="mb-6 inline-flex min-h-control-sm items-center gap-2 text-cuerpo text-mar-tintaSuave no-underline hover:text-mar-tinta">
-          <FlechaIzquierda />
-          Todas las ventanas
-        </Link>
+      <Link to="/ventanas" className="inline-flex min-h-control-sm items-center gap-2 self-start pt-2 text-cuerpo font-medium text-mar-tintaSuave no-underline hover:text-mar-tinta">
+        <FlechaIzquierda />
+        Todos los temas
+      </Link>
 
-        <div className={cn('grid gap-6 rounded-tarjeta border p-6 md:grid-cols-[minmax(0,1fr)_200px] md:items-center md:gap-10 md:p-10', c.fondo, c.borde)}>
-          <div className="flex flex-col">
-            {estado ? (
-              <>
-                <p className="mb-3 text-etiqueta uppercase text-mar-tintaSuave">Estado del mar</p>
-                <h1 className="mb-3 text-titulo-l font-light md:text-titulo-xl">{estado.nombre}</h1>
-                <p className="mb-5 text-destacado text-mar-tintaSuave">{estado.estadoInterno}.</p>
-                <p className="border-l-3 border-mar-atardecer pl-4 font-titulo text-titulo-s italic text-mar-tinta">{estado.ensenanza}.</p>
-              </>
-            ) : (
-              <div role="status" className="flex flex-col gap-3">
-                <span className="sr-only">Cargando el estado…</span>
-                <Esqueleto className="h-4 w-28 bg-mar-blanco/70" />
-                <Esqueleto className="h-12 w-3/4 bg-mar-blanco/70" />
-                <Esqueleto className="h-16 bg-mar-blanco/70" />
-              </div>
-            )}
-          </div>
-          <div
-            className={cn('relative order-first aspect-[3/1] overflow-hidden border-3 shadow-ventana ring-1 md:order-last md:aspect-square', c.agua, c.aro, c.aroExterior)}
-            style={{ borderRadius: RADIO_OJO_DE_BUEY }}
-          >
-            <DibujoEstado estado={estado?.id ?? null} vivo="siempre" autonomo />
-            <ReflejoVidrio />
-          </div>
+      <section className={cn('grid gap-6 overflow-hidden rounded-burbujaGrande border p-6 shadow-suave md:grid-cols-[minmax(0,1fr)_280px] md:items-center md:gap-10 md:p-10', c.fondo, c.borde)}>
+        <div className="flex flex-col">
+          {estado ? (
+            <>
+              <p className="mb-3 text-etiqueta uppercase text-mar-tintaSuave">Estado del mar</p>
+              <h1 className="mb-4 text-titulo-l md:text-titulo-xl">{estado.nombre}</h1>
+              <p className="mb-5 text-destacado text-mar-tintaSuave">{estado.estadoInterno}.</p>
+              <p className="rounded-burbuja bg-mar-blanco/70 p-4 font-titulo text-titulo-s italic text-mar-tinta">{estado.ensenanza}.</p>
+            </>
+          ) : (
+            <div role="status" className="flex flex-col gap-3">
+              <span className="sr-only">Cargando el estado…</span>
+              <Esqueleto className="h-4 w-28 bg-mar-blanco/70" />
+              <Esqueleto className="h-12 w-3/4 bg-mar-blanco/70" />
+              <Esqueleto className="h-16 bg-mar-blanco/70" />
+            </div>
+          )}
         </div>
-      </Burbuja>
+        <div aria-hidden="true" className={cn('relative order-first aspect-[3/1] overflow-hidden rounded-burbuja shadow-ventana md:order-last md:aspect-square', c.agua)}>
+          <DibujoEstado estado={estado?.id ?? null} vivo="siempre" autonomo />
+        </div>
+      </section>
 
-      <Burbuja tono="cielo" entrada="ninguna" interior="flex flex-col gap-6">
-        <h2 className="text-titulo-m font-light md:text-titulo-l">Ventanas de este estado</h2>
-        <GrillaDeVentanas
-          temas={propias}
-          estados={estados}
-          final={
-            propias?.length === 0 ? (
-              <p className="max-w-angosto text-center text-cuerpo text-mar-tintaSuave">Todavía no hay ventanas en este estado. Se van sumando con el tiempo.</p>
-            ) : null
-          }
-        />
-      </Burbuja>
+      <section className="flex flex-col gap-6 py-4">
+        <h2 className="text-titulo-m md:text-titulo-l">Temas de este estado</h2>
+        {propias?.length === 0 ? (
+          <p className="rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-cuerpo text-mar-tintaSuave">
+            Todavía no hay temas en este estado. Se van sumando con el tiempo.
+          </p>
+        ) : (
+          <GrillaDeVentanas temas={propias} estados={estados} />
+        )}
+      </section>
 
       {otros && (
-        <nav aria-label="Otros estados del mar" className="flex flex-wrap items-center gap-2 px-2">
+        <nav aria-label="Otros estados del mar" className="flex flex-wrap items-center gap-2">
           <span className="mr-2 text-cuerpo text-mar-tintaSuave">Otros estados:</span>
           {otros.map((e) => (
-            <Link key={e.id} to={urlDeEstado(e.id)} className="inline-flex min-h-control-sm items-center rounded-full border border-mar-bordeControl bg-mar-blanco/60 px-4 text-cuerpo text-mar-tinta no-underline hover:bg-mar-blanco">
+            <Link key={e.id} to={urlDeEstado(e.id)} className="inline-flex min-h-control-sm items-center rounded-full border border-mar-bordeControl bg-mar-blanco px-4 text-cuerpo text-mar-tinta no-underline hover:bg-mar-primarioSuave">
               {e.nombre}
             </Link>
           ))}

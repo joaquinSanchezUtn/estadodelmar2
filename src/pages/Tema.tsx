@@ -34,9 +34,9 @@ export default function Tema() {
       <Pagina ancho="lectura">
         <Burbuja tono="aguaClara" entrada="ninguna">
           <EstadoVacio
-            titulo="No encontramos esa ventana"
-            texto="Puede que el enlace esté mal escrito o que la ventana ya no esté disponible."
-            enlace={{ to: '/#ventanas', texto: 'Ver todas las ventanas' }}
+            titulo="No encontramos ese tema"
+            texto="Puede que el enlace esté mal escrito o que el tema ya no esté disponible."
+            enlace={{ to: '/ventanas', texto: 'Ver todos los temas' }}
           />
         </Burbuja>
       </Pagina>

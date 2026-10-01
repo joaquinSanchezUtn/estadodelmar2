@@ -66,9 +66,9 @@ export default function SuscripcionResultado() {
 
   if (estado === 'aprobado') {
     return (
-      <PaginaDeAcceso titulo="Tu suscripción está activa" texto="Ya podés entrar a todas las ventanas. Gracias por sumarte.">
+      <PaginaDeAcceso titulo="Tu suscripción está activa" texto="Ya podés entrar a todos los temas. Gracias por sumarte.">
         <div className="flex flex-col gap-3">
-          <Boton to="/#ventanas">Ver las ventanas</Boton>
+          <Boton to="/ventanas">Ver los temas</Boton>
           <Boton to="/mi-cuenta" variante="fantasma">
             Ir a Mi cuenta
           </Boton>

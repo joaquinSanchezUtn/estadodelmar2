@@ -4,7 +4,7 @@ import { useSesion } from '../../auth/SesionContext'
 import { ascender, transicionLayout, viewportUnaVez } from '../../animaciones/movimiento'
 import type { EstadoMar, Tema } from '../../datos/tipos'
 import Esqueleto from '../base/Esqueleto'
-import OjoDeBuey from './OjoDeBuey'
+import TarjetaTema from './TarjetaTema'
 
 type Props = {
   temas: Tema[] | null
@@ -13,7 +13,7 @@ type Props = {
   final?: ReactNode
 }
 
-// La grilla de ojos de buey, igual en la home, el catálogo y cada estado. Filtrar es instantáneo: los
+// La grilla de temas (tarjetas `TarjetaTema`), igual en el catálogo, las meditaciones y cada estado. Filtrar es instantáneo: los
 // que salen se encogen, los que entran suben y el resto se reacomoda con animación de layout.
 // El escalonado es solo de la primera entrada; después de un cambio no hay demora.
 export default function GrillaDeVentanas({ temas, estados, final }: Props) {
@@ -23,10 +23,10 @@ export default function GrillaDeVentanas({ temas, estados, final }: Props) {
   if (temas && !primera.current) primera.current = temas
   else if (temas && temas !== primera.current) yaCambio.current = true
   const paso = (i: number) => (yaCambio.current ? 0 : i)
-  const nombreDe = (t: Tema) => estados?.find((e) => e.id === t.estadoMar)?.nombre
+  const estadoDe = (t: Tema) => estados?.find((e) => e.id === t.estadoMar)
 
   return (
-    <ul aria-busy={!temas} className="relative grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:gap-x-6 lg:grid-cols-5">
+    <ul aria-busy={!temas} className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
       {temas ? (
         <AnimatePresence mode="popLayout">
           {temas.map((tema, i) => (
@@ -41,7 +41,7 @@ export default function GrillaDeVentanas({ temas, estados, final }: Props) {
               exit="salida"
               transition={{ layout: transicionLayout }}
             >
-              <OjoDeBuey tema={tema} estadoNombre={nombreDe(tema)} bloqueada={!accesoActivo} />
+              <TarjetaTema tema={tema} estado={estadoDe(tema)} bloqueada={!accesoActivo} />
             </motion.li>
           ))}
           {final && (
@@ -61,9 +61,9 @@ export default function GrillaDeVentanas({ temas, estados, final }: Props) {
           )}
         </AnimatePresence>
       ) : (
-        Array.from({ length: 5 }, (_, i) => (
-          <li key={i} className="flex justify-center">
-            <Esqueleto className="aspect-square w-full max-w-ojo rounded-full" />
+        Array.from({ length: 3 }, (_, i) => (
+          <li key={i}>
+            <Esqueleto className="h-64" />
           </li>
         ))
       )}

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
-import { RADIO_CABECERA, RADIO_OJO_DE_BUEY, idVentana, transicion, transicionLayout, useMovimiento } from '../../animaciones/movimiento'
+import { RADIO_CABECERA, idVentana, transicion, transicionLayout, useMovimiento } from '../../animaciones/movimiento'
 import { listarEnfoques } from '../../datos/contenido'
 import type { EstadoMar, Tema } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
@@ -8,7 +8,6 @@ import Esqueleto from '../base/Esqueleto'
 import { FlechaIzquierda } from '../base/iconos'
 import DibujoEstado from '../objetos/DibujoEstado'
 import { coloresDe } from '../objetos/estados/colores'
-import ReflejoVidrio from '../ventana/ReflejoVidrio'
 
 type Props = { slug: string; tema: Tema | null; estado: EstadoMar | null }
 
@@ -26,20 +25,11 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
         layoutId={reducido ? undefined : idVentana(slug)}
         transition={{ layout: transicionLayout }}
         style={{ borderRadius: RADIO_CABECERA }}
-        className="absolute inset-0 border border-mar-bordeAgua bg-mar-espuma shadow-burbuja"
+        className={cn('absolute inset-0 border shadow-suave', coloresDe(tema?.estadoMar ?? null).fondo, coloresDe(tema?.estadoMar ?? null).borde)}
       />
       <div className="relative grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_240px] md:items-center md:gap-10 md:p-10">
-        <div
-          className={cn(
-            'relative order-first aspect-[3/1] overflow-hidden border-3 shadow-ventana ring-1 md:order-last md:aspect-square',
-            coloresDe(tema?.estadoMar ?? null).agua,
-            coloresDe(tema?.estadoMar ?? null).aro,
-            coloresDe(tema?.estadoMar ?? null).aroExterior,
-          )}
-          style={{ borderRadius: RADIO_OJO_DE_BUEY }}
-        >
+        <div aria-hidden="true" className={cn('relative order-first aspect-[3/1] overflow-hidden rounded-burbuja shadow-ventana md:order-last md:aspect-square', coloresDe(tema?.estadoMar ?? null).agua)}>
           <DibujoEstado estado={tema?.estadoMar ?? null} vivo="siempre" autonomo />
-          <ReflejoVidrio />
         </div>
 
         <motion.div
@@ -50,29 +40,29 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
         >
           <Link
             to="/ventanas"
-            className="mb-4 inline-flex min-h-control-sm items-center gap-2 self-start text-cuerpo text-mar-tintaSuave no-underline hover:text-mar-tinta"
+            className="mb-4 inline-flex min-h-control-sm items-center gap-2 self-start text-cuerpo font-medium text-mar-tintaSuave no-underline hover:text-mar-tinta"
           >
             <FlechaIzquierda />
-            Todas las ventanas
+            Todos los temas
           </Link>
           {tema ? (
             <>
               {(estado || tema.enfoque) && (
-                <p className="mb-3 text-etiqueta uppercase text-mar-atardecerTexto">
+                <p className="mb-3 text-etiqueta uppercase text-mar-tintaSuave">
                   {[estado?.nombre, listarEnfoques().find((f) => f.id === tema.enfoque)?.nombre].filter(Boolean).join(' · ')}
                 </p>
               )}
-              <h1 className="mb-4 text-titulo-l font-light md:text-titulo-xl">{tema.titulo}</h1>
+              <h1 className="mb-4 text-titulo-l md:text-titulo-xl">{tema.titulo}</h1>
               <p className="text-destacado text-mar-tintaSuave">{tema.descripcion}</p>
               {estado && (
-                <blockquote className="mt-6 rounded-r-control border-l-3 border-mar-atardecer bg-mar-blanco/60 px-4 py-4 text-cuerpo text-mar-tinta">
+                <blockquote className="mt-6 rounded-burbuja bg-mar-blanco/70 p-4 font-titulo text-cuerpo italic text-mar-tinta">
                   {estado.ensenanza}.
                 </blockquote>
               )}
             </>
           ) : (
             <div role="status" className="flex flex-col gap-3">
-              <span className="sr-only">Cargando la ventana…</span>
+              <span className="sr-only">Cargando el tema…</span>
               <Esqueleto className="h-4 w-28 bg-mar-blanco/70" />
               <Esqueleto className="h-12 w-3/4 bg-mar-blanco/70" />
               <Esqueleto className="h-16 bg-mar-blanco/70" />

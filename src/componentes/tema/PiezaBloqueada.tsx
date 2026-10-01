@@ -21,7 +21,7 @@ export default function PiezaBloqueada({ pieza, estado }: Props) {
       initial="reposo"
       animate="reposo"
       exit="salida"
-      className="flex items-center gap-4 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-4"
+      className="flex items-center gap-4 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-4 shadow-suave"
     >
       <span className={cn('relative block h-16 w-24 shrink-0 overflow-hidden rounded-tarjeta', coloresDe(estado).agua)}>
         <VidrioEsmerilado estado={estado} />

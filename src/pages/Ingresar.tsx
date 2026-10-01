@@ -12,7 +12,7 @@ export default function Ingresar() {
 
   return (
     <SoloVisitantes>
-      <PaginaDeAcceso titulo="Ingresar" texto="Entrá a tu cuenta para acceder a las ventanas.">
+      <PaginaDeAcceso titulo="Ingresar" texto="Entrá a tu cuenta para acceder a los temas.">
         {sesionVencida && (
           <Aviso tono="info" className="mb-6">
             Tu sesión venció. Ingresá de nuevo para seguir donde estabas.
