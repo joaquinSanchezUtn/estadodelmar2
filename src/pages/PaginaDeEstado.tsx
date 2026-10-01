@@ -1,15 +1,15 @@
 import { Link, useParams } from 'react-router-dom'
-import Burbuja from '../componentes/base/Burbuja'
-import EstadoVacio from '../componentes/base/EstadoVacio'
 import Esqueleto from '../componentes/base/Esqueleto'
 import { FlechaIzquierda } from '../componentes/base/iconos'
+import AtajosDeEstados from '../componentes/estados/AtajosDeEstados'
 import Pagina from '../componentes/layout/Pagina'
 import DibujoEstado from '../componentes/objetos/DibujoEstado'
 import { coloresDe } from '../componentes/objetos/estados/colores'
+import SinDestino from '../componentes/soporte/SinDestino'
 import GrillaDeVentanas from '../componentes/ventana/GrillaDeVentanas'
 import { listarEstados, listarTemas } from '../datos/contenido'
 import { cn } from '../lib/cn'
-import { estadoDeUrl, urlDeEstado } from '../lib/estados'
+import { estadoDeUrl } from '../lib/estados'
 import { useCarga } from '../lib/useCarga'
 
 // Una página por estado del mar: qué se vive ahí, qué enseña y las ventanas que le corresponden.
@@ -21,17 +21,12 @@ export default function PaginaDeEstado() {
   const c = coloresDe(estado?.id ?? null)
 
   if (estados && !estado) {
-    return (
-      <Pagina ancho="lectura">
-        <Burbuja tono="aguaClara" entrada="ninguna">
-          <EstadoVacio titulo="Ese estado del mar no existe" texto="Puede que el enlace esté mal escrito." enlace={{ to: '/ventanas', texto: 'Ver todas las ventanas' }} />
-        </Burbuja>
-      </Pagina>
-    )
+    return <SinDestino titulo="Ese estado del mar no existe" texto="Puede que el enlace esté mal escrito." />
   }
 
   const propias = temas && estado ? temas.filter((t) => t.estadoMar === estado.id) : null
-  const otros = estados?.filter((e) => e.id !== estado?.id)
+  // Si este estado todavía no tiene temas, se sugieren hasta tres de otros: mejor un camino que una página vacía.
+  const sugeridos = temas && estado ? temas.filter((t) => t.estadoMar !== estado.id).slice(0, 3) : null
 
   return (
     <Pagina ancho="ancho">
@@ -66,22 +61,22 @@ export default function PaginaDeEstado() {
       <section className="flex flex-col gap-6 py-4">
         <h2 className="text-center text-titulo-m md:text-titulo-l">Temas de este estado</h2>
         {propias?.length === 0 ? (
-          <p className="mx-auto w-full max-w-parrafo rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-center text-cuerpo text-mar-tintaSuave">
-            Todavía no hay temas en este estado. Se van sumando con el tiempo.
-          </p>
+          <div className="flex flex-col gap-6">
+            <p className="mx-auto w-full max-w-parrafo rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 text-center text-cuerpo text-mar-tintaSuave shadow-suave">
+              Todavía no hay temas en este estado. Se van sumando con el tiempo.
+              {sugeridos && sugeridos.length > 0 && ' Mientras tanto, estos pueden acompañarte:'}
+            </p>
+            {sugeridos && sugeridos.length > 0 && <GrillaDeVentanas temas={sugeridos} estados={estados} />}
+          </div>
         ) : (
           <GrillaDeVentanas temas={propias} estados={estados} />
         )}
       </section>
 
-      {otros && (
-        <nav aria-label="Otros estados del mar" className="flex flex-wrap items-center justify-center gap-2">
-          <span className="mr-2 text-cuerpo text-mar-tintaSuave">Otros estados:</span>
-          {otros.map((e) => (
-            <Link key={e.id} to={urlDeEstado(e.id)} className="inline-flex min-h-control-sm items-center rounded-full border border-mar-bordeControl bg-mar-blanco px-4 text-cuerpo text-mar-tinta no-underline hover:bg-mar-primarioSuave">
-              {e.nombre}
-            </Link>
-          ))}
+      {estado && (
+        <nav aria-label="Otros estados del mar" className="flex flex-col items-center gap-3">
+          <p className="text-cuerpo font-bold text-mar-tinta">Otros estados del mar</p>
+          <AtajosDeEstados excepto={estado.id} centrado />
         </nav>
       )}
     </Pagina>

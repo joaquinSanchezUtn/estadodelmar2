@@ -1,11 +1,7 @@
-import { Link } from 'react-router-dom'
-import { estados } from '../../datos/constantes'
 import { pensamientos } from '../../datos/pensamientos'
 import type { Usuario } from '../../datos/tipos'
-import { cn } from '../../lib/cn'
-import { urlDeEstado } from '../../lib/estados'
 import { indiceDelDia, numeroDeDia } from '../../lib/pensamientoDelDia'
-import { coloresEstado } from '../objetos/estados/colores'
+import AtajosDeEstados from '../estados/AtajosDeEstados'
 
 // La cabecera de Mi cuenta: un saludo con nombre, el pensamiento de hoy (el mismo de la pestaña del costado)
 // y los ocho estados como atajo, para que la cuenta también sea una puerta de entrada y no solo trámites.
@@ -29,22 +25,7 @@ export default function BienvenidaCuenta({ usuario }: { usuario: Usuario }) {
 
         <div>
           <p className="mb-3 text-cuerpo font-bold text-mar-tinta">¿Cómo está tu mar hoy?</p>
-          <ul className="flex flex-wrap gap-2">
-            {estados.map((e) => (
-              <li key={e.id}>
-                <Link
-                  to={urlDeEstado(e.id)}
-                  className={cn(
-                    'inline-flex min-h-control-sm items-center rounded-full border px-4 text-meta font-bold text-mar-tinta no-underline transition-shadow hover:shadow-suave',
-                    coloresEstado[e.id].fondo,
-                    coloresEstado[e.id].borde,
-                  )}
-                >
-                  {e.nombre}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <AtajosDeEstados />
         </div>
       </div>
 

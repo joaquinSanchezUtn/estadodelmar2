@@ -59,3 +59,10 @@ export const enfoques: Enfoque[] = [
   { id: 'filosofico', nombre: 'Filosófico', descripcion: 'El sentido, el propósito y la manera de vivir' },
   { id: 'transpersonal', nombre: 'Transpersonal y espiritual', descripcion: 'Más allá de la personalidad: la conciencia y el Ser' },
 ]
+
+// Lo que trae el plan: solo lo que el sitio ya hace, nada prometido de más. Lo usan Mi cuenta y la invitación de cada tema.
+export const incluyeElPlan = [
+  'Todos los temas, y los que se vayan sumando.',
+  'En cada tema: un video, una meditación guiada y una ejercitación.',
+  'A tu ritmo, desde el celular o la compu.',
+]

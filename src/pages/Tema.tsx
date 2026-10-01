@@ -1,9 +1,8 @@
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSesion } from '../auth/SesionContext'
-import Burbuja from '../componentes/base/Burbuja'
-import EstadoVacio from '../componentes/base/EstadoVacio'
 import Pagina from '../componentes/layout/Pagina'
+import SinDestino from '../componentes/soporte/SinDestino'
 import CabeceraTema from '../componentes/tema/CabeceraTema'
 import ContenidoTema from '../componentes/tema/ContenidoTema'
 import { listarEstados, obtenerTema } from '../datos/contenido'
@@ -30,17 +29,7 @@ export default function Tema() {
   const vista = datos ?? previo
 
   if (vista && !vista.tema) {
-    return (
-      <Pagina ancho="lectura">
-        <Burbuja tono="aguaClara" entrada="ninguna">
-          <EstadoVacio
-            titulo="No encontramos ese tema"
-            texto="Puede que el enlace esté mal escrito o que el tema ya no esté disponible."
-            enlace={{ to: '/ventanas', texto: 'Ver todos los temas' }}
-          />
-        </Burbuja>
-      </Pagina>
-    )
+    return <SinDestino titulo="No encontramos ese tema" texto="Puede que el enlace esté mal escrito o que el tema ya no esté disponible." />
   }
 
   const tema = vista?.tema ?? null
