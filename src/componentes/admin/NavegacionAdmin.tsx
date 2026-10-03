@@ -6,6 +6,7 @@ const enlaces = [
   { to: '/admin/ventanas', texto: 'Temas', fin: false },
   { to: '/admin/quien-soy', texto: 'Quién soy', fin: false },
   { to: '/admin/mensajes', texto: 'Mensajes', fin: false },
+  { to: '/admin/semillas', texto: 'Semillas del mar', fin: false },
   { to: '/admin/ecos', texto: 'Ecos del océano', fin: false },
 ]
 

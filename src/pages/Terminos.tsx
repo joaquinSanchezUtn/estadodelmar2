@@ -7,7 +7,7 @@ const crearSecciones = (precio: string): Seccion[] => [
     id: 'servicio',
     titulo: 'Qué es este servicio',
     parrafos: [
-      'Estado del mar es un sitio de suscripción que ofrece contenido psicoeducativo, meditaciones y ejercitaciones prácticas, organizados por temas emocionales («ventanas»). Lo ofrece [RAZÓN SOCIAL], CUIT [CUIT], con domicilio en [DOMICILIO].',
+      'Marea Interior es un sitio de suscripción que ofrece contenido psicoeducativo, meditaciones y ejercitaciones prácticas, organizados por temas emocionales («ventanas»). Lo ofrece [RAZÓN SOCIAL], CUIT [CUIT], con domicilio en [DOMICILIO].',
     ],
   },
   {

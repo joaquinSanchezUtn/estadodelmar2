@@ -55,7 +55,7 @@ export default {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${ACCESS_TOKEN}` },
       body: JSON.stringify({
-        reason: "Estado del mar — suscripción mensual",
+        reason: "Marea Interior — suscripción mensual",
         external_reference: userId,
         payer_email: email,
         back_url: `${SITE_URL}/suscripcion/resultado`,

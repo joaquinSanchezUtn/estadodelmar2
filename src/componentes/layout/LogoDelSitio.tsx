@@ -14,7 +14,7 @@ export default function LogoDelSitio({ onClick, className }: Props) {
       className={cn('inline-flex min-h-control-sm items-center gap-2 font-titulo text-titulo-s text-mar-tinta no-underline', className)}
     >
       <img src={URL_LOGO} alt="" width={36} height={36} className="size-9" />
-      Estado del mar
+      Marea Interior
     </Link>
   )
 }
