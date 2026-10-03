@@ -4,3 +4,6 @@
 const base = import.meta.env.VITE_SUPABASE_URL as string
 
 export const URL_LOGO = `${base}/storage/v1/object/public/publico/logo-estado-del-mar.webp`
+
+// Un archivo cualquiera del bucket público (por ahora, las fotos de las ventanas, en `ventanas/`).
+export const urlPublica = (ruta: string) => `${base}/storage/v1/object/public/publico/${ruta}`

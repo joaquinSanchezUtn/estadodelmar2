@@ -67,11 +67,12 @@ export default function FormularioVentana({ inicial, estados, onGuardado }: Prop
         autoComplete="off"
       />
       <Selector
-        etiqueta="Estado del mar"
+        etiqueta="Ventana"
         value={estadoMar}
         onChange={(e) => setEstadoMar(e.target.value as EstadoMarId | '')}
-        opciones={[{ valor: '', texto: 'Sin estado' }, ...estados.map((s) => ({ valor: s.id, texto: s.nombre }))]}
+        opciones={[{ valor: '', texto: 'Sin ventana' }, ...estados.map((s) => ({ valor: s.id, texto: s.nombre }))]}
       />
+      {errores.estadoMar && <p className="-mt-3 text-meta text-mar-coral">{errores.estadoMar}</p>}
       <div className="flex flex-col gap-2">
         <Selector
           etiqueta="Enfoque"

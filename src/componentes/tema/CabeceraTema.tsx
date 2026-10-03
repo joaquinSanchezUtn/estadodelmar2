@@ -6,7 +6,7 @@ import type { EstadoMar, Tema } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
 import Esqueleto from '../base/Esqueleto'
 import { FlechaIzquierda } from '../base/iconos'
-import DibujoEstado from '../objetos/DibujoEstado'
+import ImagenDeVentana from '../objetos/ImagenDeVentana'
 import { coloresDe } from '../objetos/estados/colores'
 
 type Props = { slug: string; tema: Tema | null; estado: EstadoMar | null }
@@ -25,11 +25,11 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
         layoutId={reducido ? undefined : idVentana(slug)}
         transition={{ layout: transicionLayout }}
         style={{ borderRadius: RADIO_CABECERA }}
-        className={cn('absolute inset-0 border shadow-suave', coloresDe(tema?.estadoMar ?? null).fondo, coloresDe(tema?.estadoMar ?? null).borde)}
+        className={cn('absolute inset-0 border shadow-suave', coloresDe(estado?.estilo ?? null).fondo, coloresDe(estado?.estilo ?? null).borde)}
       />
       <div className="relative grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_240px] md:items-center md:gap-10 md:p-10">
-        <div aria-hidden="true" className={cn('relative order-first aspect-[3/1] overflow-hidden rounded-burbuja shadow-ventana md:order-last md:aspect-square', coloresDe(tema?.estadoMar ?? null).agua)}>
-          <DibujoEstado estado={tema?.estadoMar ?? null} vivo="siempre" autonomo />
+        <div aria-hidden="true" className={cn('relative order-first aspect-[3/1] overflow-hidden rounded-burbuja shadow-ventana md:order-last md:aspect-square', coloresDe(estado?.estilo ?? null).agua)}>
+          <ImagenDeVentana estado={estado} vivo="siempre" autonomo />
         </div>
 
         <motion.div

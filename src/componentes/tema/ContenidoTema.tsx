@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { revelar, transicionLayout } from '../../animaciones/movimiento'
-import type { TemaVisible } from '../../datos/tipos'
+import type { EstiloId, TemaVisible } from '../../datos/tipos'
 import ContenidoAbierto from './ContenidoAbierto'
 import ContenidoBloqueado from './ContenidoBloqueado'
 
@@ -12,7 +12,7 @@ import ContenidoBloqueado from './ContenidoBloqueado'
 // SEGURIDAD: la vista abierta NO tiene animación de salida. Al perder el acceso, el contenido
 // premium tiene que salir del DOM en el mismo instante; una salida animada lo dejaría en
 // pantalla (y en el HTML) unos cientos de milisegundos de más.
-export default function ContenidoTema({ tema }: { tema: TemaVisible }) {
+export default function ContenidoTema({ tema, estilo }: { tema: TemaVisible; estilo: EstiloId | null }) {
   return (
     <motion.div layout transition={{ layout: transicionLayout }}>
       <AnimatePresence mode="wait" initial={false}>
@@ -22,7 +22,7 @@ export default function ContenidoTema({ tema }: { tema: TemaVisible }) {
           </motion.div>
         ) : (
           <motion.div key="bloqueado" layout variants={revelar} initial="oculto" animate="visible" exit="salida">
-            <ContenidoBloqueado piezas={tema.piezas} estado={tema.estadoMar} />
+            <ContenidoBloqueado piezas={tema.piezas} estado={estilo} />
           </motion.div>
         )}
       </AnimatePresence>

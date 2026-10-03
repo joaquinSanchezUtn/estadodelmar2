@@ -23,6 +23,7 @@ const PRIMEROS = 6
 
 // La entrada al panel: cómo está el sitio, qué conviene hacer ahora y cómo va cada tema.
 export default function ResumenAdmin({ temas, estados, sinLeer, quienSoy, onCambio }: Props) {
+  const estilo = (id: string | null) => estados.find((e) => e.id === id)?.estilo ?? null
   const [todos, setTodos] = useState(false)
   const pasos = proximosPasos(temas, sinLeer, quienSoy)
   const piezas = temas.flatMap((t) => t.contenidos)
@@ -67,7 +68,7 @@ export default function ResumenAdmin({ temas, estados, sinLeer, quienSoy, onCamb
               {temas.map((t) => (
                 <li key={t.slug} className="flex flex-col gap-2 py-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span aria-hidden="true" className={cn('size-3 rounded-full border', coloresDe(t.estadoMar).agua, coloresDe(t.estadoMar).aroClaro)} />
+                    <span aria-hidden="true" className={cn('size-3 rounded-full border', coloresDe(estilo(t.estadoMar)).agua, coloresDe(estilo(t.estadoMar)).aroClaro)} />
                     <Link to={`/admin/ventanas/${t.slug}`} className="inline-flex min-h-control-sm items-center font-titulo text-titulo-s text-mar-tinta no-underline hover:underline">
                       {t.titulo}
                     </Link>

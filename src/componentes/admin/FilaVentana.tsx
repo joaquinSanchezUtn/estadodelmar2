@@ -26,7 +26,7 @@ const icono = 'flex size-11 items-center justify-center rounded-full border bord
 export default function FilaVentana({ tema, estados, posicion, total, puedeOrdenar, onCambio }: Props) {
   const [confirmando, setConfirmando] = useState(false)
   const accion = useAccion()
-  const estado = estados.find((e) => e.id === tema.estadoMar)?.nombre ?? 'Sin estado'
+  const estado = estados.find((e) => e.id === tema.estadoMar)?.nombre ?? 'Sin ventana'
 
   const correr = (hacer: () => Promise<ResultadoAdmin>, aviso: string) =>
     accion.ejecutar(async () => {

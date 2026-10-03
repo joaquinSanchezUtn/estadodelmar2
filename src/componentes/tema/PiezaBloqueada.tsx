@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import type { EstadoMarId, Pieza, TipoContenido } from '../../datos/tipos'
+import type { EstiloId, Pieza, TipoContenido } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
 import { minutos } from '../../lib/formato'
 import { coloresDe } from '../objetos/estados/colores'
@@ -11,7 +11,7 @@ const nombres: Record<TipoContenido, string> = {
   ejercitacion: 'Ejercitación',
 }
 
-type Props = { pieza: Pieza; estado: EstadoMarId | null }
+type Props = { pieza: Pieza; estado: EstiloId | null }
 
 // Una pieza que todavía no se puede abrir. Del contenido solo se conoce lo público (tipo y
 // duración); el recuadro esmerilado es un dibujo decorativo, no el contenido real.

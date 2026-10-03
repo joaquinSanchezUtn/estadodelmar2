@@ -9,14 +9,19 @@
 // también son reales: cada acción llama a su Edge Function y ninguna decide una transición o firma acá
 // — solo pide y muestra lo que el servidor contestó.
 import { supabase } from '../lib/supabase'
-import { enfoques as ENFOQUES, estados as ESTADOS } from './constantes'
+import { enfoques as ENFOQUES } from './constantes'
+import { COLUMNAS_ESTADO, mapEstado } from './estados'
 import { esAdmin, tengoAcceso } from './acceso'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
 import { invocar } from './base'
 import type { CampoPerfil, Enfoque, EstadoDelPago, EstadoMar, QuienSoy, Suscripcion, Tema, TemaVisible } from './tipos'
 
+// Las ventanas publicadas, en su orden. La RLS deja afuera las ocultas; el filtro va igual para que la
+// admin (que las lee todas) vea en el sitio lo mismo que el resto.
 export async function listarEstados(): Promise<EstadoMar[]> {
-  return [...ESTADOS]
+  const { data, error } = await supabase.from('estados').select(COLUMNAS_ESTADO).eq('publicado', true).order('orden')
+  if (error) throw error
+  return data.map(mapEstado)
 }
 
 export function listarEnfoques(): Enfoque[] {

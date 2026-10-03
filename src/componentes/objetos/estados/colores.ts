@@ -1,4 +1,4 @@
-import type { EstadoMarId } from '../../../datos/tipos'
+import type { EstiloId } from '../../../datos/tipos'
 
 // Clases de color de cada estado del mar, escritas completas: Tailwind solo genera las que
 // ve literalmente en el código, así que no se pueden armar con plantillas de texto.
@@ -16,7 +16,7 @@ export type ColoresEstado = {
   agitacion: number // qué tan movido está el mar (alto de las olas del relleno)
 }
 
-export const coloresEstado: Record<EstadoMarId, ColoresEstado> = {
+export const coloresEstado: Record<EstiloId, ColoresEstado> = {
   calma: {
     fondo: 'bg-estado-calma-fondo',
     borde: 'border-estado-calma-aroClaro',
@@ -124,4 +124,4 @@ export const coloresEstado: Record<EstadoMarId, ColoresEstado> = {
 }
 
 // Un tema sin estado usa el de la calma.
-export const coloresDe = (estado: EstadoMarId | null) => coloresEstado[estado ?? 'calma']
+export const coloresDe = (estilo: EstiloId | null) => coloresEstado[estilo ?? 'calma']

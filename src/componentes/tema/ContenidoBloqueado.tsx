@@ -2,13 +2,13 @@ import { useSesion } from '../../auth/SesionContext'
 import { obtenerSuscripcion } from '../../datos/contenido'
 import { useCarga } from '../../lib/useCarga'
 import { usePrecio } from '../../lib/usePrecio'
-import type { EstadoMarId, Pieza } from '../../datos/tipos'
+import type { EstiloId, Pieza } from '../../datos/tipos'
 import Boton from '../base/Boton'
 import Burbuja from '../base/Burbuja'
 import ListaIncluye from '../base/ListaIncluye'
 import PiezaBloqueada from './PiezaBloqueada'
 
-type Props = { piezas: Pieza[]; estado: EstadoMarId | null }
+type Props = { piezas: Pieza[]; estado: EstiloId | null }
 
 // Las tres piezas que trae todo tema (lo dice la home): para un tema que todavía no tiene ninguna publicada.
 const piezasDeCadaTema = [

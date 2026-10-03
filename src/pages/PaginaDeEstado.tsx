@@ -3,7 +3,7 @@ import Esqueleto from '../componentes/base/Esqueleto'
 import { FlechaIzquierda } from '../componentes/base/iconos'
 import AtajosDeEstados from '../componentes/estados/AtajosDeEstados'
 import Pagina from '../componentes/layout/Pagina'
-import DibujoEstado from '../componentes/objetos/DibujoEstado'
+import ImagenDeVentana from '../componentes/objetos/ImagenDeVentana'
 import { coloresDe } from '../componentes/objetos/estados/colores'
 import SinDestino from '../componentes/soporte/SinDestino'
 import GrillaDeVentanas from '../componentes/ventana/GrillaDeVentanas'
@@ -18,10 +18,10 @@ export default function PaginaDeEstado() {
   const { datos: estados } = useCarga('estados', listarEstados, true)
   const { datos: temas } = useCarga('temas', listarTemas, true)
   const estado = estados?.find((e) => e.id === estadoDeUrl(id)) ?? null
-  const c = coloresDe(estado?.id ?? null)
+  const c = coloresDe(estado?.estilo ?? null)
 
   if (estados && !estado) {
-    return <SinDestino titulo="Ese estado del mar no existe" texto="Puede que el enlace esté mal escrito." />
+    return <SinDestino titulo="Esa ventana no existe" texto="Puede que el enlace esté mal escrito." />
   }
 
   const propias = temas && estado ? temas.filter((t) => t.estadoMar === estado.id) : null
@@ -39,14 +39,14 @@ export default function PaginaDeEstado() {
         <div className="flex flex-col">
           {estado ? (
             <>
-              <p className="mb-3 text-etiqueta uppercase text-mar-tintaSuave">Estado del mar</p>
+              <p className="mb-3 text-etiqueta uppercase text-mar-tintaSuave">Ventana</p>
               <h1 className="mb-4 text-titulo-l md:text-titulo-xl">{estado.nombre}</h1>
               <p className="mb-5 text-destacado text-mar-tintaSuave">{estado.estadoInterno}.</p>
               <p className="rounded-burbuja bg-mar-blanco/70 p-4 font-titulo text-titulo-s italic text-mar-tinta">{estado.ensenanza}.</p>
             </>
           ) : (
             <div role="status" className="flex flex-col gap-3">
-              <span className="sr-only">Cargando el estado…</span>
+              <span className="sr-only">Cargando la ventana…</span>
               <Esqueleto className="h-4 w-28 bg-mar-blanco/70" />
               <Esqueleto className="h-12 w-3/4 bg-mar-blanco/70" />
               <Esqueleto className="h-16 bg-mar-blanco/70" />
@@ -54,16 +54,16 @@ export default function PaginaDeEstado() {
           )}
         </div>
         <div aria-hidden="true" className={cn('relative order-first aspect-[3/1] overflow-hidden rounded-burbuja shadow-ventana md:order-last md:aspect-square', c.agua)}>
-          <DibujoEstado estado={estado?.id ?? null} vivo="siempre" autonomo />
+          <ImagenDeVentana estado={estado} vivo="siempre" autonomo />
         </div>
       </section>
 
       <section className="flex flex-col gap-6 py-4">
-        <h2 className="text-center text-titulo-m md:text-titulo-l">Temas de este estado</h2>
+        <h2 className="text-center text-titulo-m md:text-titulo-l">Temas de esta ventana</h2>
         {propias?.length === 0 ? (
           <div className="flex flex-col gap-6">
             <p className="mx-auto w-full max-w-parrafo rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 text-center text-cuerpo text-mar-tintaSuave shadow-suave">
-              Todavía no hay temas en este estado. Se van sumando con el tiempo.
+              Todavía no hay temas en esta ventana. Se van sumando con el tiempo.
               {sugeridos && sugeridos.length > 0 && ' Mientras tanto, estos pueden acompañarte:'}
             </p>
             {sugeridos && sugeridos.length > 0 && <GrillaDeVentanas temas={sugeridos} estados={estados} />}
@@ -74,8 +74,8 @@ export default function PaginaDeEstado() {
       </section>
 
       {estado && (
-        <nav aria-label="Otros estados del mar" className="flex flex-col items-center gap-3">
-          <p className="text-cuerpo font-bold text-mar-tinta">Otros estados del mar</p>
+        <nav aria-label="Otras ventanas" className="flex flex-col items-center gap-3">
+          <p className="text-cuerpo font-bold text-mar-tinta">Otras ventanas</p>
           <AtajosDeEstados excepto={estado.id} centrado />
         </nav>
       )}

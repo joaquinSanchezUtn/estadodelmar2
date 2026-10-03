@@ -21,13 +21,15 @@ import { supabase } from '../lib/supabase'
 import { esAdmin } from './acceso'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
 import { invocar } from './base'
-import type { ArchivoSubido, DatosDeContenido, DatosDeQuienSoy, DatosDeTema, EnfoqueId, EstadoMarId, MensajeDeContactoAdmin, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
+import type { ArchivoSubido, DatosDeContenido, DatosDeQuienSoy, DatosDeTema, EnfoqueId, MensajeDeContactoAdmin, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
 
-const ESTADOS: EstadoMarId[] = ['calma', 'olas_suaves', 'agitado', 'tormenta', 'profundidades', 'mareas', 'corrientes', 'horizonte']
 const ENFOQUES: EnfoqueId[] = ['psicologico', 'filosofico', 'transpersonal']
 const NO_ES_ADMIN = { ok: false, mensaje: 'No tenés permiso para hacer esto.' } as const
 const NO_EXISTE = { ok: false, mensaje: 'Eso ya no existe. Recargá la página.' } as const
 const ERROR_GENERICO = { ok: false, mensaje: 'No pudimos guardar. Probá de nuevo en un rato.' } as const
+// La ventana de un tema la valida la base (`temas_estado_mar_fkey`, migración 0015): si la borraron mientras
+// tanto, el guardado falla con 23503.
+const VENTANA_INEXISTENTE = { ok: false, mensaje: 'Revisá los campos marcados.', errores: { estadoMar: 'Esa ventana ya no existe. Elegí otra.' } } as const
 
 export const LIMITE_DE_ARCHIVO_MB: Record<'video' | 'meditacion', number> = { video: 2048, meditacion: 500 }
 
@@ -71,7 +73,6 @@ export async function guardarTemaAdmin(slugActual: string | null, d: DatosDeTema
   else if (RESERVADAS.includes(slug)) errores.slug = 'Esa dirección está reservada. Elegí otra.'
   else if (temas.some((t) => t.slug === slug && t.id !== existente?.id)) errores.slug = 'Ya hay un tema con esa dirección.'
   if (d.descripcion.length > 240) errores.descripcion = 'La descripción no puede pasar de 240 caracteres.'
-  if (d.estadoMar && !ESTADOS.includes(d.estadoMar)) errores.estadoMar = 'Elegí un estado del mar de la lista.'
   if (d.enfoque && !ENFOQUES.includes(d.enfoque)) errores.enfoque = 'Elegí un enfoque de la lista.'
   if (Object.keys(errores).length) return { ok: false, mensaje: 'Revisá los campos marcados.', errores }
 
@@ -81,11 +82,13 @@ export async function guardarTemaAdmin(slugActual: string | null, d: DatosDeTema
     // ahora), el update no toca ninguna fila y Postgres no lo marca como error — sin este chequeo,
     // acá se contestaría "guardado" sin haber guardado nada.
     const { data: fila, error } = await supabase.from('temas').update(datos).eq('id', existente.id).select('id').maybeSingle()
+    if (error?.code === '23503') return VENTANA_INEXISTENTE
     if (error) return ERROR_GENERICO
     if (!fila) return NO_EXISTE
   } else {
     const orden = Math.max(0, ...temas.map((t) => t.orden)) + 1
     const { error } = await supabase.from('temas').insert({ ...datos, orden })
+    if (error?.code === '23503') return VENTANA_INEXISTENTE
     if (error) return ERROR_GENERICO
   }
   return { ok: true, slug }

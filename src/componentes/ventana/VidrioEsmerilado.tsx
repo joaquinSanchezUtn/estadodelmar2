@@ -1,6 +1,6 @@
 import { motion } from 'motion/react'
 import { transicion } from '../../animaciones/movimiento'
-import type { EstadoMarId } from '../../datos/tipos'
+import type { EstiloId } from '../../datos/tipos'
 import DibujoEstado from '../objetos/DibujoEstado'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -36,7 +36,7 @@ const escarcha = {
   salida: { opacity: 0, transition: transicion.media },
 }
 
-export default function VidrioEsmerilado({ estado }: { estado: EstadoMarId | null }) {
+export default function VidrioEsmerilado({ estado }: { estado: EstiloId | null }) {
   return (
     <>
       <motion.div variants={vidrio} className="absolute inset-0">

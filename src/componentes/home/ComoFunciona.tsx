@@ -3,7 +3,7 @@ import { cascada, emerger, viewportUnaVez } from '../../animaciones/movimiento'
 import Seccion from './Seccion'
 
 const pasos = [
-  { titulo: 'Ubicá tu estado', texto: 'Calma, tormenta, mareas… cada estado del mar abre los temas que te pueden ayudar.' },
+  { titulo: 'Abrí tu ventana', texto: 'Calma, tormenta, mareas… cada ventana abre los temas que te pueden ayudar.' },
   { titulo: 'Comprendé y meditá', texto: 'Un video breve explica qué te pasa y una meditación guiada te lleva a la profundidad.' },
   { titulo: 'Llevalo a tu vida', texto: 'Una ejercitación concreta para practicar lo aprendido en tu día a día.' },
 ]

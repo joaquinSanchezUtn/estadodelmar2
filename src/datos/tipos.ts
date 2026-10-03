@@ -2,7 +2,9 @@
 // Ojo: Contenido NO lleva el id de video de Bunny. El navegador nunca lo
 // conoce: la Edge Function lo resuelve y devuelve solo la URL firmada.
 
-export type EstadoMarId =
+// Los ocho aspectos (color de tarjeta + dibujo animado) que puede llevar una ventana. Son fijos: cada uno
+// tiene su paleta validada por contraste en tailwind.config.js. Se llaman como las ocho ventanas originales.
+export type EstiloId =
   | 'calma'
   | 'olas_suaves'
   | 'agitado'
@@ -12,12 +14,22 @@ export type EstadoMarId =
   | 'corrientes'
   | 'horizonte'
 
+// Una "ventana" de la home (Mar en calma, Tormenta…): desde la migración 0015 es una fila de `estados`,
+// que la dueña edita desde el panel. El id es fijo (va en la URL y en `temas.estado_mar`).
+export type EstadoMarId = string
+
 export type EstadoMar = {
   id: EstadoMarId
   nombre: string
   estadoInterno: string
   ensenanza: string
+  estilo: EstiloId
+  // URL pública de la foto, o null: sin foto se ve el dibujo del estilo.
+  fotoUrl: string | null
 }
+
+export type EstadoMarAdmin = EstadoMar & { foto: string | null; orden: number; publicado: boolean }
+export type DatosDeEstado = { nombre: string; estadoInterno: string; ensenanza: string; estilo: EstiloId; publicado: boolean }
 
 // Desde dónde se mira el tema (independiente del estado del mar): el pedido original distingue temas
 // psicológicos, filosóficos y transpersonales ("más allá de la personalidad, incluyendo lo espiritual").

@@ -1,7 +1,7 @@
 import { motion, useInView } from 'motion/react'
 import { useRef, type ComponentType } from 'react'
 import { useMovimiento } from '../../animaciones/movimiento'
-import type { EstadoMarId } from '../../datos/tipos'
+import type { EstiloId } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
 import Calma from './estados/Calma'
 import { coloresDe } from './estados/colores'
@@ -14,7 +14,7 @@ import Profundidades from './estados/Profundidades'
 import Tormenta from './estados/Tormenta'
 import type { Agua, PropsDibujo } from './estados/tipos'
 
-const dibujos: Record<EstadoMarId, ComponentType<PropsDibujo>> = {
+const dibujos: Record<EstiloId, ComponentType<PropsDibujo>> = {
   calma: Calma,
   olas_suaves: OlasSuaves,
   agitado: MarAgitado,
@@ -26,7 +26,7 @@ const dibujos: Record<EstadoMarId, ComponentType<PropsDibujo>> = {
 }
 
 type Props = {
-  estado: EstadoMarId | null
+  estado: EstiloId | null
   // 'escritorio': se mueve solo en escritorio. 'siempre': también en celular (uno o dos por pantalla).
   vivo?: 'escritorio' | 'siempre'
   // Sin padre que maneje el hover (p. ej. la cabecera), el dibujo arranca solo en reposo.

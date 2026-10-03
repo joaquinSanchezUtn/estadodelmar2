@@ -38,7 +38,7 @@ export default function Tema() {
   return (
     <Pagina ancho="lectura">
       <CabeceraTema slug={slug} tema={tema} estado={estado} />
-      {tema && <ContenidoTema tema={tema} />}
+      {tema && <ContenidoTema tema={tema} estilo={estado?.estilo ?? null} />}
     </Pagina>
   )
 }

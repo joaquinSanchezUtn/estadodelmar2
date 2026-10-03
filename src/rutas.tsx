@@ -18,6 +18,8 @@ const AdminEditorContenido = lazy(() => import('./pages/AdminEditorContenido'))
 const AdminEditorVentana = lazy(() => import('./pages/AdminEditorVentana'))
 const AdminMensajes = lazy(() => import('./pages/AdminMensajes'))
 const AdminFrases = lazy(() => import('./pages/AdminFrases'))
+const AdminEstados = lazy(() => import('./pages/AdminEstados'))
+const AdminEditorEstado = lazy(() => import('./pages/AdminEditorEstado'))
 const AdminQuienSoy = lazy(() => import('./pages/AdminQuienSoy'))
 const AdminVentanas = lazy(() => import('./pages/AdminVentanas'))
 const Contacto = lazy(() => import('./pages/Contacto'))
@@ -71,6 +73,9 @@ export default function Rutas({ location }: { location: Location }) {
           <Route path="/admin/mensajes" element={<AdminMensajes />} />
           <Route path="/admin/semillas" element={<AdminFrases key="semillas" seccion="semillas" />} />
           <Route path="/admin/ecos" element={<AdminFrases key="ecos" seccion="ecos" />} />
+          <Route path="/admin/estados" element={<AdminEstados />} />
+          <Route path="/admin/estados/nueva" element={<AdminEditorEstado />} />
+          <Route path="/admin/estados/:id" element={<AdminEditorEstado />} />
           <Route path="/admin/ventanas" element={<AdminVentanas />} />
           <Route path="/admin/ventanas/nueva" element={<AdminEditorVentana />} />
           <Route path="/admin/ventanas/:slug" element={<AdminEditorVentana />} />

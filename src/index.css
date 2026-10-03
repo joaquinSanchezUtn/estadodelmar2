@@ -32,14 +32,6 @@
     @apply font-titulo;
   }
 
-  /* Fraunces con el eje SOFT al máximo: las terminaciones redondeadas la vuelven más amable. */
-  h1,
-  h2,
-  h3,
-  .font-titulo {
-    font-variation-settings: 'SOFT' 100;
-  }
-
   a {
     @apply text-mar-agua;
   }

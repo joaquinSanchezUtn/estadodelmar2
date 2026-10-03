@@ -59,8 +59,8 @@ export default {
       // Espaciado: múltiplos de 4px. Permitidos: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 96
       // (clases 1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 24). Sin medios pasos (0.5, 1.5, 2.5, 3.5).
       //
-      // Tipografía: ocho niveles, con el interlineado adentro. Los títulos son Fraunces
-      // (`font-titulo`, peso `font-light` desde titulo-l); el resto, Nunito.
+      // Tipografía: ocho niveles, con el interlineado adentro. Los títulos son Akaya Kanadaka
+      // (`font-titulo`; tiene un solo peso, así que `font-light` no le cambia nada); el resto, Nunito.
       fontSize: {
         etiqueta: ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.16em', fontWeight: '500' }], // sobretítulos; con `uppercase`
         meta: ['0.875rem', { lineHeight: '1.25rem' }], // metadatos, pies, chips
@@ -109,7 +109,7 @@ export default {
       },
       opacity: { 4: '0.04' },
       fontFamily: {
-        titulo: ['Fraunces Variable', 'Georgia', 'serif'],
+        titulo: ['Akaya Kanadaka', 'Georgia', 'serif'],
         sans: ['Nunito Variable', 'system-ui', 'sans-serif'],
       },
     },

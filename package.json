@@ -10,8 +10,8 @@
     "escala": "node scripts/escala.mjs"
   },
   "dependencies": {
-    "@fontsource-variable/fraunces": "^5.3.0",
     "@fontsource-variable/nunito": "^5.3.0",
+    "@fontsource/akaya-kanadaka": "^5.3.0",
     "@supabase/supabase-js": "^2.116.0",
     "clsx": "^2.1.1",
     "motion": "^13.4.0",

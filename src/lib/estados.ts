@@ -1,5 +1,6 @@
 import type { EstadoMarId } from '../datos/tipos'
 
-// En la URL los estados van con guion (/estado/olas-suaves); en los datos, con guion bajo.
-export const urlDeEstado = (id: EstadoMarId) => `/estado/${id.replace('_', '-')}`
-export const estadoDeUrl = (param: string | undefined) => (param ?? '').replace('-', '_')
+// En la URL las ventanas van con guiones (/estado/olas-suaves); en los datos, con guiones bajos. Todos, no
+// solo el primero: una ventana nueva puede tener varios (mar_de_fondo).
+export const urlDeEstado = (id: EstadoMarId) => `/estado/${id.replaceAll('_', '-')}`
+export const estadoDeUrl = (param: string | undefined) => (param ?? '').replaceAll('-', '_')
