@@ -12,8 +12,8 @@ import { listarEstados, listarTemas } from '../datos/contenido'
 import { hayMeditaciones } from '../lib/meditaciones'
 import { useCarga } from '../lib/useCarga'
 
-// El recorrido de la home, en el orden en que alguien nuevo se pregunta las cosas: qué es, cómo estoy,
-// cómo funciona, qué hay adentro, quién está detrás, cuánto cuesta y las dudas de siempre.
+// El recorrido de la home, en el orden en que alguien nuevo se pregunta las cosas: qué es, cómo funciona,
+// cómo estoy (las ventanas), qué hay adentro, quién está detrás, cuánto cuesta y las dudas de siempre.
 export default function Home() {
   const { datos: estados } = useCarga('estados', listarEstados, true)
   const { datos: temas } = useCarga('temas', listarTemas, true)
@@ -21,8 +21,8 @@ export default function Home() {
   return (
     <Pagina ancho="ancho" className="gap-0 md:gap-0">
       <Portada />
-      <EstadosDelMar estados={estados} temas={temas} />
       <ComoFunciona />
+      <EstadosDelMar estados={estados} temas={temas} />
       <TemasInicio temas={temas} estados={estados} />
       {hayMeditaciones(temas) && <MeditacionesInicio temas={temas} />}
       <GimnasioDelAlma conMeditaciones={hayMeditaciones(temas)} />
