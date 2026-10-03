@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { transicion } from '../../animaciones/movimiento'
-import { pensamientos } from '../../datos/pensamientos'
 import { fechaLarga } from '../../lib/formato'
-import { indiceDelDia, numeroDeDia } from '../../lib/pensamientoDelDia'
+import { numeroDeDia } from '../../lib/ecoDelDia'
+import { useEcoDeHoy } from '../../lib/useEcoDeHoy'
 import { Cerrar } from '../base/iconos'
 
+// La clave conserva el nombre viejo a propósito: así el cambio de nombre no vuelve a prender el puntito.
 const CLAVE = 'estado-del-mar:pensamiento-visto'
 
 // localStorage puede no estar (modo privado, datos bloqueados): es solo para el puntito de "nueva".
@@ -24,12 +25,12 @@ const guardar = (valor: string) => {
   }
 }
 
-// La pestaña del costado derecho: al tocarla se abre el pensamiento de hoy. Uno por día, sin repetirse hasta
-// pasar por todos (ver `lib/pensamientoDelDia`). El puntito avisa que hay uno que todavía no se vio hoy.
-export default function PensamientoDelDia() {
+// Ecos del océano (hasta el 2026-10-03, "Pensamiento del día"): la pestaña del costado derecho; al tocarla
+// se abre el eco de hoy. Uno por día, sin repetirse hasta pasar por todos (ver `lib/ecoDelDia`). El puntito avisa que hay uno que todavía no se vio hoy.
+export default function EcosDelOceano() {
   const hoy = useMemo(() => new Date(), [])
   const dia = numeroDeDia(hoy)
-  const pensamiento = pensamientos[indiceDelDia(dia, pensamientos.length)]
+  const eco = useEcoDeHoy()
   // La fecha local (no toISOString, que es UTC: de noche en Argentina ya diría mañana).
   const fecha = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`
   const [abierta, setAbierta] = useState(false)
@@ -62,7 +63,7 @@ export default function PensamientoDelDia() {
     }
   }, [abierta, vista, dia])
 
-  if (!pensamiento) return null
+  if (!eco) return null
 
   return (
     <>
@@ -70,7 +71,7 @@ export default function PensamientoDelDia() {
         ref={boton}
         type="button"
         aria-expanded={abierta}
-        aria-controls="pensamiento-del-dia"
+        aria-controls="eco-del-oceano"
         onClick={() => (abierta ? cerrar(false) : setAbierta(true))}
         className="fixed bottom-4 right-4 z-flotante flex size-12 flex-col items-center justify-center gap-2 rounded-full bg-mar-primario text-mar-sobrePrimario shadow-boton transition-colors hover:bg-mar-primarioHover md:bottom-auto md:right-0 md:top-1/2 md:size-auto md:-translate-y-1/2 md:rounded-l-burbuja md:rounded-r-none md:px-2 md:py-4"
       >
@@ -80,7 +81,7 @@ export default function PensamientoDelDia() {
         </svg>
         {/* En celular es un círculo con el ícono en la esquina de abajo: como pestaña al medio del costado tapaba
             botones y textos. Desde `md`, la pestaña vertical con el texto. */}
-        <span className="sr-only md:not-sr-only md:rotate-180 md:text-meta md:font-bold md:[writing-mode:vertical-rl]">Pensamiento del día</span>
+        <span className="sr-only md:not-sr-only md:rotate-180 md:text-meta md:font-bold md:[writing-mode:vertical-rl]">Ecos del océano</span>
         {!vista && (
           <>
             <span aria-hidden="true" className="size-2 rounded-full bg-mar-atardecer" />
@@ -93,10 +94,10 @@ export default function PensamientoDelDia() {
         {abierta && (
           <div className="fixed bottom-20 right-4 z-flotante md:bottom-auto md:right-14 md:top-1/2 md:-translate-y-1/2">
             <motion.div
-              id="pensamiento-del-dia"
+              id="eco-del-oceano"
               ref={panel}
               role="dialog"
-              aria-label="Pensamiento del día"
+              aria-label="Ecos del océano"
               tabIndex={-1}
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0, transition: transicion.media }}
@@ -104,12 +105,12 @@ export default function PensamientoDelDia() {
               className="w-72 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-alzada outline-none md:w-80"
             >
               <div className="mb-3 flex items-start justify-between gap-3">
-                <p className="text-etiqueta uppercase text-mar-atardecerTexto">Tu pensamiento de hoy · {fechaLarga(fecha)}</p>
-                <button type="button" onClick={() => cerrar(true)} aria-label="Cerrar el pensamiento" className="-m-2 flex size-10 shrink-0 items-center justify-center rounded-full text-mar-tintaSuave hover:bg-mar-primarioSuave">
+                <p className="text-etiqueta uppercase text-mar-atardecerTexto">Tu eco de hoy · {fechaLarga(fecha)}</p>
+                <button type="button" onClick={() => cerrar(true)} aria-label="Cerrar el eco" className="-m-2 flex size-10 shrink-0 items-center justify-center rounded-full text-mar-tintaSuave hover:bg-mar-primarioSuave">
                   <Cerrar className="size-5" />
                 </button>
               </div>
-              <blockquote className="font-titulo text-titulo-s text-mar-tinta">«{pensamiento}»</blockquote>
+              <blockquote className="font-titulo text-titulo-s text-mar-tinta">«{eco}»</blockquote>
               <p className="mt-4 text-meta text-mar-tintaSuave">Mañana te espera otro.</p>
             </motion.div>
           </div>

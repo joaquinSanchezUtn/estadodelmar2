@@ -3,15 +3,15 @@ import LimiteDeErrores from '../soporte/LimiteDeErrores'
 import Grano from '../objetos/Grano'
 import Manchas from '../objetos/Manchas'
 import { useLocation } from 'react-router-dom'
+import EcosDelOceano from './EcosDelOceano'
 import Encabezado from './Encabezado'
-import PensamientoDelDia from './PensamientoDelDia'
 import PaginasAnimadas from './PaginasAnimadas'
 import PieDePagina from './PieDePagina'
 
 // overflow-x-clip (y no hidden) recorta lo que se sale sin volver este contenedor un
 // scroll: el encabezado sigue pegado arriba. overflow-anchor: none, ver PaginasAnimadas.
 export default function Layout() {
-  // El pensamiento del día es para quien visita, no para el panel.
+  // Los ecos del océano son para quien visita, no para el panel.
   const { pathname } = useLocation()
 
   return (
@@ -24,7 +24,7 @@ export default function Layout() {
         <PaginasAnimadas />
       </LimiteDeErrores>
       <PieDePagina />
-      {!pathname.startsWith('/admin') && <PensamientoDelDia />}
+      {!pathname.startsWith('/admin') && <EcosDelOceano />}
     </div>
   )
 }

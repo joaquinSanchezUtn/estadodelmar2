@@ -1,8 +1,9 @@
-// Qué pensamiento toca hoy. Los pensamientos se recorren en "vueltas": cada vuelta es un orden mezclado de toda la
+// Qué eco del océano toca hoy. Los ecos (los publicados, en el orden de `numero`) se recorren en "vueltas": cada vuelta es un orden mezclado de toda la
 // lista, así que ninguno se repite hasta haber mostrado todos. Cada vuelta se mezcla distinto (la semilla
 // es el número de vuelta), y si el primero de una vuelta coincide con el último de la anterior, se cambian
 // de lugar: tampoco se repite justo en el cambio de vuelta. Todo es determinístico: el mismo día da el
-// mismo pensamiento en cualquier dispositivo, sin guardar nada.
+// mismo eco en cualquier dispositivo, sin guardar nada. Al agregar, ocultar o borrar uno cambia el largo
+// de la lista, y con él la rotación: ese día el eco puede cambiar. Es el precio de no guardar estado.
 const ORIGEN = Date.UTC(2026, 0, 1)
 const DIA_MS = 86_400_000
 
@@ -27,7 +28,7 @@ function ordenDeVuelta(vuelta: number, n: number): number[] {
   return orden
 }
 
-// El número de día según la fecha local de quien mira (a medianoche cambia el pensamiento).
+// El número de día según la fecha local de quien mira (a medianoche cambia el eco).
 export const numeroDeDia = (fecha: Date) => Math.floor((Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()) - ORIGEN) / DIA_MS)
 
 export function indiceDelDia(dia: number, n: number): number {
