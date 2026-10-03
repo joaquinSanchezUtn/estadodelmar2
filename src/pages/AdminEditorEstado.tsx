@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import ConfirmarAccion from '../componentes/admin/ConfirmarAccion'
 import FormularioEstado from '../componentes/admin/FormularioEstado'
-import FotoDeEstado from '../componentes/admin/FotoDeEstado'
+import FotoAdmin from '../componentes/admin/FotoAdmin'
 import MarcoAdmin from '../componentes/admin/MarcoAdmin'
 import { descartarAdmin, useDatosAdmin } from '../componentes/admin/useDatosAdmin'
 import Aviso from '../componentes/base/Aviso'
@@ -10,7 +10,10 @@ import Boton from '../componentes/base/Boton'
 import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
 import Esqueleto from '../componentes/base/Esqueleto'
 import EstadoVacio from '../componentes/base/EstadoVacio'
-import { eliminarEstadoAdmin } from '../datos/estados'
+import { eliminarEstadoAdmin, quitarFotoEstadoAdmin, subirFotoEstadoAdmin } from '../datos/estados'
+import ImagenDeVentana from '../componentes/objetos/ImagenDeVentana'
+import { coloresDe } from '../componentes/objetos/estados/colores'
+import { cn } from '../lib/cn'
 import { urlDeEstado } from '../lib/estados'
 import { useAccion } from '../lib/useAccion'
 
@@ -78,7 +81,20 @@ export default function AdminEditorEstado() {
         <div className="flex flex-col gap-6">
           {aviso && <Aviso tono="info">{aviso}</Aviso>}
           <FormularioEstado key={estado?.id ?? 'nueva'} inicial={estado} onGuardado={guardado} />
-          {estado && <FotoDeEstado estado={estado} onCambio={alCambiar} />}
+          {estado && (
+            <FotoAdmin
+              vista={
+                <span aria-hidden="true" className={cn('relative block aspect-[3/2] w-full max-w-parrafo overflow-hidden rounded-tarjeta', coloresDe(estado.estilo).agua)}>
+                  <ImagenDeVentana estado={estado} vivo="siempre" autonomo />
+                </span>
+              }
+              tieneFoto={!!estado.fotoUrl}
+              sinFoto="el dibujo de su aspecto"
+              subir={(foto) => subirFotoEstadoAdmin(estado.id, foto)}
+              quitar={() => quitarFotoEstadoAdmin(estado.id)}
+              onCambio={alCambiar}
+            />
+          )}
           {estado && (
             <section aria-labelledby="titulo-borrar" className="flex flex-col gap-3 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave">
               <h2 id="titulo-borrar" className="text-titulo-s font-normal">

@@ -55,6 +55,8 @@ export type Tema = {
   publicado: boolean
   orden: number
   piezas: Pieza[]
+  // URL pública de la foto del tema (migración 0016), o null: sin foto se ve el dibujo de su ventana.
+  fotoUrl: string | null
 }
 
 // Premium: solo llega al navegador si la persona tiene acceso activo.

@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { eliminarTemaAdmin } from '../datos/contenido'
+import { eliminarTemaAdmin, quitarFotoTemaAdmin, subirFotoTemaAdmin } from '../datos/contenido'
+import FotoAdmin from '../componentes/admin/FotoAdmin'
+import DibujoEstado from '../componentes/objetos/DibujoEstado'
+import { coloresDe } from '../componentes/objetos/estados/colores'
+import { cn } from '../lib/cn'
 import { useAccion } from '../lib/useAccion'
 import Aviso from '../componentes/base/Aviso'
 import Boton from '../componentes/base/Boton'
@@ -13,7 +17,7 @@ import MarcoAdmin from '../componentes/admin/MarcoAdmin'
 import PiezasDeVentana from '../componentes/admin/PiezasDeVentana'
 import { descartarAdmin, useDatosAdmin } from '../componentes/admin/useDatosAdmin'
 
-// Crear una ventana o editar una existente. En una existente, además, sus piezas y la opción de eliminarla.
+// Crear un tema o editar uno existente. En uno existente, además, su foto, sus piezas y la opción de eliminarlo.
 export default function AdminEditorVentana() {
   const { slug } = useParams()
   const nueva = !slug
@@ -24,6 +28,11 @@ export default function AdminEditorVentana() {
   const [eliminando, setEliminando] = useState(false)
   const baja = useAccion()
   const tema = datos?.temas.find((t) => t.slug === slug)
+  const estilo = datos?.estados.find((e) => e.id === tema?.estadoMar)?.estilo ?? null
+  const alCambiarFoto = (texto: string) => {
+    setAviso(texto)
+    reintentar()
+  }
 
   const guardado = (nuevoSlug: string, eraNueva: boolean) => {
     if (eraNueva || nuevoSlug !== slug) {
@@ -80,6 +89,18 @@ export default function AdminEditorVentana() {
           <FormularioVentana key={tema?.slug ?? 'nueva'} inicial={tema} estados={datos.estados} onGuardado={guardado} />
           {tema && (
             <>
+              <FotoAdmin
+                vista={
+                  <span aria-hidden="true" className={cn('relative block aspect-[3/2] w-full max-w-parrafo overflow-hidden rounded-tarjeta', coloresDe(estilo).agua)}>
+                    {tema.fotoUrl ? <img src={tema.fotoUrl} alt="" className="h-full w-full object-cover" /> : <DibujoEstado estado={estilo} vivo="siempre" autonomo />}
+                  </span>
+                }
+                tieneFoto={!!tema.fotoUrl}
+                sinFoto="el dibujo de su ventana"
+                subir={(foto) => subirFotoTemaAdmin(tema, foto)}
+                quitar={() => quitarFotoTemaAdmin(tema)}
+                onCambio={alCambiarFoto}
+              />
               <PiezasDeVentana tema={tema} />
               <section className="rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
                 <h2 className="mb-2 text-titulo-s font-normal">Eliminar el tema</h2>

@@ -29,7 +29,7 @@ export default function CabeceraTema({ slug, tema, estado }: Props) {
       />
       <div className="relative grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_240px] md:items-center md:gap-10 md:p-10">
         <div aria-hidden="true" className={cn('relative order-first aspect-[3/1] overflow-hidden rounded-burbuja shadow-ventana md:order-last md:aspect-square', coloresDe(estado?.estilo ?? null).agua)}>
-          <ImagenDeVentana estado={estado} vivo="siempre" autonomo />
+          {tema?.fotoUrl ? <img src={tema.fotoUrl} alt="" decoding="async" className="h-full w-full object-cover" /> : <ImagenDeVentana estado={estado} vivo="siempre" autonomo />}
         </div>
 
         <motion.div

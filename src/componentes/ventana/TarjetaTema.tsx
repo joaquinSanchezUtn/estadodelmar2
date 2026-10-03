@@ -10,17 +10,22 @@ const nombres: Record<TipoContenido, string> = { video: 'Video', meditacion: 'Me
 
 type Props = { tema: Tema; estado: EstadoMar | undefined; bloqueada: boolean }
 
-// Un tema como tarjeta: arriba, una ventanita al mar de su estado; abajo, el estado, el título y las piezas
-// que de verdad tiene publicadas (sale de `temas.piezas`, lo público: nunca contenido premium).
+// Un tema como tarjeta: arriba, su foto (o, si no tiene, una ventanita al mar con el dibujo del aspecto de su
+// ventana); abajo, la ventana, el título y las piezas que de verdad tiene publicadas (sale de `temas.piezas`, lo
+// público: nunca contenido premium).
 export default function TarjetaTema({ tema, estado, bloqueada }: Props) {
   const c = coloresDe(estado?.estilo ?? null)
 
   return (
     <Tarjeta to={`/tema/${tema.slug}`} className="flex h-full flex-col overflow-hidden p-0 shadow-suave">
-      <span className={cn('relative flex h-32 items-center justify-center', c.fondo)}>
-        <span aria-hidden="true" className={cn('relative block size-24 overflow-hidden rounded-full border-3 shadow-ojo', c.agua, c.aro)}>
-          <DibujoEstado estado={estado?.estilo ?? null} />
-        </span>
+      <span className={cn('relative flex h-32 items-center justify-center overflow-hidden', c.fondo)}>
+        {tema.fotoUrl ? (
+          <img src={tema.fotoUrl} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <span aria-hidden="true" className={cn('relative block size-24 overflow-hidden rounded-full border-3 shadow-ojo', c.agua, c.aro)}>
+            <DibujoEstado estado={estado?.estilo ?? null} />
+          </span>
+        )}
         {bloqueada && (
           <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-mar-blanco/90 px-3 py-1 text-meta font-bold text-mar-tinta">
             <IconoCandado /> Suscriptoras

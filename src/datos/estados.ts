@@ -5,6 +5,7 @@ import { urlPublica } from '../lib/activos'
 import { supabase } from '../lib/supabase'
 import { esAdmin } from './acceso'
 import { estilos } from './constantes'
+import { borrarArchivoDeFoto, quitarFoto, subirFoto, type DestinoDeFoto } from './fotos'
 import type { DatosDeEstado, EstadoMar, EstadoMarAdmin, EstiloId, ResultadoAdmin } from './tipos'
 
 type FilaEstado = { id: string; nombre: string; estado_interno: string; ensenanza: string; estilo: EstiloId; foto: string | null; orden: number; publicado: boolean }
@@ -23,8 +24,6 @@ const mapEstadoAdmin = (f: FilaEstado): EstadoMarAdmin => ({ ...mapEstado(f), fo
 const NO_ES_ADMIN = { ok: false, mensaje: 'No tenés permiso para hacer esto.' } as const
 const NO_EXISTE = { ok: false, mensaje: 'Esa ventana ya no existe. Recargá la página.' } as const
 const ERROR_GENERICO = { ok: false, mensaje: 'No pudimos guardar. Probá de nuevo en un rato.' } as const
-export const TIPOS_DE_FOTO: Record<string, 'jpg' | 'png' | 'webp'> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
-export const FOTO_MAXIMA_MB = 5
 
 export async function listarEstadosAdmin(): Promise<EstadoMarAdmin[]> {
   if (!(await esAdmin())) return []
@@ -104,36 +103,11 @@ export async function eliminarEstadoAdmin(id: string): Promise<ResultadoAdmin> {
   if (error?.code === '23503') return { ok: false, mensaje: 'Esta ventana tiene temas adentro. Pasalos a otra ventana (desde Temas) antes de borrarla.' }
   if (error) return ERROR_GENERICO
   if (!data) return NO_EXISTE
-  if (data.foto) await supabase.storage.from('publico').remove([data.foto])
+  await borrarArchivoDeFoto(data.foto)
   return { ok: true }
 }
 
-// Sube la foto (ya achicada por `prepararFoto`) con un nombre nuevo, la asocia y recién ahí borra la anterior:
-// si algo falla en el medio, la ventana nunca queda apuntando a un archivo que no existe.
-export async function subirFotoEstadoAdmin(id: string, foto: Blob): Promise<ResultadoAdmin> {
-  if (!(await esAdmin())) return NO_ES_ADMIN
-  const ext = TIPOS_DE_FOTO[foto.type]
-  if (!ext) return { ok: false, mensaje: 'La foto tiene que ser JPG, PNG o WebP.' }
-  if (foto.size > FOTO_MAXIMA_MB * 1024 * 1024) return { ok: false, mensaje: `La foto puede pesar hasta ${FOTO_MAXIMA_MB} MB.` }
-  const { data: actual } = await supabase.from('estados').select('foto').eq('id', id).maybeSingle()
-  const ruta = `ventanas/${id.replace(/_/g, '-')}-${Date.now()}.${ext}`
-  const { error: errorSubida } = await supabase.storage.from('publico').upload(ruta, foto, { contentType: foto.type, upsert: false })
-  if (errorSubida) return { ok: false, mensaje: 'No pudimos subir la foto. Probá de nuevo en un rato.' }
-  const { data, error } = await supabase.from('estados').update({ foto: ruta }).eq('id', id).select('id').maybeSingle()
-  if (error || !data) {
-    await supabase.storage.from('publico').remove([ruta])
-    return error ? ERROR_GENERICO : NO_EXISTE
-  }
-  if (actual?.foto) await supabase.storage.from('publico').remove([actual.foto])
-  return { ok: true }
-}
-
-export async function quitarFotoEstadoAdmin(id: string): Promise<ResultadoAdmin> {
-  if (!(await esAdmin())) return NO_ES_ADMIN
-  const { data: actual } = await supabase.from('estados').select('foto').eq('id', id).maybeSingle()
-  const { data, error } = await supabase.from('estados').update({ foto: null }).eq('id', id).select('id').maybeSingle()
-  if (error) return ERROR_GENERICO
-  if (!data) return NO_EXISTE
-  if (actual?.foto) await supabase.storage.from('publico').remove([actual.foto])
-  return { ok: true }
-}
+// La foto de una ventana va a `ventanas/`, con el id de la ventana en el nombre del archivo.
+const destino = (id: string): DestinoDeFoto => ({ tabla: 'estados', carpeta: 'ventanas', id, nombre: id.replaceAll('_', '-') })
+export const subirFotoEstadoAdmin = (id: string, foto: Blob) => subirFoto(destino(id), foto)
+export const quitarFotoEstadoAdmin = (id: string) => quitarFoto(destino(id))

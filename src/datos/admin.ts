@@ -21,6 +21,7 @@ import { supabase } from '../lib/supabase'
 import { esAdmin } from './acceso'
 import { COLUMNAS_CONTENIDO, COLUMNAS_TEMA, mapContenido, mapTema } from './mapeo'
 import { invocar } from './base'
+import { borrarArchivoDeFoto, quitarFoto, subirFoto, type DestinoDeFoto } from './fotos'
 import type { ArchivoSubido, DatosDeContenido, DatosDeQuienSoy, DatosDeTema, EnfoqueId, MensajeDeContactoAdmin, ResultadoAdmin, TemaAdmin, TipoContenido } from './tipos'
 
 const ENFOQUES: EnfoqueId[] = ['psicologico', 'filosofico', 'transpersonal']
@@ -100,7 +101,7 @@ export async function eliminarTemaAdmin(slug: string): Promise<ResultadoAdmin> {
   // `temas` borra en cascada `contenidos` y, con eso, `archivos_contenido` — si no se guardan estos
   // ids ahora, después de borrar ya no hay forma de encontrarlos para limpiarlos del lado de Bunny (a
   // diferencia de borrar una pieza suelta, acá son varios videos de un saque).
-  const { data: tema, error: errorTema } = await supabase.from('temas').select('id').eq('slug', slug).maybeSingle()
+  const { data: tema, error: errorTema } = await supabase.from('temas').select('id,foto').eq('slug', slug).maybeSingle()
   if (errorTema) return ERROR_GENERICO
   let videoIds: string[] = []
   if (tema) {
@@ -123,8 +124,14 @@ export async function eliminarTemaAdmin(slug: string): Promise<ResultadoAdmin> {
   // deja sin await, cerrar la pestaña justo después de navegar puede cortar el pedido a mitad de
   // camino y dejar los videos huérfanos en Bunny — lo mismo que esta limpieza vino a evitar.
   await Promise.all(videoIds.map((videoId) => invocar('guardar-archivo-bunny', { accion: 'descartar', videoId }).catch(() => undefined)))
+  if (borrada) await borrarArchivoDeFoto(tema?.foto)
   return { ok: true } // borrar algo ya borrado también es un éxito: el resultado deseado ya es cierto
 }
+
+// La foto de un tema (0016) va a `temas/`, con su dirección en el nombre del archivo.
+const destinoDeTema = (tema: { id: string; slug: string }): DestinoDeFoto => ({ tabla: 'temas', carpeta: 'temas', id: tema.id, nombre: tema.slug })
+export const subirFotoTemaAdmin = (tema: { id: string; slug: string }, foto: Blob) => subirFoto(destinoDeTema(tema), foto)
+export const quitarFotoTemaAdmin = (tema: { id: string; slug: string }) => quitarFoto(destinoDeTema(tema))
 
 export async function publicarTemaAdmin(slug: string, publicado: boolean): Promise<ResultadoAdmin> {
   if (!(await esAdmin())) return NO_ES_ADMIN
