@@ -14,7 +14,7 @@ import { eliminarEstadoAdmin } from '../datos/estados'
 import { urlDeEstado } from '../lib/estados'
 import { useAccion } from '../lib/useAccion'
 
-// Crear una ventana o editar una existente: sus datos, su foto y la opción de borrarla (solo si no tiene temas).
+// Crear una ventana o editar una existente: sus datos, su foto y la opción de eliminarla (solo si no tiene temas).
 export default function AdminEditorEstado() {
   const { id } = useParams()
   const nueva = !id
@@ -82,17 +82,17 @@ export default function AdminEditorEstado() {
           {estado && (
             <section aria-labelledby="titulo-borrar" className="flex flex-col gap-3 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave">
               <h2 id="titulo-borrar" className="text-titulo-s font-normal">
-                Borrar la ventana
+                Eliminar la ventana
               </h2>
               {temas > 0 ? (
                 <p className="text-cuerpo text-mar-tintaSuave">
-                  Tiene {temas} {temas === 1 ? 'tema' : 'temas'} adentro. Para borrarla, primero pasalos a otra ventana desde Temas. Si solo querés que deje de verse, ocultala.
+                  Tiene {temas} {temas === 1 ? 'tema' : 'temas'} adentro. Para eliminarla, primero pasalos a otra ventana desde Temas. Si solo querés que deje de verse, desactivala.
                 </p>
               ) : borrando ? (
                 <ConfirmarAccion
-                  titulo={`¿Borrar «${estado.nombre}»?`}
-                  texto="Se borran la ventana y su foto. No se puede deshacer. Si solo querés que deje de verse, ocultala."
-                  confirmar="Sí, borrar la ventana"
+                  titulo={`¿Eliminar «${estado.nombre}»?`}
+                  texto="Se borran la ventana y su foto. No se puede deshacer. Si solo querés que deje de verse, desactivala."
+                  confirmar="Sí, eliminar la ventana"
                   pendiente={baja.pendiente}
                   error={baja.error}
                   onConfirmar={borrar}
@@ -101,7 +101,7 @@ export default function AdminEditorEstado() {
               ) : (
                 <div>
                   <Boton variante="fantasma" onClick={() => setBorrando(true)}>
-                    Borrar la ventana
+                    Eliminar la ventana
                   </Boton>
                 </div>
               )}

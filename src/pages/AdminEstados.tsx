@@ -7,8 +7,8 @@ import Boton from '../componentes/base/Boton'
 import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
 import Esqueleto from '../componentes/base/Esqueleto'
 
-// Las ventanas de "¿Cómo está tu mar hoy?" (tabla `estados`), en el orden de la home: se ordenan acá y se
-// crean, editan, ocultan y borran desde su pantalla.
+// Las ventanas de "¿Cómo está tu mar hoy?" (tabla `estados`), en el orden de la home. Lo mismo que los temas:
+// se crean, ordenan, activan o desactivan, editan y eliminan desde acá.
 export default function AdminEstados() {
   const { datos, cargando, error, reintentar } = useDatosAdmin()
   const [aviso, setAviso] = useState<string | null>(null)

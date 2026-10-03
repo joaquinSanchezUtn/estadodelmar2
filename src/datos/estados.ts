@@ -89,6 +89,14 @@ export async function moverEstadoAdmin(id: string, direccion: 'arriba' | 'abajo'
   return resultados.some((r) => r.error) ? ERROR_GENERICO : { ok: true }
 }
 
+// Activar o desactivar: una desactivada no aparece en el sitio, pero no se pierde (ni sus temas).
+export async function publicarEstadoAdmin(id: string, publicado: boolean): Promise<ResultadoAdmin> {
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data, error } = await supabase.from('estados').update({ publicado }).eq('id', id).select('id').maybeSingle()
+  if (error) return ERROR_GENERICO
+  return data ? { ok: true } : NO_EXISTE
+}
+
 export async function eliminarEstadoAdmin(id: string): Promise<ResultadoAdmin> {
   if (!(await esAdmin())) return NO_ES_ADMIN
   const { data, error } = await supabase.from('estados').delete().eq('id', id).select('foto').maybeSingle()

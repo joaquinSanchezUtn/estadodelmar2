@@ -16,7 +16,7 @@ type Props = { inicial?: EstadoMarAdmin; onGuardado: (id: string, eraNueva: bool
 
 const error = (texto?: string) => texto && <p className="-mt-3 text-meta text-mar-coral">{texto}</p>
 
-// Los datos de una ventana: nombre, qué se vive ahí, su enseñanza, su aspecto y si se ve en el sitio.
+// Los datos de una ventana: nombre, qué se vive ahí, su enseñanza, su aspecto y si está activa en el sitio.
 // La dirección sale del nombre al crearla y después no cambia (la usan los enlaces y los temas).
 export default function FormularioEstado({ inicial, onGuardado }: Props) {
   const [nombre, setNombre] = useState(inicial?.nombre ?? '')
@@ -68,7 +68,7 @@ export default function FormularioEstado({ inicial, onGuardado }: Props) {
       </div>
       <p className="-mt-3 text-meta text-mar-tintaSuave">El color de la tarjeta, y el dibujo que se ve si la ventana no tiene foto.</p>
       {error(errores.estilo)}
-      <Interruptor etiqueta="Visible" ayuda={publicado ? 'Aparece en «¿Cómo está tu mar hoy?».' : 'Oculta: no aparece en el sitio, pero no se pierde.'} activo={publicado} onCambio={setPublicado} />
+      <Interruptor etiqueta="Activa" ayuda={publicado ? 'Aparece en «¿Cómo está tu mar hoy?».' : 'Desactivada: no aparece en el sitio, pero no se pierde.'} activo={publicado} onCambio={setPublicado} />
       {mensaje && <Aviso>{mensaje}</Aviso>}
       <div>
         <Boton type="submit" disabled={pendiente} aria-busy={pendiente}>
