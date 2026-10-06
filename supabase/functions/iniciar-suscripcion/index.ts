@@ -8,7 +8,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
-const SITE_URL = Deno.env.get("SITE_URL") ?? "https://estado-del-mar.vercel.app";
+const SITE_URL = Deno.env.get("SITE_URL") ?? "https://mareainterior.vercel.app";
 // [PRECIO]: sigue sin decidirse (ver CLAUDE.md). Sin fallback a propósito (auditoría de la Tanda de
 // Mercado Pago): si el secreto no está, mejor que falle claro a que cobre un número viejo sin avisar.
 const PRECIO = Deno.env.get("MP_PRECIO_ARS");
