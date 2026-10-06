@@ -8,6 +8,7 @@ import QuienTeAcompana from '../componentes/home/QuienTeAcompana'
 import TemasInicio from '../componentes/home/TemasInicio'
 import Pagina from '../componentes/layout/Pagina'
 import { listarEstados, listarTemas } from '../datos/contenido'
+import { obtenerPortada, portadaInicial } from '../datos/portada'
 import { hayMeditaciones } from '../lib/meditaciones'
 import { useCarga } from '../lib/useCarga'
 
@@ -16,11 +17,14 @@ import { useCarga } from '../lib/useCarga'
 export default function Home() {
   const { datos: estados } = useCarga('estados', listarEstados, true)
   const { datos: temas } = useCarga('temas', listarTemas, true)
+  // Los textos de la portada y de «Cómo funciona» los edita la dueña. Si la lectura falla (o no trae nada), van los de siempre.
+  const { datos: portada, cargando: cargandoPortada } = useCarga('portada', obtenerPortada, true)
+  const textos = portada ?? (cargandoPortada ? null : portadaInicial)
 
   return (
     <Pagina ancho="ancho" className="gap-0 md:gap-0">
-      <Portada />
-      <ComoFunciona />
+      <Portada textos={textos} />
+      {textos && <ComoFunciona textos={textos} />}
       <EstadosDelMar estados={estados} temas={temas} />
       <TemasInicio temas={temas} estados={estados} />
       {hayMeditaciones(temas) && <MeditacionesInicio temas={temas} />}

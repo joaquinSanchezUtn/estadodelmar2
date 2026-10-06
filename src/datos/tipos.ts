@@ -133,3 +133,17 @@ export type QuienSoy = { nombre: string | null; descripcion: string | null; foto
 // Lo que la dueña edita: acá los campos de texto siempre son string (el formulario no distingue
 // "vacío" de "null"; guardarQuienSoyAdmin guarda vacío como null para no ensuciar la base).
 export type DatosDeQuienSoy = { nombre: string; descripcion: string; fotoUrl: string; campos: CampoPerfil[]; publicado: boolean }
+
+// Los textos del principio de la home (migración 0017): la portada y «Cómo funciona». Una sola fila, que la
+// dueña edita desde /admin/portada. Lo opcional viene null cuando está vacío; `pasos` son las tarjetas
+// numeradas de «Cómo funciona», en orden (el número sale de la posición).
+export type Paso = { titulo: string; texto: string }
+export type TextosDePortada = {
+  etiqueta: string | null
+  titulo: string
+  tituloDestacado: string | null
+  texto: string | null
+  comoTitulo: string
+  comoTexto: string | null
+  pasos: Paso[]
+}

@@ -21,6 +21,7 @@ const AdminFrases = lazy(() => import('./pages/AdminFrases'))
 const AdminEstados = lazy(() => import('./pages/AdminEstados'))
 const AdminEditorEstado = lazy(() => import('./pages/AdminEditorEstado'))
 const AdminQuienSoy = lazy(() => import('./pages/AdminQuienSoy'))
+const AdminPortada = lazy(() => import('./pages/AdminPortada'))
 const AdminVentanas = lazy(() => import('./pages/AdminVentanas'))
 const Contacto = lazy(() => import('./pages/Contacto'))
 const CuentaEliminada = lazy(() => import('./pages/CuentaEliminada'))
@@ -69,6 +70,7 @@ export default function Rutas({ location }: { location: Location }) {
         </Route>
         <Route element={<RutaDeAdmin />}>
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/portada" element={<AdminPortada />} />
           <Route path="/admin/quien-soy" element={<AdminQuienSoy />} />
           <Route path="/admin/mensajes" element={<AdminMensajes />} />
           <Route path="/admin/semillas" element={<AdminFrases key="semillas" seccion="semillas" />} />
