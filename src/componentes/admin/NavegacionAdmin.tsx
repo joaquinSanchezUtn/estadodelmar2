@@ -4,6 +4,7 @@ import { cn } from '../../lib/cn'
 const enlaces = [
   { to: '/admin', texto: 'Resumen', fin: true },
   { to: '/admin/portada', texto: 'Portada', fin: false },
+  { to: '/admin/como-funciona', texto: 'Cómo funciona', fin: false },
   { to: '/admin/estados', texto: 'Ventanas', fin: false },
   { to: '/admin/ventanas', texto: 'Temas', fin: false },
   { to: '/admin/quien-soy', texto: 'Quién soy', fin: false },

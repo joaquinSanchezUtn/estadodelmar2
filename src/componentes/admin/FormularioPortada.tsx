@@ -8,12 +8,19 @@ import Boton from '../base/Boton'
 import Campo from '../base/Campo'
 import TarjetasComoFunciona, { idNuevo, type PasoEnEdicion } from './TarjetasComoFunciona'
 
-type Props = { inicial: TextosDePortada; onGuardado: () => void }
+// Qué parte se edita: cada una es su propia sección del panel (Portada y Cómo funciona), aunque las dos viven
+// en la misma fila y se guardan juntas (la otra parte va como estaba).
+export type ParteDePortada = 'portada' | 'como'
+type Props = {
+  parte: ParteDePortada
+  inicial: TextosDePortada
+  onGuardado: () => void
+}
 
 const tarjeta = 'flex flex-col gap-5 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 shadow-suave md:p-8'
 
-// Los textos del principio de la home: la portada y «Cómo funciona». Todo se guarda junto, de un saque.
-export default function FormularioPortada({ inicial, onGuardado }: Props) {
+// Los textos del principio de la home: la portada o «Cómo funciona», según `parte`.
+export default function FormularioPortada({ parte, inicial, onGuardado }: Props) {
   const [etiqueta, setEtiqueta] = useState(inicial.etiqueta ?? '')
   const [titulo, setTitulo] = useState(inicial.titulo)
   const [tituloDestacado, setTituloDestacado] = useState(inicial.tituloDestacado ?? '')
@@ -35,7 +42,10 @@ export default function FormularioPortada({ inicial, onGuardado }: Props) {
         texto,
         comoTitulo,
         comoTexto,
-        pasos: pasos.map(({ titulo: t, texto: x }) => ({ titulo: t, texto: x })),
+        pasos: pasos.map(({ titulo: t, texto: x }) => ({
+          titulo: t,
+          texto: x,
+        })),
       })
       if (r.ok) {
         onGuardado()
@@ -49,40 +59,66 @@ export default function FormularioPortada({ inicial, onGuardado }: Props) {
 
   return (
     <form onSubmit={guardar} noValidate className="flex flex-col gap-6">
-      <section className={tarjeta}>
-        <h2 className="text-titulo-s font-normal">Portada</h2>
-        <p className="text-meta text-mar-tintaSuave">Lo primero que se ve al entrar al sitio. Lo que dejes vacío (salvo el título) no se muestra.</p>
-        <Campo etiqueta="Etiqueta" ayuda="La pastilla chica de arriba del título." value={etiqueta} onChange={(e) => setEtiqueta(e.target.value)} maxLength={60} error={errores.etiqueta} autoComplete="off" />
-        <Campo etiqueta="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} maxLength={80} error={errores.titulo} autoComplete="off" />
-        <Campo
-          etiqueta="Segundo renglón del título"
-          ayuda="Va abajo del título, en azul."
-          value={tituloDestacado}
-          onChange={(e) => setTituloDestacado(e.target.value)}
-          maxLength={80}
-          error={errores.tituloDestacado}
-          autoComplete="off"
-        />
-        <div className="flex flex-col gap-2">
-          <AreaTexto
-            etiqueta="Texto"
-            rows={3}
-            maxLength={400}
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            ayuda={`${texto.length} de 400.`}
-            aria-invalid={errores.texto ? true : undefined}
+      {parte === 'portada' && (
+        <section className={tarjeta}>
+          <h2 className="text-titulo-s font-normal">Portada</h2>
+          <p className="text-meta text-mar-tintaSuave">Lo primero que se ve al entrar al sitio. Lo que dejes vacío (salvo el título) no se muestra.</p>
+          <Campo
+            etiqueta="Etiqueta"
+            ayuda="La pastilla chica de arriba del título."
+            value={etiqueta}
+            onChange={(e) => setEtiqueta(e.target.value)}
+            maxLength={60}
+            error={errores.etiqueta}
+            autoComplete="off"
           />
-          {errores.texto && <p className="text-meta text-mar-coral">{errores.texto}</p>}
-        </div>
-      </section>
+          <Campo etiqueta="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} maxLength={80} error={errores.titulo} autoComplete="off" />
+          <Campo
+            etiqueta="Segundo renglón del título"
+            ayuda="Va abajo del título, en azul."
+            value={tituloDestacado}
+            onChange={(e) => setTituloDestacado(e.target.value)}
+            maxLength={80}
+            error={errores.tituloDestacado}
+            autoComplete="off"
+          />
+          <div className="flex flex-col gap-2">
+            <AreaTexto
+              etiqueta="Texto"
+              rows={3}
+              maxLength={400}
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              ayuda={`${texto.length} de 400.`}
+              aria-invalid={errores.texto ? true : undefined}
+            />
+            {errores.texto && <p className="text-meta text-mar-coral">{errores.texto}</p>}
+          </div>
+        </section>
+      )}
 
-      <section className={tarjeta}>
-        <h2 className="text-titulo-s font-normal">Cómo funciona</h2>
-        <Campo etiqueta="Título" value={comoTitulo} onChange={(e) => setComoTitulo(e.target.value)} maxLength={60} error={errores.comoTitulo} autoComplete="off" />
-        <Campo etiqueta="Subtítulo" value={comoTexto} onChange={(e) => setComoTexto(e.target.value)} maxLength={200} error={errores.comoTexto} autoComplete="off" />
-        <TarjetasComoFunciona pasos={pasos} onCambio={setPasos} error={errores.pasos} />
-      </section>
+      {parte === 'como' && (
+        <section className={tarjeta}>
+          <h2 className="text-titulo-s font-normal">Textos de la sección</h2>
+          <Campo
+            etiqueta="Título"
+            value={comoTitulo}
+            onChange={(e) => setComoTitulo(e.target.value)}
+            maxLength={60}
+            error={errores.comoTitulo}
+            autoComplete="off"
+          />
+          <Campo
+            etiqueta="Subtítulo"
+            value={comoTexto}
+            onChange={(e) => setComoTexto(e.target.value)}
+            maxLength={200}
+            error={errores.comoTexto}
+            autoComplete="off"
+          />
+          <TarjetasComoFunciona pasos={pasos} onCambio={setPasos} error={errores.pasos} />
+        </section>
+      )}
 
       {error && <Aviso>{error}</Aviso>}
       <div>

@@ -70,7 +70,8 @@ export default function Rutas({ location }: { location: Location }) {
         </Route>
         <Route element={<RutaDeAdmin />}>
           <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/portada" element={<AdminPortada />} />
+          <Route path="/admin/portada" element={<AdminPortada key="portada" parte="portada" />} />
+          <Route path="/admin/como-funciona" element={<AdminPortada key="como" parte="como" />} />
           <Route path="/admin/quien-soy" element={<AdminQuienSoy />} />
           <Route path="/admin/mensajes" element={<AdminMensajes />} />
           <Route path="/admin/semillas" element={<AdminFrases key="semillas" seccion="semillas" />} />
