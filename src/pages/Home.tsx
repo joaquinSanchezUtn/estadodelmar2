@@ -1,6 +1,5 @@
 import ComoFunciona from '../componentes/home/ComoFunciona'
 import EstadosDelMar from '../componentes/home/EstadosDelMar'
-import GimnasioDelAlma from '../componentes/home/GimnasioDelAlma'
 import MeditacionesInicio from '../componentes/home/MeditacionesInicio'
 import PlanMensual from '../componentes/home/PlanMensual'
 import Portada from '../componentes/home/Portada'
@@ -25,7 +24,6 @@ export default function Home() {
       <EstadosDelMar estados={estados} temas={temas} />
       <TemasInicio temas={temas} estados={estados} />
       {hayMeditaciones(temas) && <MeditacionesInicio temas={temas} />}
-      <GimnasioDelAlma conMeditaciones={hayMeditaciones(temas)} />
       <QuienTeAcompana />
       <PlanMensual />
       <PreguntasFrecuentes />
