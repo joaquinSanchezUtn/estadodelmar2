@@ -1,12 +1,13 @@
-// Fotos de ventanas y temas (migraciones 0015 y 0016): las dos viven en el bucket público `publico`, cada una
-// en su carpeta, y la fila guarda la ruta en su columna `foto`. Un solo camino para las dos, así las reglas
+// Fotos de ventanas, temas y "Quién soy" (migraciones 0015, 0016 y 0018): viven en el bucket público `publico`,
+// cada una en su carpeta, y la fila guarda la ruta en su columna `foto`. Un solo camino para todas, así las reglas
 // (tipos, tamaño, orden de los pasos) no se separan con el tiempo. La barrera real son las policies
-// `publico_ventanas_admin_*` / `publico_temas_admin_*` y las de cada tabla; `esAdmin()` es un aviso temprano.
+// `publico_ventanas_admin_*` / `publico_temas_admin_*` / `publico_quien_soy_admin_*` y las de cada tabla;
+// `esAdmin()` es un aviso temprano.
 import { supabase } from '../lib/supabase'
 import { esAdmin } from './acceso'
 import type { ResultadoAdmin } from './tipos'
 
-export type DestinoDeFoto = { tabla: 'estados' | 'temas'; carpeta: 'ventanas' | 'temas'; id: string; nombre: string }
+export type DestinoDeFoto = { tabla: 'estados' | 'temas' | 'quien_soy'; carpeta: 'ventanas' | 'temas' | 'quien-soy'; id: string; nombre: string }
 
 export const TIPOS_DE_FOTO: Record<string, 'jpg' | 'png' | 'webp'> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
 export const FOTO_MAXIMA_MB = 5

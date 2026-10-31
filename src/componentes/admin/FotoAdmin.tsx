@@ -17,8 +17,8 @@ type Props = {
   onCambio: (aviso: string) => void
 }
 
-// La foto de una ventana o de un tema: se sube apenas se elige (ya achicada, ver `prepararFoto`), se cambia
-// o se quita.
+// La foto de una ventana, de un tema o de "Quién soy": se sube apenas se elige (ya achicada, ver `prepararFoto`),
+// se cambia o se quita.
 export default function FotoAdmin({ vista, tieneFoto, sinFoto, subir, quitar, onCambio }: Props) {
   const entrada = useRef<HTMLInputElement>(null)
   const accion = useAccion()
@@ -32,7 +32,7 @@ export default function FotoAdmin({ vista, tieneFoto, sinFoto, subir, quitar, on
       if (archivo.size > 30 * 1024 * 1024) return 'Esa foto es demasiado pesada. Probá con una más chica.'
       const r = await subir(await prepararFoto(archivo))
       if (!r.ok) return r.mensaje
-      onCambio('Listo: ya tiene su foto nueva.')
+      onCambio('Listo: ya está la foto nueva.')
       return null
     })
   }
@@ -52,7 +52,7 @@ export default function FotoAdmin({ vista, tieneFoto, sinFoto, subir, quitar, on
       </h2>
       {vista}
       <p className="text-meta text-mar-tintaSuave">
-        JPG, PNG o WebP. Se achica sola antes de subirse (y se le borran los datos de ubicación). En las tarjetas se recorta para llenar el espacio de la imagen. Sin foto se ve {sinFoto}.
+        JPG, PNG o WebP. Se achica sola antes de subirse (y se le borran los datos de ubicación). Se recorta para llenar el espacio de la imagen. Sin foto se ve {sinFoto}.
       </p>
       <input ref={entrada} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" tabIndex={-1} aria-hidden="true" onChange={elegir} />
       {accion.error && <Aviso>{accion.error}</Aviso>}

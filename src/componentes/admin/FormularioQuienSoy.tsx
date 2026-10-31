@@ -18,13 +18,12 @@ const MAXIMO_DESCRIPCION = 2000
 const boton = 'flex size-11 shrink-0 items-center justify-center rounded-full border border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-aguaClara disabled:opacity-40'
 const idNuevo = () => `nuevo-${Math.random().toString(36).slice(2, 10)}`
 
-// Los datos de la dueña: foto, descripción libre y una lista de campos que ella arma como quiera
+// Los datos de la dueña: descripción libre y una lista de campos que ella arma como quiera
 // (agregar, sacar, reordenar). Todo se guarda junto, de un saque: no hay una acción por fila como en
-// las ventanas (acá no hace falta, es una sola tabla con una sola fila).
+// las ventanas (acá no hace falta, es una sola tabla con una sola fila). La foto va aparte (`FotoAdmin`).
 export default function FormularioQuienSoy({ inicial, onGuardado }: Props) {
   const [nombre, setNombre] = useState(inicial.nombre ?? '')
   const [descripcion, setDescripcion] = useState(inicial.descripcion ?? '')
-  const [fotoUrl, setFotoUrl] = useState(inicial.fotoUrl ?? '')
   const [campos, setCampos] = useState<CampoEnEdicion[]>(() => inicial.campos.map((c) => ({ ...c, id: idNuevo() })))
   const [publicado, setPublicado] = useState(inicial.publicado)
   const [errores, setErrores] = useState<Record<string, string>>({})
@@ -46,7 +45,7 @@ export default function FormularioQuienSoy({ inicial, onGuardado }: Props) {
     e.preventDefault()
     setErrores({})
     const ok = await ejecutar(async () => {
-      const r = await guardarQuienSoyAdmin({ nombre, descripcion, fotoUrl, campos: campos.map(({ etiqueta, valor }) => ({ etiqueta, valor })), publicado })
+      const r = await guardarQuienSoyAdmin({ nombre, descripcion, campos: campos.map(({ etiqueta, valor }) => ({ etiqueta, valor })), publicado })
       if (r.ok) {
         onGuardado()
         return null
@@ -62,16 +61,6 @@ export default function FormularioQuienSoy({ inicial, onGuardado }: Props) {
       <h2 className="text-titulo-s font-normal">Tus datos</h2>
 
       <Campo etiqueta="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} error={errores.nombre} autoComplete="off" />
-      <Campo
-        etiqueta="Foto"
-        type="url"
-        placeholder="https://…"
-        value={fotoUrl}
-        onChange={(e) => setFotoUrl(e.target.value)}
-        ayuda="El enlace a una imagen ya subida (por ejemplo, la que te pasó Joaquin)."
-        error={errores.fotoUrl}
-        autoComplete="off"
-      />
       <div className="flex flex-col gap-2">
         <AreaTexto
           etiqueta="Descripción"

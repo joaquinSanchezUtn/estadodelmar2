@@ -3,8 +3,9 @@ import Aviso from '../componentes/base/Aviso'
 import Esqueleto from '../componentes/base/Esqueleto'
 import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
 import FormularioQuienSoy from '../componentes/admin/FormularioQuienSoy'
+import FotoAdmin from '../componentes/admin/FotoAdmin'
 import MarcoAdmin from '../componentes/admin/MarcoAdmin'
-import { obtenerQuienSoy } from '../datos/contenido'
+import { obtenerQuienSoy, quitarFotoQuienSoyAdmin, subirFotoQuienSoyAdmin } from '../datos/contenido'
 import { useCarga } from '../lib/useCarga'
 
 const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Quién soy' }]
@@ -14,6 +15,11 @@ const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Quién soy' }]
 export default function AdminQuienSoy() {
   const { datos, cargando, error, reintentar } = useCarga('admin:quien-soy', obtenerQuienSoy)
   const [aviso, setAviso] = useState<string | null>(null)
+  const iniciales = (datos?.nombre || 'Quién soy').split(' ').map((p) => p[0]).slice(0, 2).join('')
+  const avisar = (texto: string) => {
+    setAviso(texto)
+    reintentar()
+  }
 
   return (
     <MarcoAdmin titulo="Quién soy" migas={migas}>
@@ -27,14 +33,24 @@ export default function AdminQuienSoy() {
       ) : (
         <>
           {aviso && <Aviso tono="info">{aviso}</Aviso>}
-          <FormularioQuienSoy
-            key={JSON.stringify(datos)}
-            inicial={datos}
-            onGuardado={() => {
-              setAviso('Guardamos los cambios.')
-              reintentar()
-            }}
+          <FotoAdmin
+            vista={
+              datos.fotoUrl ? (
+                <img src={datos.fotoUrl} alt="" className="size-40 rounded-burbujaGrande object-cover md:size-56" />
+              ) : (
+                <span aria-hidden="true" className="flex size-40 items-center justify-center rounded-burbujaGrande bg-mar-primarioSuave font-titulo text-titulo-xl text-mar-primario md:size-56">
+                  {iniciales}
+                </span>
+              )
+            }
+            tieneFoto={!!datos.fotoUrl}
+            sinFoto="tus iniciales"
+            subir={subirFotoQuienSoyAdmin}
+            quitar={quitarFotoQuienSoyAdmin}
+            onCambio={avisar}
           />
+          {/* La key no mira la foto: cambiarla no puede borrar lo que se esté escribiendo sin guardar en el formulario. */}
+          <FormularioQuienSoy key={JSON.stringify({ ...datos, fotoUrl: null })} inicial={datos} onGuardado={() => avisar('Guardamos los cambios.')} />
         </>
       )}
     </MarcoAdmin>

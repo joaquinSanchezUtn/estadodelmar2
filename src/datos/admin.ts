@@ -262,10 +262,8 @@ export async function guardarQuienSoyAdmin(d: DatosDeQuienSoy): Promise<Resultad
   const errores: Record<string, string> = {}
   const nombre = d.nombre.trim()
   const descripcion = d.descripcion.trim()
-  const fotoUrl = d.fotoUrl.trim()
   if (nombre.length > 100) errores.nombre = 'El nombre no puede pasar de 100 caracteres.'
   if (descripcion.length > 2000) errores.descripcion = 'La descripción no puede pasar de 2000 caracteres.'
-  if (fotoUrl && (!/^https:\/\//.test(fotoUrl) || fotoUrl.length > 500)) errores.fotoUrl = 'Tiene que ser un enlace que empiece con https://, de hasta 500 caracteres.'
   // Una fila con la etiqueta o el valor en blanco no dice nada: se descarta sola, sin marcarla como error.
   const campos = d.campos.map((c) => ({ etiqueta: c.etiqueta.trim(), valor: c.valor.trim() })).filter((c) => c.etiqueta && c.valor)
   if (campos.length > MAXIMO_CAMPOS) errores.campos = `Hasta ${MAXIMO_CAMPOS} campos.`
@@ -277,13 +275,27 @@ export async function guardarQuienSoyAdmin(d: DatosDeQuienSoy): Promise<Resultad
   if (!fila) return NO_EXISTE
   const { data: actualizado, error } = await supabase
     .from('quien_soy')
-    .update({ nombre: nombre || null, descripcion: descripcion || null, foto_url: fotoUrl || null, campos, publicado: d.publicado })
+    .update({ nombre: nombre || null, descripcion: descripcion || null, campos, publicado: d.publicado })
     .eq('id', fila.id)
     .select('id')
     .maybeSingle()
   if (error) return ERROR_GENERICO
   if (!actualizado) return NO_ES_ADMIN
   return { ok: true }
+}
+
+// La foto de "Quién soy" (0018) va a `quien-soy/` y se guarda aparte del formulario, apenas se elige.
+const destinoDeQuienSoy = async (): Promise<DestinoDeFoto | null> => {
+  const { data } = await supabase.from('quien_soy').select('id').maybeSingle()
+  return data && { tabla: 'quien_soy', carpeta: 'quien-soy', id: data.id, nombre: 'foto' }
+}
+export async function subirFotoQuienSoyAdmin(foto: Blob): Promise<ResultadoAdmin> {
+  const destino = await destinoDeQuienSoy()
+  return destino ? subirFoto(destino, foto) : NO_EXISTE
+}
+export async function quitarFotoQuienSoyAdmin(): Promise<ResultadoAdmin> {
+  const destino = await destinoDeQuienSoy()
+  return destino ? quitarFoto(destino) : NO_EXISTE
 }
 
 // ── Archivos ──────────────────────────────────────────────────────────────────

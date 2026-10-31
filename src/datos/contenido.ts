@@ -8,6 +8,7 @@
 // La suscripción y el pago (Mercado Pago), los archivos de video/audio (Bunny Stream) y el contacto
 // también son reales: cada acción llama a su Edge Function y ninguna decide una transición o firma acá
 // — solo pide y muestra lo que el servidor contestó.
+import { urlPublica } from '../lib/activos'
 import { supabase } from '../lib/supabase'
 import { enfoques as ENFOQUES } from './constantes'
 import { COLUMNAS_ESTADO, mapEstado } from './estados'
@@ -72,13 +73,13 @@ export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
 // `obtenerTema()` — pública si `publicado`, la admin la ve siempre (para poder editarla aunque esté
 // oculta) — así que acá no hace falta ningún chequeo de más.
 export async function obtenerQuienSoy(): Promise<QuienSoy | null> {
-  const { data, error } = await supabase.from('quien_soy').select('nombre,descripcion,foto_url,campos,publicado').maybeSingle()
+  const { data, error } = await supabase.from('quien_soy').select('nombre,descripcion,foto,campos,publicado').maybeSingle()
   if (error) throw error
   if (!data) return null
   return {
     nombre: data.nombre,
     descripcion: data.descripcion,
-    fotoUrl: data.foto_url,
+    fotoUrl: data.foto ? urlPublica(data.foto) : null,
     campos: Array.isArray(data.campos) ? (data.campos as CampoPerfil[]) : [],
     publicado: data.publicado,
   }
