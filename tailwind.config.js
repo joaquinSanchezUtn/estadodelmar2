@@ -36,6 +36,11 @@ export default {
           celeste: '#9FC4E4', // agua decorativa (olas, ilustraciones)
           coral: '#B0523A', // errores y avisos, texto sobre claro
           agua: '#1A62A0', // enlaces
+          // Degradé del título de la portada, de arriba (oscuro) hacia abajo (claro). Única excepción a la regla
+          // de 4.5:1: `tituloClaro` da 3.4:1 sobre `nube`, que alcanza solo porque es texto grande (WCAG pide
+          // 3:1 desde 24px; este título mide 40 o más). No usar estos dos colores en texto más chico.
+          tituloOscuro: '#1A4272', // 9.6:1
+          tituloClaro: '#3E8CCB',
           aguaSuave: '#B7D3EC', // burbujitas e íconos decorativos
         },
         // Cada estado del mar tiene su matiz. Roles: fondo (tarjeta), agua (adentro del ojo de

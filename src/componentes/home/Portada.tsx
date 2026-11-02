@@ -35,12 +35,13 @@ export default function Portada({ textos }: { textos: TextosDePortada | null }) 
             {t.etiqueta}
           </motion.p>
         )}
-        <motion.h1 variants={fundido} className="mb-5 text-titulo-xl">
+        {/* El título va en degradé, del azul oscuro del primer renglón al azul claro del segundo (pedido de Joaquin). */}
+        <motion.h1 variants={fundido} className="mb-5 bg-gradient-to-b from-mar-tituloOscuro to-mar-tituloClaro bg-clip-text text-titulo-xl text-transparent">
           {t.titulo}
           {t.tituloDestacado && (
             <>
               <br />
-              <span className="text-mar-primario">{t.tituloDestacado}</span>
+              {t.tituloDestacado}
             </>
           )}
         </motion.h1>
