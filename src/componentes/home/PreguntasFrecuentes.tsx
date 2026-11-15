@@ -10,7 +10,7 @@ const preguntas = [
   { p: '¿Cómo se paga?', r: 'Con Mercado Pago. El cobro es mensual y automático, y el medio de pago lo cambiás desde Mi cuenta.' },
   {
     p: '¿Qué incluye la suscripción?',
-    r: 'Todos los temas publicados y los que se vayan sumando, cada uno con su video, su meditación guiada y su ejercitación.',
+    r: 'Todos los temas publicados y los que se vayan sumando: videos psicoeducativos, meditaciones guiadas y ejercitaciones.',
   },
   {
     p: '¿Reemplaza una terapia?',

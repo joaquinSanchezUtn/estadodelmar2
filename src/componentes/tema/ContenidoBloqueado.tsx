@@ -10,13 +10,6 @@ import PiezaBloqueada from './PiezaBloqueada'
 
 type Props = { piezas: Pieza[]; estado: EstiloId | null }
 
-// Las tres piezas que trae todo tema (lo dice la home): para un tema que todavía no tiene ninguna publicada.
-const piezasDeCadaTema = [
-  { titulo: 'Video psicoeducativo', texto: 'Para entender qué pasa adentro.' },
-  { titulo: 'Meditación guiada', texto: 'Para volver a la profundidad.' },
-  { titulo: 'Ejercitación', texto: 'Para llevarlo a la vida diaria.' },
-]
-
 const textos = {
   'sin-plan': {
     titulo: 'Este tema es para suscriptoras',
@@ -53,18 +46,11 @@ export default function ContenidoBloqueado({ piezas, estado }: Props) {
           ))}
         </ul>
       ) : (
-        // Un tema publicado sin piezas publicadas todavía: se dice qué va a traer, sin inventar duraciones.
+        // Un tema publicado sin piezas publicadas todavía. No se dice qué va a traer: no todo tema lleva
+        // meditación o ejercitación (esas van en la ventana «Navegando», Joaquin, 2026-11-15).
         <section className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave">
           <h2 className="mb-2 text-titulo-s">Este tema se está preparando</h2>
-          <p className="mb-4 text-cuerpo text-mar-tintaSuave">Cuando esté completo, va a traer:</p>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {piezasDeCadaTema.map((p) => (
-              <li key={p.titulo} className="rounded-tarjeta bg-mar-primarioSuave p-4">
-                <p className="font-titulo text-cuerpo font-bold text-mar-tinta">{p.titulo}</p>
-                <p className="mt-1 text-meta text-mar-tintaSuave">{p.texto}</p>
-              </li>
-            ))}
-          </ul>
+          <p className="text-cuerpo text-mar-tintaSuave">Muy pronto vas a encontrar acá su contenido.</p>
         </section>
       )}
 

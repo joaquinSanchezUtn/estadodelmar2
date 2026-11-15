@@ -21,7 +21,7 @@ export default function MeditacionesInicio({ temas }: { temas: Tema[] | null }) 
 
       {con.length === 0 ? (
         <p className="mx-auto max-w-parrafo rounded-burbuja border border-mar-sobreNoche/20 bg-mar-sobreNoche/5 p-5 text-center text-cuerpo text-mar-sobreNocheSuave">
-          Las meditaciones guiadas se van sumando con cada tema. Muy pronto vas a encontrarlas acá.
+          Las meditaciones guiadas se van sumando. Muy pronto vas a encontrarlas acá.
         </p>
       ) : (
         <ul className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-2 md:mx-0 md:justify-center md:px-0">
