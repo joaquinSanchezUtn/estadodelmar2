@@ -14,11 +14,11 @@ const confianza = ['Cancelás cuando quieras', 'Pago seguro con Mercado Pago', '
 // dueña (/admin/portada); mientras cargan, los de siempre reservan el lugar sin verse (así no salta nada) y
 // el bloque se vuelve a montar con los reales, para que la entrada se anime con ellos.
 // Quien no tiene cuenta no ve un botón principal acá (el encabezado ya tiene «Empezar»): sacado a pedido
-// de Joaquin el 2026-10-06.
+// de Joaquin el 2026-10-06. «Ir a los temas» (para quien tiene el plan) también se sacó, el 2026-11-15.
 export default function Portada({ textos }: { textos: TextosDePortada | null }) {
   const { rol, accesoActivo } = useSesion()
   const t = textos ?? portadaInicial
-  const principal = accesoActivo ? { to: '/ventanas', texto: 'Ir a los temas' } : rol === 'visitante' ? null : { to: '/mi-cuenta', texto: 'Suscribirme' }
+  const principal = accesoActivo || rol === 'visitante' ? null : { to: '/mi-cuenta', texto: 'Suscribirme' }
 
   return (
     <section className="grid items-center gap-8 pb-6 pt-4 md:gap-12 md:pt-10 lg:grid-cols-2">
