@@ -60,7 +60,7 @@ export default function ResumenAdmin({ temas, estados, sinLeer, quienSoy, onCamb
 
         <section className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave md:p-8">
           <h2 className="mb-1 text-titulo-m">Cómo va cada tema</h2>
-          <p className="mb-5 text-cuerpo text-mar-tintaSuave">Cada tema lleva un video, una meditación y una ejercitación.</p>
+          <p className="mb-5 text-cuerpo text-mar-tintaSuave">Las piezas de cada tema y en qué están.</p>
           {temas.length === 0 ? (
             <p className="text-cuerpo text-mar-tintaSuave">Todavía no hay temas.</p>
           ) : (

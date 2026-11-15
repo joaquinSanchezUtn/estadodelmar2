@@ -4,10 +4,10 @@ import type { QuienSoy, TemaAdmin, TipoContenido } from '../../datos/tipos'
 export type Paso = { texto: string; to: string; accion: string; publicar?: { pieza: string } | { tema: string } }
 
 const nombres: Record<TipoContenido, string> = { video: 'el video', meditacion: 'la meditación', ejercitacion: 'la ejercitación' }
-const tipos: TipoContenido[] = ['video', 'meditacion', 'ejercitacion']
 
 // Lo que falta para que el sitio esté completo, en el orden en que conviene hacerlo: primero lo que ya
-// está casi listo (publicar lo que tiene archivo), después lo que falta subir o crear. Cada paso lleva a
+// está casi listo (publicar lo que tiene archivo), después los archivos que faltan subir. Las piezas que un tema
+// no tiene no son un paso: no todo tema lleva meditación o ejercitación. Cada paso lleva a
 // la pantalla exacta donde se resuelve.
 export function proximosPasos(temas: TemaAdmin[], sinLeer: number, quienSoy: QuienSoy | null): Paso[] {
   const pasos: Paso[] = []
@@ -27,9 +27,6 @@ export function proximosPasos(temas: TemaAdmin[], sinLeer: number, quienSoy: Qui
     const base = `/admin/ventanas/${t.slug}`
     for (const c of t.contenidos) {
       if (c.tipo !== 'ejercitacion' && !c.archivo) pasos.push({ texto: `Subir el archivo de ${nombres[c.tipo]} de «${t.titulo}».`, to: `${base}/contenidos/${c.id}`, accion: 'Subir' })
-    }
-    for (const tipo of tipos) {
-      if (!t.contenidos.some((c) => c.tipo === tipo)) pasos.push({ texto: `Agregar ${nombres[tipo]} a «${t.titulo}».`, to: `${base}/contenidos/nuevo?tipo=${tipo}`, accion: 'Agregar' })
     }
   }
 
