@@ -2,15 +2,14 @@ import { NavLink } from 'react-router-dom'
 import { cn } from '../../lib/cn'
 
 const enlaces = [
-  { to: '/admin', texto: 'Resumen', fin: true },
-  { to: '/admin/portada', texto: 'Portada', fin: false },
-  { to: '/admin/como-funciona', texto: 'Cómo funciona', fin: false },
-  { to: '/admin/estados', texto: 'Ventanas', fin: false },
-  { to: '/admin/ventanas', texto: 'Temas', fin: false },
-  { to: '/admin/quien-soy', texto: 'Quién soy', fin: false },
-  { to: '/admin/mensajes', texto: 'Mensajes', fin: false },
-  { to: '/admin/semillas', texto: 'Semillas del mar', fin: false },
-  { to: '/admin/ecos', texto: 'Ecos del océano', fin: false },
+  { to: '/admin/portada', texto: 'Portada' },
+  { to: '/admin/como-funciona', texto: 'Cómo funciona' },
+  { to: '/admin/estados', texto: 'Ventanas' },
+  { to: '/admin/ventanas', texto: 'Temas' },
+  { to: '/admin/quien-soy', texto: 'Quién soy' },
+  { to: '/admin/mensajes', texto: 'Mensajes' },
+  { to: '/admin/semillas', texto: 'Semillas del mar' },
+  { to: '/admin/ecos', texto: 'Ecos del océano' },
 ]
 
 // Las secciones del panel. NavLink marca la activa con aria-current="page".
@@ -21,7 +20,6 @@ export default function NavegacionAdmin() {
         <NavLink
           key={e.to}
           to={e.to}
-          end={e.fin}
           className={({ isActive }) =>
             cn(
               'inline-flex min-h-control-sm items-center rounded-full border px-5 text-cuerpo no-underline transition-colors',

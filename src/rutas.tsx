@@ -13,7 +13,6 @@ import Tema from './pages/Tema'
 // Las pantallas que no son la puerta de entrada se cargan cuando se las visita: el primer JS es más chico.
 // La home, el catálogo, los estados, el tema y Ingresar son parte de la transición de la ventana y del primer
 // recorrido: van directas.
-const Admin = lazy(() => import('./pages/Admin'))
 const AdminEditorContenido = lazy(() => import('./pages/AdminEditorContenido'))
 const AdminEditorVentana = lazy(() => import('./pages/AdminEditorVentana'))
 const AdminMensajes = lazy(() => import('./pages/AdminMensajes'))
@@ -69,7 +68,8 @@ export default function Rutas({ location }: { location: Location }) {
           <Route path="/suscripcion/resultado" element={<SuscripcionResultado />} />
         </Route>
         <Route element={<RutaDeAdmin />}>
-          <Route path="/admin" element={<Admin />} />
+          {/* El resumen del panel se sacó (2026-11-15, Joaquin): todo se edita desde las secciones. */}
+          <Route path="/admin" element={<Navigate to="/admin/portada" replace />} />
           <Route path="/admin/portada" element={<AdminPortada key="portada" parte="portada" />} />
           <Route path="/admin/como-funciona" element={<AdminPortada key="como" parte="como" />} />
           <Route path="/admin/quien-soy" element={<AdminQuienSoy />} />
