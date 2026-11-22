@@ -1,3 +1,4 @@
+import CargaDeOlas from '../base/CargaDeOlas'
 import { reloj } from '../../lib/formato'
 import BotonReproducir from '../base/BotonReproducir'
 import { Expandir, Silenciado, Volumen } from '../base/iconos'
@@ -49,11 +50,7 @@ export default function Controles({ estado, titulo, conPantallaCompleta, onAlter
           <button type="button" onClick={() => onBuscar(actual + 10)} className={chico} aria-label="Adelantar 10 segundos">
             +10 s
           </button>
-          {esperando && (
-            <span role="status" className="ml-2 text-meta text-mar-tintaSuave">
-              Cargando…
-            </span>
-          )}
+          {esperando && <CargaDeOlas tamano="chico" className="ml-2" />}
         </div>
         <div className="flex items-center gap-1">
           <button type="button" onClick={onVelocidad} className={chico} aria-label={`Velocidad ${velocidad}x. Tocá para cambiarla`}>

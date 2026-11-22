@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { iniciarSuscripcion } from '../../datos/contenido'
 import { useAccion } from '../../lib/useAccion'
-import { usePrecio } from '../../lib/usePrecio'
+import { usePlan } from '../../lib/usePrecio'
+import PrecioDelPlan from '../base/PrecioDelPlan'
 import Aviso from '../base/Aviso'
 import Boton from '../base/Boton'
 import ListaIncluye from '../base/ListaIncluye'
@@ -12,7 +13,7 @@ import { irAlPago } from './irAlPago'
 export default function PlanParaSuscribirse() {
   const navegar = useNavigate()
   const { pendiente, error, ejecutar } = useAccion()
-  const precio = usePrecio()
+  const plan = usePlan()
 
   const suscribirme = () =>
     ejecutar(async () => {
@@ -28,8 +29,9 @@ export default function PlanParaSuscribirse() {
 
       <div className="mb-5 rounded-tarjeta border border-mar-bordeAgua bg-mar-arena p-5 text-center">
         <p className="mb-2 text-etiqueta uppercase text-mar-agua">Plan mensual</p>
-        <p className="font-titulo text-titulo-l font-light">{precio}</p>
-        <p className="mt-1 text-meta text-mar-tintaSuave">por mes · se renueva solo · cancelás cuando quieras</p>
+        <PrecioDelPlan plan={plan} tamano="medio" />
+        <p className="mt-1 text-meta text-mar-tintaSuave">Se renueva solo · cancelás cuando quieras</p>
+        {plan.descuento && <p className="mt-1 text-meta text-mar-tintaSuave">El descuento es para quien se suscribe por primera vez.</p>}
       </div>
 
       <ListaIncluye className="mb-6" />

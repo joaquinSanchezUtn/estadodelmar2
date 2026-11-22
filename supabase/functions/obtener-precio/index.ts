@@ -5,13 +5,21 @@
 // Pública a propósito (`auth: "none"`): el precio ya se ve sin sesión, en la portada. La tabla está cerrada al
 // público (solo la admin la lee), así que se lee con service_role y se devuelve solo el número. Si algo falla,
 // no es un error para quien mira: `precioArs: null` y el front muestra el placeholder `[PRECIO]`.
+//
+// Desde la 0022 también el descuento del primer mes, si está prendido: `descuentoPct` y el precio ya rebajado
+// (`primerMesArs`, redondeado a pesos con la misma cuenta que usa `iniciar-suscripcion` para cobrar).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 export default {
   fetch: withSupabase({ auth: "none" }, async (_req, ctx) => {
-    const { data, error } = await ctx.supabaseAdmin.from("plan").select("precio_ars").maybeSingle();
+    const { data, error } = await ctx.supabaseAdmin.from("plan").select("precio_ars, descuento_pct").maybeSingle();
     if (error) console.error("[obtener-precio] lectura de plan", error);
-    return Response.json({ precioArs: data?.precio_ars ?? null });
+    const pct = data?.descuento_pct ?? null;
+    return Response.json({
+      precioArs: data?.precio_ars ?? null,
+      descuentoPct: data && pct ? pct : null,
+      primerMesArs: data && pct ? Math.round((data.precio_ars * (100 - pct)) / 100) : null,
+    });
   }),
 };

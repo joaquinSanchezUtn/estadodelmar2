@@ -2,9 +2,10 @@
 // existen en Mercado Pago, desde su próximo cobro (decisión de Joaquin, 2026-11-22: «todas, también las
 // actuales»). Solo la admin.
 //
-//   { accion: "consultar" }                      → { ok, precioArs, suscriptas }
+//   { accion: "consultar" }                      → { ok, precioArs, descuentoPct, suscriptas }
 //   { accion: "cambiar", precioArs: 12000 }      → { ok, precioArs, actualizadas, fallidas }
 //   { accion: "reaplicar" }                      → lo mismo, con el precio que ya está en la tabla
+//   { accion: "descuento", descuentoPct: 20 }    → prende o cambia el descuento del primer mes (null lo apaga)
 //
 // El orden importa: primero la base (así toda suscripción NUEVA ya sale con el precio nuevo, aunque Mercado
 // Pago falle a mitad de camino), después cada preapproval. Si alguna falla, se informa cuántas, y «reaplicar»
@@ -63,13 +64,13 @@ async function actualizar(preapprovalId: string, precio: number): Promise<boolea
 
 // Lo que se lee de la base en cada pasada: el precio vigente y las suscripciones que pueden volver a cobrar.
 // deno-lint-ignore no-explicit-any
-async function leer(admin: any): Promise<{ precio: number; subs: { preapproval_id: string; estado: string }[] } | null> {
+async function leer(admin: any): Promise<{ precio: number; descuentoPct: number | null; subs: { preapproval_id: string; estado: string; descuento_pendiente: boolean }[] } | null> {
   const [{ data: plan, error: e1 }, { data: subs, error: e2 }] = await Promise.all([
-    admin.from("plan").select("precio_ars").maybeSingle(),
-    admin.from("suscripciones").select("preapproval_id, estado").in("estado", CON_COBRO_POSIBLE).not("user_id", "is", null).not("preapproval_id", "is", null),
+    admin.from("plan").select("precio_ars, descuento_pct").maybeSingle(),
+    admin.from("suscripciones").select("preapproval_id, estado, descuento_pendiente").in("estado", CON_COBRO_POSIBLE).not("user_id", "is", null).not("preapproval_id", "is", null),
   ]);
   if (e1 || e2 || !plan) return null;
-  return { precio: plan.precio_ars, subs };
+  return { precio: plan.precio_ars, descuentoPct: plan.descuento_pct, subs };
 }
 
 // Lleva todas las suscripciones al precio de la tabla. Vuelve a leer al terminar cada pasada, porque mientras
@@ -85,7 +86,9 @@ async function aplicar(admin: any): Promise<{ precio: number; actualizadas: numb
     const datos = await leer(admin);
     if (!datos) return null;
     precio = datos.precio;
-    const faltan = datos.subs.map((s) => s.preapproval_id).filter((id) => hechas.get(id) !== precio);
+    // Las que todavía esperan su primer cobro con descuento (0022) no se tocan: el webhook las pasa al precio
+    // normal que haya cuando llegue ese cobro.
+    const faltan = datos.subs.filter((s) => !s.descuento_pendiente).map((s) => s.preapproval_id).filter((id) => hechas.get(id) !== precio);
     if (faltan.length === 0) break;
     fallidas = new Set([...fallidas].filter((id) => !faltan.includes(id)));
     // De a cinco por vez: rápido sin pisarle el límite de pedidos a Mercado Pago.
@@ -115,7 +118,7 @@ export default {
     if (accion === "consultar") {
       const datos = await leer(ctx.supabaseAdmin);
       if (!datos) return error("No pudimos leer el precio. Probá de nuevo en un rato.", 500);
-      return Response.json({ ok: true, precioArs: datos.precio, suscriptas: datos.subs.filter((s) => SUSCRIPTAS.includes(s.estado)).length });
+      return Response.json({ ok: true, precioArs: datos.precio, descuentoPct: datos.descuentoPct, suscriptas: datos.subs.filter((s) => SUSCRIPTAS.includes(s.estado)).length });
     }
 
     if (accion === "cambiar") {
@@ -132,6 +135,17 @@ export default {
         console.error("[cambiar-precio] update plan", errorUpdate);
         return error("No pudimos guardar el precio. Probá de nuevo en un rato.", 500);
       }
+    } else if (accion === "descuento") {
+      // Prender, cambiar o apagar el descuento del primer mes (0022). Solo afecta a quien se suscriba de acá en
+      // adelante: no hay nada que aplicar en Mercado Pago.
+      const pct = cuerpo?.descuentoPct === null ? null : Number(cuerpo?.descuentoPct);
+      if (pct !== null && (!Number.isInteger(pct) || pct < 1 || pct > 90)) return error("El descuento va de 1 % a 90 %.");
+      const { data: guardado, error: errorDescuento } = await ctx.supabaseAdmin.from("plan").update({ descuento_pct: pct, actualizado_en: new Date().toISOString() }).not("id", "is", null).select("precio_ars, descuento_pct");
+      if (errorDescuento || !guardado?.length) {
+        console.error("[cambiar-precio] update descuento", errorDescuento);
+        return error("No pudimos guardar el descuento. Probá de nuevo en un rato.", 500);
+      }
+      return Response.json({ ok: true, precioArs: guardado[0].precio_ars, descuentoPct: guardado[0].descuento_pct, actualizadas: 0, fallidas: 0 });
     } else if (accion !== "reaplicar") {
       // «reaplicar» (el botón «Reintentar») no manda ningún número: usa el que esté en la tabla, así un reintento
       // viejo nunca pisa un cambio de precio posterior.

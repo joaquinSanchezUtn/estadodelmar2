@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes, type Location } from 'react-router-dom'
 import RutaDeAdmin from './auth/RutaDeAdmin'
 import RutaConSesion from './auth/RutaConSesion'
+import CargaDeOlas from './componentes/base/CargaDeOlas'
 import CatalogoVentanas from './pages/CatalogoVentanas'
 import Home from './pages/Home'
 import Ingresar from './pages/Ingresar'
@@ -45,7 +46,7 @@ function FallaDeDesarrollo(): never {
 // Recibe `location` para que la página que sale conserve su ruta mientras se desvanece.
 export default function Rutas({ location }: { location: Location }) {
   return (
-    <Suspense fallback={<p role="status" className="p-6 text-cuerpo text-mar-tintaSuave">Cargando…</p>}>
+    <Suspense fallback={<CargaDeOlas />}>
       <Routes location={location}>
         <Route path="/" element={<Home />} />
         <Route path="/ventanas" element={<CatalogoVentanas />} />

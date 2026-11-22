@@ -1,3 +1,4 @@
+import CargaDeOlas from '../componentes/base/CargaDeOlas'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useSesion } from './SesionContext'
 
@@ -9,7 +10,7 @@ export default function RutaConSesion() {
 
   const { pathname, search } = useLocation()
 
-  if (cargando) return <p role="status" className="p-6 text-mar-tintaSuave">Cargando…</p>
+  if (cargando) return <CargaDeOlas />
   if (enRecuperacion) return <Navigate to="/nueva-contrasena" replace />
   if (!usuario) return <Navigate to="/ingresar" replace state={{ desde: pathname + search }} />
   return <Outlet />

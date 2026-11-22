@@ -1,7 +1,8 @@
 import { useSesion } from '../../auth/SesionContext'
 import { obtenerSuscripcion } from '../../datos/contenido'
 import { useCarga } from '../../lib/useCarga'
-import { usePrecio } from '../../lib/usePrecio'
+import { usePlan } from '../../lib/usePrecio'
+import PrecioDelPlan from '../base/PrecioDelPlan'
 import type { EstiloId, Pieza } from '../../datos/tipos'
 import Boton from '../base/Boton'
 import Burbuja from '../base/Burbuja'
@@ -34,7 +35,7 @@ export default function ContenidoBloqueado({ piezas, estado }: Props) {
   const { datos: suscripcion } = useCarga(`suscripcion:${usuario?.email ?? 'anonimo'}:${rol}`, async () =>
     usuario ? obtenerSuscripcion() : null,
   )
-  const precio = usePrecio()
+  const plan = usePlan()
   const motivo = suscripcion?.estado === 'vencida' ? 'vencida' : suscripcion?.estado === 'pendiente' ? 'pendiente' : 'sin-plan'
 
   return (
@@ -59,9 +60,7 @@ export default function ContenidoBloqueado({ piezas, estado }: Props) {
         <p className="mx-auto mb-5 max-w-angosto text-cuerpo text-mar-tintaSuave">{textos[motivo].texto}</p>
         {motivo === 'sin-plan' && (
           <div className="mx-auto mb-6 flex max-w-angosto flex-col items-center gap-4">
-            <p className="font-titulo text-titulo-m text-mar-tinta">
-              {precio} <span className="font-sans text-meta text-mar-tintaSuave">por mes</span>
-            </p>
+            <PrecioDelPlan plan={plan} tamano="medio" />
             <ListaIncluye />
           </div>
         )}

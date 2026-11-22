@@ -244,7 +244,7 @@ async function procesarCobro(supabaseAdmin: any, cobroId: string) {
     throw new Error(`authorized_payments sin preapproval_id o status reconocible: ${cobroId}`);
   }
 
-  const { data: fila } = await supabaseAdmin.from("suscripciones").select("id, estado").eq("preapproval_id", preapprovalId).maybeSingle();
+  const { data: fila } = await supabaseAdmin.from("suscripciones").select("id, estado, descuento_pendiente").eq("preapproval_id", preapprovalId).maybeSingle();
   if (!fila) throw new Error(`cobro sin fila en suscripciones: ${preapprovalId}`);
 
   if (["approved", "accredited"].includes(estado)) {
@@ -273,6 +273,36 @@ async function procesarCobro(supabaseAdmin: any, cobroId: string) {
     }
     const { error: errorCobro } = await supabaseAdmin.from("suscripciones").update(datos).eq("id", fila.id).eq("estado", fila.estado).select("id");
     if (errorCobro) throw new Error(`update suscripciones por cobro (${preapprovalId}): ${errorCobro.message}`);
+
+    // Descuento del primer mes (0022): este fue el primer cobro, el rebajado; desde el próximo, el precio normal.
+    // Va DESPUÉS de registrar el cobro (así quien pagó nunca pierde el acceso porque Mercado Pago rechace el
+    // cambio de monto) y en tres pasos: PUT, apagar la marca, y volver a mirar el precio por si la dueña lo
+    // cambió en el medio (`cambiar-precio` saltea las filas marcadas). Cualquier falla tira el error y Mercado
+    // Pago reintenta el aviso; repetir todo esto no hace daño.
+    if (fila.descuento_pendiente) {
+      const leerPrecio = async () => {
+        const { data: plan, error: errorPlan } = await supabaseAdmin.from("plan").select("precio_ars").maybeSingle();
+        if (errorPlan || !plan) throw new Error(`lectura de plan para quitar el descuento (${preapprovalId})`);
+        return plan.precio_ars as number;
+      };
+      const precio = await leerPrecio();
+      if (preapproval.auto_recurring?.transaction_amount !== precio) {
+        const put = await fetch(`https://api.mercadopago.com/preapproval/${encodeURIComponent(preapprovalId)}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${ACCESS_TOKEN}` },
+          body: JSON.stringify({ auto_recurring: { transaction_amount: precio, currency_id: "ARS" } }),
+        });
+        if (!put.ok) throw new Error(`PUT /preapproval/${preapprovalId} (quitar descuento) → ${put.status}: ${await put.text()}`);
+      }
+      const { error: errorMarca } = await supabaseAdmin.from("suscripciones").update({ descuento_pendiente: false }).eq("id", fila.id);
+      if (errorMarca) throw new Error(`apagar descuento_pendiente (${preapprovalId}): ${errorMarca.message}`);
+      if ((await leerPrecio()) !== precio) {
+        // Cambió el precio mientras tanto: volver a prender la marca y pedir el reintento, que hará el PUT con
+        // el precio nuevo.
+        await supabaseAdmin.from("suscripciones").update({ descuento_pendiente: true }).eq("id", fila.id);
+        throw new Error(`el precio cambió mientras se quitaba el descuento (${preapprovalId})`);
+      }
+    }
   } else if (["rejected", "cancelled"].includes(estado) && fila.estado === "activa") {
     const { error: errorRebote } = await supabaseAdmin
       .from("suscripciones")

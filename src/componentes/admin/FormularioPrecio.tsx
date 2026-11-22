@@ -74,7 +74,15 @@ export default function FormularioPrecio({ actual, onCambiado }: Props) {
 
   return (
     <form onSubmit={revisar} noValidate className="flex flex-col gap-5 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave md:p-8">
-      <h2 className="text-titulo-m">Cambiar el precio</h2>
+      <div className="flex items-start gap-4">
+        <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-full bg-mar-aguaClara text-titulo-s">
+          💲
+        </span>
+        <div>
+          <h2 className="text-titulo-m">Cambiar el precio</h2>
+          <p className="text-cuerpo text-mar-tintaSuave">Vale para las nuevas y para las que ya están suscriptas, desde su próximo cobro.</p>
+        </div>
+      </div>
       <Campo
         etiqueta="Precio nuevo por mes, en pesos"
         inputMode="numeric"

@@ -96,6 +96,11 @@ export const derivar = (seg: number, distancia: number): TargetAndTransition => 
   x: [0, distancia],
   transition: { duration: seg, repeat: Infinity, repeatType: 'loop', ease: 'linear' },
 })
+// La ola de `CargaDeOlas`: el dibujo mide dos veces el ancho y se corre la mitad, así el bucle no se nota.
+export const olaDeCarga = (seg: number): TargetAndTransition => ({
+  x: ['0%', '-50%'],
+  transition: { duration: seg, repeat: Infinity, repeatType: 'loop', ease: 'linear' },
+})
 // Olas SVG: 24 segundos; dos capas a velocidades distintas dan profundidad.
 export const marea = (seg = 24, distancia = -200) => derivar(seg, distancia)
 

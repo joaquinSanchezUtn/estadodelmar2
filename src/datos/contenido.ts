@@ -33,9 +33,12 @@ export function listarEnfoques(): Enfoque[] {
 // un número aparte que alguien tenga que acordarse de mantener igual. `null` mientras el secreto no
 // esté cargado (ver CLAUDE.md, "Pendientes de decisión"): ahí `usePrecio()` deja el placeholder
 // `[PRECIO]`.
-export async function obtenerPrecio(): Promise<number | null> {
-  const r = await invocar<{ precioArs: number | null }>('obtener-precio')
-  return r.precioArs
+// El precio del plan y, si la dueña lo prendió, el descuento del primer mes (0022): `primerMesArs` ya viene
+// redondeado con la misma cuenta con la que cobra `iniciar-suscripcion`.
+export type PlanPublico = { precioArs: number | null; descuentoPct: number | null; primerMesArs: number | null }
+export async function obtenerPlan(): Promise<PlanPublico> {
+  const r = await invocar<Partial<PlanPublico>>('obtener-precio')
+  return { precioArs: r.precioArs ?? null, descuentoPct: r.descuentoPct ?? null, primerMesArs: r.primerMesArs ?? null }
 }
 
 // Catálogo público: solo temas publicados. El filtro va en la consulta (no alcanza con la RLS): una

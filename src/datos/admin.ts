@@ -407,13 +407,13 @@ export async function marcarMensajeAdmin(id: string, leido: boolean): Promise<Re
 
 // El precio vive en la tabla `plan` (0021) y solo lo escribe `cambiar-precio`, que además se lo aplica a las
 // suscripciones que ya existen en Mercado Pago. `suscriptas` es a cuántas les llegaría el cambio.
-export type EstadoDelPrecio = { precioArs: number; suscriptas: number }
+export type EstadoDelPrecio = { precioArs: number; descuentoPct: number | null; suscriptas: number }
 export type CambioDePrecio = { ok: true; precioArs: number; actualizadas: number; fallidas: number } | { ok: false; mensaje: string }
 
 export async function consultarPrecioAdmin(): Promise<EstadoDelPrecio> {
   const r = await invocar<({ ok: true } & EstadoDelPrecio) | { ok: false; mensaje: string }>('cambiar-precio', { accion: 'consultar' })
   if (!r.ok) throw new Error(r.mensaje)
-  return { precioArs: r.precioArs, suscriptas: r.suscriptas }
+  return { precioArs: r.precioArs, descuentoPct: r.descuentoPct ?? null, suscriptas: r.suscriptas }
 }
 
 export async function cambiarPrecioAdmin(precioArs: number): Promise<CambioDePrecio> {
@@ -426,4 +426,11 @@ export async function cambiarPrecioAdmin(precioArs: number): Promise<CambioDePre
 export async function reaplicarPrecioAdmin(): Promise<CambioDePrecio> {
   if (!(await esAdmin())) return NO_ES_ADMIN
   return invocar<CambioDePrecio>('cambiar-precio', { accion: 'reaplicar' }).catch(() => ERROR_GENERICO)
+}
+
+// Prende, cambia o apaga (null) el descuento del primer mes (0022). Solo vale para quien se suscriba por primera
+// vez de acá en adelante.
+export async function cambiarDescuentoAdmin(descuentoPct: number | null): Promise<CambioDePrecio> {
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  return invocar<CambioDePrecio>('cambiar-precio', { accion: 'descuento', descuentoPct }).catch(() => ERROR_GENERICO)
 }
