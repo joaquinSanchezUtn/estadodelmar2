@@ -9,9 +9,6 @@ import { withSupabase } from "jsr:@supabase/server@1.9.0";
 
 const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://mareainterior.vercel.app";
-// [PRECIO]: sigue sin decidirse (ver CLAUDE.md). Sin fallback a propósito (auditoría de la Tanda de
-// Mercado Pago): si el secreto no está, mejor que falle claro a que cobre un número viejo sin avisar.
-const PRECIO = Deno.env.get("MP_PRECIO_ARS");
 
 const error = (mensaje: string, status = 500) => Response.json({ ok: false, mensaje }, { status });
 // Solo puede haber una fila "viva" por persona a la vez (índice único, migración 0006).
@@ -29,8 +26,8 @@ function esSesionDeRecuperacion(claims: Record<string, unknown>): boolean {
 
 export default {
   fetch: withSupabase({ auth: "user" }, async (_req, ctx) => {
-    if (!ACCESS_TOKEN || !PRECIO) {
-      console.error("[iniciar-suscripcion] falta MP_ACCESS_TOKEN o MP_PRECIO_ARS");
+    if (!ACCESS_TOKEN) {
+      console.error("[iniciar-suscripcion] falta MP_ACCESS_TOKEN");
       return error("No pudimos iniciar la suscripción. Probá de nuevo en un rato.");
     }
     if (esSesionDeRecuperacion(ctx.userClaims!)) {
@@ -51,6 +48,14 @@ export default {
     if (errorLectura) return error("No pudimos hacerlo ahora. Probá de nuevo en un rato.");
     if (existente) return error("Ya tenés una suscripción en curso.", 409);
 
+    // El precio sale de la tabla `plan` (0021, lo edita la dueña). Sin fallback a propósito (auditoría de la
+    // Tanda de Mercado Pago): si no se puede leer, mejor que falle claro a que cobre un número inventado.
+    const { data: plan, error: errorPlan } = await ctx.supabaseAdmin.from("plan").select("precio_ars").maybeSingle();
+    if (errorPlan || !plan) {
+      console.error("[iniciar-suscripcion] lectura de plan", errorPlan);
+      return error("No pudimos iniciar la suscripción. Probá de nuevo en un rato.");
+    }
+
     const resp = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${ACCESS_TOKEN}` },
@@ -59,7 +64,7 @@ export default {
         external_reference: userId,
         payer_email: email,
         back_url: `${SITE_URL}/suscripcion/resultado`,
-        auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: Number(PRECIO), currency_id: "ARS" },
+        auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: plan.precio_ars, currency_id: "ARS" },
       }),
     });
     if (!resp.ok) {

@@ -65,11 +65,17 @@ export default {
     if (!actualizada?.length) return error("No pudimos hacerlo ahora. Probá de nuevo en un rato.");
 
     // La pausó `cancelar-suscripcion` (status "paused"), nunca "cancelled": por eso esto puede volver
-    // a "authorized". Ver el comentario de esa función.
-    const resp = await fetch(`https://api.mercadopago.com/preapproval/${sub.preapproval_id}`, {
+    // a "authorized". Ver el comentario de esa función. Va con el precio vigente (tabla `plan`, 0021): si el
+    // cambio de precio no pudo alcanzar a esta suscripción mientras estaba pausada, se corrige acá. Si el precio
+    // no se puede leer, se reactiva igual con el monto que ya tenía (mejor que dejarla sin acceso).
+    const { data: plan } = await ctx.supabaseAdmin.from("plan").select("precio_ars").maybeSingle();
+    const cambios = plan
+      ? { status: "authorized", auto_recurring: { transaction_amount: plan.precio_ars, currency_id: "ARS" } }
+      : { status: "authorized" };
+    const resp = await fetch(`https://api.mercadopago.com/preapproval/${encodeURIComponent(sub.preapproval_id)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${ACCESS_TOKEN}` },
-      body: JSON.stringify({ status: "authorized" }),
+      body: JSON.stringify(cambios),
     });
     if (!resp.ok) {
       console.error("[reactivar-suscripcion] MP respondió", resp.status, await resp.text());

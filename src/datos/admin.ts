@@ -402,3 +402,28 @@ export async function marcarMensajeAdmin(id: string, leido: boolean): Promise<Re
   if (!data) return NO_EXISTE
   return { ok: true }
 }
+
+// ── Precio del plan ───────────────────────────────────────────────────────────
+
+// El precio vive en la tabla `plan` (0021) y solo lo escribe `cambiar-precio`, que además se lo aplica a las
+// suscripciones que ya existen en Mercado Pago. `suscriptas` es a cuántas les llegaría el cambio.
+export type EstadoDelPrecio = { precioArs: number; suscriptas: number }
+export type CambioDePrecio = { ok: true; precioArs: number; actualizadas: number; fallidas: number } | { ok: false; mensaje: string }
+
+export async function consultarPrecioAdmin(): Promise<EstadoDelPrecio> {
+  const r = await invocar<({ ok: true } & EstadoDelPrecio) | { ok: false; mensaje: string }>('cambiar-precio', { accion: 'consultar' })
+  if (!r.ok) throw new Error(r.mensaje)
+  return { precioArs: r.precioArs, suscriptas: r.suscriptas }
+}
+
+export async function cambiarPrecioAdmin(precioArs: number): Promise<CambioDePrecio> {
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  return invocar<CambioDePrecio>('cambiar-precio', { accion: 'cambiar', precioArs }).catch(() => ERROR_GENERICO)
+}
+
+// «Reintentar» después de un fallo de Mercado Pago: vuelve a aplicar el precio que está guardado (no manda
+// ningún número, así un reintento viejo no pisa un cambio posterior).
+export async function reaplicarPrecioAdmin(): Promise<CambioDePrecio> {
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  return invocar<CambioDePrecio>('cambiar-precio', { accion: 'reaplicar' }).catch(() => ERROR_GENERICO)
+}

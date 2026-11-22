@@ -1,7 +1,7 @@
 import type { TipoContenido } from '../../datos/tipos'
 
 // Cómo se organiza el panel (rediseño del 2026-11-22, pedido de Joaquin: la dueña tiene 65 años y el panel
-// de ocho secciones sueltas era difícil de entender). Cuatro puertas grandes en el inicio; las que juntan
+// de ocho secciones sueltas era difícil de entender). Cinco puertas grandes en el inicio (la del precio, el mismo día); las que juntan
 // varias pantallas («Textos de la página», «Frases del día») abren una página con un botón grande por cada
 // una. `rutas` dice qué direcciones marcan cada sección como la activa en el menú.
 export type Puerta = { to: string; titulo: string; texto: string; icono: string }
@@ -39,7 +39,15 @@ export const mensajes: Seccion = {
   rutas: ['/admin/mensajes'],
 }
 
-export const secciones = [ventanasYTemas, textos, frases, mensajes]
+export const precio: Seccion = {
+  to: '/admin/precio',
+  titulo: 'Precio de la suscripción',
+  texto: 'Cuánto se paga por mes. Lo podés cambiar cuando quieras.',
+  icono: '💲',
+  rutas: ['/admin/precio'],
+}
+
+export const secciones = [ventanasYTemas, textos, frases, mensajes, precio]
 
 // Lo que hay adentro de cada sección que junta varias pantallas.
 export const puertasDe: Record<'textos' | 'frases', { titulo: string; texto: string; puertas: Puerta[] }> = {

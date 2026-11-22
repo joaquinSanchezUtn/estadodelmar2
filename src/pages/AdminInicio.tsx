@@ -31,9 +31,6 @@ export default function AdminInicio({ que }: Props) {
     <MarcoAdmin titulo={nombre ? `Hola, ${nombre}` : 'Hola'}>
       <p className="text-destacado text-mar-tintaSuave">¿Qué querés hacer hoy? Tocá una de las opciones.</p>
       <PuertasDelPanel puertas={puertas} />
-      <p className="text-cuerpo text-mar-tintaSuave">
-        Nada de lo que hagas acá se rompe: lo que ocultes se puede volver a mostrar, y antes de borrar algo siempre te vamos a preguntar.
-      </p>
     </MarcoAdmin>
   )
 }

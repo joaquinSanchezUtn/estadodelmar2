@@ -22,6 +22,7 @@ const AdminEditorEstado = lazy(() => import('./pages/AdminEditorEstado'))
 const AdminQuienSoy = lazy(() => import('./pages/AdminQuienSoy'))
 const AdminPortada = lazy(() => import('./pages/AdminPortada'))
 const AdminInicio = lazy(() => import('./pages/AdminInicio'))
+const AdminPrecio = lazy(() => import('./pages/AdminPrecio'))
 const AdminVentana = lazy(() => import('./pages/AdminVentana'))
 const Contacto = lazy(() => import('./pages/Contacto'))
 const CuentaEliminada = lazy(() => import('./pages/CuentaEliminada'))
@@ -77,6 +78,7 @@ export default function Rutas({ location }: { location: Location }) {
           <Route path="/admin/como-funciona" element={<AdminPortada key="como" parte="como" />} />
           <Route path="/admin/quien-soy" element={<AdminQuienSoy />} />
           <Route path="/admin/mensajes" element={<AdminMensajes />} />
+          <Route path="/admin/precio" element={<AdminPrecio />} />
           <Route path="/admin/semillas" element={<AdminFrases key="semillas" seccion="semillas" />} />
           <Route path="/admin/ecos" element={<AdminFrases key="ecos" seccion="ecos" />} />
           <Route path="/admin/estados" element={<AdminEstados />} />
