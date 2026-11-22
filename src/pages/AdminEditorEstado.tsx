@@ -14,10 +14,10 @@ import { eliminarEstadoAdmin, quitarFotoEstadoAdmin, subirFotoEstadoAdmin } from
 import ImagenDeVentana from '../componentes/objetos/ImagenDeVentana'
 import { coloresDe } from '../componentes/objetos/estados/colores'
 import { cn } from '../lib/cn'
-import { urlDeEstado } from '../lib/estados'
 import { useAccion } from '../lib/useAccion'
 
-// Crear una ventana o editar una existente: sus datos, su foto y la opción de eliminarla (solo si no tiene temas).
+// Crear una ventana o cambiar una existente («Cambiar esta ventana»): sus textos, si se ve, su foto y la opción de
+// eliminarla (solo si no tiene temas). Sus temas están un paso antes, en `AdminVentana`.
 export default function AdminEditorEstado() {
   const { id } = useParams()
   const nueva = !id
@@ -36,7 +36,7 @@ export default function AdminEditorEstado() {
   }
   const guardado = (nuevoId: string, eraNueva: boolean) => {
     descartarAdmin()
-    if (eraNueva) navegar(`/admin/estados/${nuevoId}`, { state: { aviso: 'Creaste la ventana. Si querés, subile una foto.' } })
+    if (eraNueva) navegar(`/admin/estados/${nuevoId}`, { state: { aviso: 'Listo, creaste la ventana. Ahora podés agregarle temas. La foto se sube desde «Cambiar esta ventana».' } })
     else setAviso('Guardamos los cambios.')
   }
   const borrar = () =>
@@ -48,7 +48,9 @@ export default function AdminEditorEstado() {
       return null
     })
 
-  const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Ventanas', to: '/admin/estados' }, { texto: nueva ? 'Nueva' : (estado?.nombre ?? '…') }]
+  const migas = nueva
+    ? [{ texto: 'Panel', to: '/admin' }, { texto: 'Ventanas y temas', to: '/admin/estados' }, { texto: 'Nueva ventana' }]
+    : [{ texto: 'Panel', to: '/admin' }, { texto: 'Ventanas y temas', to: '/admin/estados' }, { texto: estado?.nombre ?? '…', to: `/admin/estados/${id}` }, { texto: 'Cambiar' }]
 
   if (!nueva && !cargando && !error && datos && !estado) {
     return (
@@ -60,15 +62,8 @@ export default function AdminEditorEstado() {
 
   return (
     <MarcoAdmin
-      titulo={nueva ? 'Nueva ventana' : (estado?.nombre ?? 'Ventana')}
+      titulo={nueva ? 'Nueva ventana' : `Cambiar «${estado?.nombre ?? 'la ventana'}»`}
       migas={migas}
-      acciones={
-        estado?.publicado && (
-          <Boton compacto variante="secundario" to={urlDeEstado(estado.id)}>
-            Ver en el sitio
-          </Boton>
-        )
-      }
     >
       {error ? (
         <ErrorDeCarga texto="No pudimos leer la ventana." onReintentar={reintentar} />
@@ -102,12 +97,12 @@ export default function AdminEditorEstado() {
               </h2>
               {temas > 0 ? (
                 <p className="text-cuerpo text-mar-tintaSuave">
-                  Tiene {temas} {temas === 1 ? 'tema' : 'temas'} adentro. Para eliminarla, primero pasalos a otra ventana desde Temas. Si solo querés que deje de verse, desactivala.
+                  Tiene {temas} {temas === 1 ? 'tema' : 'temas'} adentro. Para eliminarla, primero pasalos a otra ventana (en cada tema, «Más opciones»). Si solo querés que deje de verse, apagá «Mostrar en el sitio».
                 </p>
               ) : borrando ? (
                 <ConfirmarAccion
                   titulo={`¿Eliminar «${estado.nombre}»?`}
-                  texto="Se borran la ventana y su foto. No se puede deshacer. Si solo querés que deje de verse, desactivala."
+                  texto="Se borran la ventana y su foto. No se puede deshacer. Si solo querés que deje de verse, apagá «Mostrar en el sitio»."
                   confirmar="Sí, eliminar la ventana"
                   pendiente={baja.pendiente}
                   error={baja.error}

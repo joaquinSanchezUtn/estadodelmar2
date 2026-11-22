@@ -38,7 +38,7 @@ export async function listarTemasAdmin(): Promise<TemaAdmin[]> {
   if (!(await esAdmin())) return []
   const [{ data: temas, error: e1 }, { data: contenidos, error: e2 }, { data: archivos, error: e3 }] = await Promise.all([
     supabase.from('temas').select(COLUMNAS_TEMA).order('orden'),
-    supabase.from('contenidos').select(COLUMNAS_CONTENIDO).order('orden'),
+    supabase.from('contenidos').select(COLUMNAS_CONTENIDO).order('orden').order('created_at'),
     supabase.from('archivos_contenido').select('contenido_id, nombre, bytes'),
   ])
   if (e1 || e2 || e3) throw e1 ?? e2 ?? e3
@@ -141,11 +141,14 @@ export async function publicarTemaAdmin(slug: string, publicado: boolean): Promi
   return { ok: true }
 }
 
-// Sube o baja una ventana en el orden del catálogo: intercambia el lugar con la vecina.
+// Sube o baja un tema dentro de su ventana: intercambia el lugar con el vecino de la misma ventana (desde el
+// 2026-11-22 el panel muestra los temas adentro de cada ventana, y ese es el orden que se ve en su página).
 export async function moverTemaAdmin(slug: string, direccion: 'arriba' | 'abajo'): Promise<ResultadoAdmin> {
   if (!(await esAdmin())) return NO_ES_ADMIN
-  const { data: temas, error: errorLista } = await supabase.from('temas').select('id,slug,orden').order('orden')
+  const { data: todos, error: errorLista } = await supabase.from('temas').select('id,slug,orden,estado_mar').order('orden')
   if (errorLista) return ERROR_GENERICO
+  const ventana = todos.find((t) => t.slug === slug)?.estado_mar
+  const temas = todos.filter((t) => t.estado_mar === ventana)
   const i = temas.findIndex((t) => t.slug === slug)
   if (i < 0) return NO_EXISTE
   const j = direccion === 'arriba' ? i - 1 : i + 1
@@ -189,7 +192,6 @@ export async function guardarContenidoAdmin(
     const cuerpo = (d.cuerpo ?? '').trim()
     if (cuerpo.length < 10 || cuerpo.length > 5000) errores.cuerpo = 'La consigna tiene que tener entre 10 y 5000 caracteres.'
   }
-  if (!existente && contenidos.some((c) => c.tipo === d.tipo)) errores.tipo = 'Este tema ya tiene una pieza de ese tipo.'
   if (Object.keys(errores).length) return { ok: false, mensaje: 'Revisá los campos marcados.', errores }
 
   const datos = { titulo, duracion_min: d.duracionMin, cuerpo: d.tipo === 'ejercitacion' ? (d.cuerpo ?? '').trim() : null, publicado: d.publicado }
@@ -215,11 +217,34 @@ export async function guardarContenidoAdmin(
   } else if (id && archivo && archivo !== 'quitar') {
     const r = await invocar<ResultadoAdmin>('guardar-archivo-bunny', { contenidoId: id, accion: 'guardar', videoId: archivo.token, nombre: archivo.nombre, bytes: archivo.bytes })
     // Con `id` aunque falle: una pieza nueva ya quedó creada, y el formulario tiene que reintentar sobre
-    // ella en vez de crear otra (si no, rebota con "ya tiene una pieza de ese tipo").
+    // ella en vez de crear otra (si no, el tema quedaría con la pieza repetida).
     if (!r.ok) return { ...r, id }
   }
   // `temas.piezas` (la vista pública bloqueada) la recalcula sola un trigger en la base al guardar.
   return { ok: true, id }
+}
+
+// Sube o baja una pieza dentro de su tema (desde la 0020 un tema puede tener varias del mismo tipo, y se
+// muestran en este orden): intercambia el lugar con la vecina, igual que `moverTemaAdmin`.
+export async function moverContenidoAdmin(contenidoId: string, direccion: 'arriba' | 'abajo'): Promise<ResultadoAdmin> {
+  if (!(await esAdmin())) return NO_ES_ADMIN
+  const { data: pieza, error: errorPieza } = await supabase.from('contenidos').select('tema_id').eq('id', contenidoId).maybeSingle()
+  if (errorPieza) return ERROR_GENERICO
+  if (!pieza) return NO_EXISTE
+  const { data: piezas, error: errorLista } = await supabase.from('contenidos').select('id,orden').eq('tema_id', pieza.tema_id).order('orden').order('created_at')
+  if (errorLista) return ERROR_GENERICO
+  const i = piezas.findIndex((c) => c.id === contenidoId)
+  const j = direccion === 'arriba' ? i - 1 : i + 1
+  if (i < 0) return NO_EXISTE
+  if (j < 0 || j >= piezas.length) return { ok: true }
+  // Las piezas viejas pueden tener el mismo `orden` (una por tipo no lo necesitaba): se renumeran todas en el
+  // orden en que se ven, con las dos ya intercambiadas, así el cambio siempre se nota.
+  const nuevas = piezas.map((c) => c.id)
+  ;[nuevas[i], nuevas[j]] = [nuevas[j], nuevas[i]]
+  const resultados = await Promise.all(nuevas.map((id, k) => supabase.from('contenidos').update({ orden: k + 1 }).eq('id', id).select('id').maybeSingle()))
+  if (resultados.some((r) => r.error)) return ERROR_GENERICO
+  if (resultados.some((r) => !r.data)) return NO_EXISTE
+  return { ok: true }
 }
 
 export async function eliminarContenidoAdmin(contenidoId: string): Promise<ResultadoAdmin> {

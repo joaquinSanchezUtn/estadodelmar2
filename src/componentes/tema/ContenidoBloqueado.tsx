@@ -41,8 +41,8 @@ export default function ContenidoBloqueado({ piezas, estado }: Props) {
     <div className="flex flex-col gap-4 md:gap-5">
       {piezas.length > 0 ? (
         <ul className="flex flex-col gap-4">
-          {piezas.map((pieza) => (
-            <PiezaBloqueada key={pieza.tipo} pieza={pieza} estado={estado} />
+          {piezas.map((pieza, i) => (
+            <PiezaBloqueada key={i} pieza={pieza} estado={estado} />
           ))}
         </ul>
       ) : (

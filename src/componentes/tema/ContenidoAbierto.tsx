@@ -3,13 +3,9 @@ import EjercitacionContenido from './EjercitacionContenido'
 import MeditacionContenido from './MeditacionContenido'
 import VideoContenido from './VideoContenido'
 
-// Vista con acceso: muestra lo que efectivamente llegó.
+// Vista con acceso: todas las piezas que llegaron, en el orden que eligió la dueña (desde la 0020 un tema
+// puede tener varios videos, meditaciones o ejercitaciones; ya vienen ordenadas por `orden`).
 export default function ContenidoAbierto({ contenidos }: { contenidos: Contenido[] }) {
-  const de = (tipo: Contenido['tipo']) => contenidos.find((c) => c.tipo === tipo)
-  const video = de('video')
-  const meditacion = de('meditacion')
-  const ejercitacion = de('ejercitacion')
-
   if (contenidos.length === 0) {
     return (
       <p className="rounded-burbuja border border-dashed border-mar-bordeAgua bg-mar-blanco/60 p-5 text-cuerpo text-mar-tintaSuave">
@@ -20,9 +16,15 @@ export default function ContenidoAbierto({ contenidos }: { contenidos: Contenido
 
   return (
     <div className="flex flex-col gap-4">
-      {video && <VideoContenido contenido={video} />}
-      {meditacion && <MeditacionContenido contenido={meditacion} />}
-      {ejercitacion && <EjercitacionContenido contenido={ejercitacion} />}
+      {contenidos.map((c) =>
+        c.tipo === 'video' ? (
+          <VideoContenido key={c.id} contenido={c} />
+        ) : c.tipo === 'meditacion' ? (
+          <MeditacionContenido key={c.id} contenido={c} />
+        ) : (
+          <EjercitacionContenido key={c.id} contenido={c} />
+        ),
+      )}
     </div>
   )
 }

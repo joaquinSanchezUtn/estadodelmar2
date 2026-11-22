@@ -1,25 +1,21 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { eliminarEstadoAdmin, moverEstadoAdmin, publicarEstadoAdmin } from '../../datos/estados'
+import { moverEstadoAdmin } from '../../datos/estados'
 import type { EstadoMarAdmin, ResultadoAdmin } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
 import { useAccion } from '../../lib/useAccion'
 import Aviso from '../base/Aviso'
 import Boton from '../base/Boton'
-import { Abajo, Arriba } from '../base/iconos'
 import Sello from '../base/Sello'
 import ImagenDeVentana from '../objetos/ImagenDeVentana'
 import { coloresDe } from '../objetos/estados/colores'
-import ConfirmarAccion from './ConfirmarAccion'
+import BotonesDeOrden from './BotonesDeOrden'
 
 type Props = { estado: EstadoMarAdmin; temas: number; posicion: number; total: number; onCambio: (aviso: string) => void }
 
-const icono = 'flex size-11 items-center justify-center rounded-full border border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-aguaClara disabled:opacity-40'
-
-// Una ventana en la lista del panel, con lo mismo que un tema: subir y bajar, activar o desactivar, editar y
-// eliminar (esto último solo sin temas adentro: la base no lo deja).
+// Una ventana en la lista del panel: su foto, su nombre, cuántos temas tiene y si se ve en el sitio. Tocarla
+// abre sus temas. Mostrar, ocultar, cambiar los textos o la foto y eliminar están adentro, en «Cambiar esta
+// ventana»: acá solo se abre y se ordena, para que la lista no se llene de botones.
 export default function FilaEstado({ estado, temas, posicion, total, onCambio }: Props) {
-  const [confirmando, setConfirmando] = useState(false)
   const accion = useAccion()
   const correr = (hacer: () => Promise<ResultadoAdmin>, aviso: string) =>
     accion.ejecutar(async () => {
@@ -28,69 +24,31 @@ export default function FilaEstado({ estado, temas, posicion, total, onCambio }:
       onCambio(aviso)
       return null
     })
+  const abrir = `/admin/estados/${estado.id}`
 
   return (
-    <li className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-4 shadow-suave">
+    <li className="rounded-burbuja border-2 border-mar-bordeAgua bg-mar-blanco p-4 shadow-suave md:p-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
-        <span aria-hidden="true" className={cn('relative block h-16 w-24 shrink-0 overflow-hidden rounded-tarjeta', coloresDe(estado.estilo).agua)}>
+        <Link to={abrir} tabIndex={-1} aria-hidden="true" className={cn('relative block h-28 w-full shrink-0 overflow-hidden rounded-tarjeta md:h-24 md:w-36', coloresDe(estado.estilo).agua)}>
           <span className="absolute inset-0">
             <ImagenDeVentana estado={estado} />
           </span>
-        </span>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <div className="flex flex-wrap items-center gap-3">
-            <Link to={`/admin/estados/${estado.id}`} className="inline-flex min-h-control-sm items-center font-titulo text-titulo-s text-mar-tinta no-underline hover:underline">
-              {estado.nombre}
-            </Link>
-            <Sello tono={estado.publicado ? 'agua' : 'coral'}>{estado.publicado ? 'Activa' : 'Desactivada'}</Sello>
+        </Link>
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <Link to={abrir} className="font-titulo text-titulo-m text-mar-tinta no-underline hover:underline">
+            {estado.nombre}
+          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Sello tono="neutro">{temas === 0 ? 'Todavía sin temas' : `${temas} ${temas === 1 ? 'tema' : 'temas'}`}</Sello>
+            <Sello tono={estado.publicado ? 'agua' : 'coral'}>{estado.publicado ? 'Se ve en el sitio' : 'Oculta'}</Sello>
           </div>
-          <p className="text-meta text-mar-tintaSuave">
-            {temas === 0 ? 'Sin temas' : `${temas} ${temas === 1 ? 'tema' : 'temas'}`}
-            {estado.fotoUrl ? ' · con foto' : ' · sin foto'}
-          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" className={icono} disabled={accion.pendiente || posicion === 0} aria-label={`Subir «${estado.nombre}» (hoy es la ${posicion + 1} de ${total})`} onClick={() => correr(() => moverEstadoAdmin(estado.id, 'arriba'), `«${estado.nombre}» subió al puesto ${posicion}.`)}>
-            <Arriba />
-          </button>
-          <button type="button" className={icono} disabled={accion.pendiente || posicion === total - 1} aria-label={`Bajar «${estado.nombre}» (hoy es la ${posicion + 1} de ${total})`} onClick={() => correr(() => moverEstadoAdmin(estado.id, 'abajo'), `«${estado.nombre}» bajó al puesto ${posicion + 2}.`)}>
-            <Abajo />
-          </button>
-          <Boton compacto variante="secundario" disabled={accion.pendiente} onClick={() => correr(() => publicarEstadoAdmin(estado.id, !estado.publicado), estado.publicado ? `Desactivaste «${estado.nombre}»: ya no aparece en el sitio.` : `«${estado.nombre}» ya está activa en el sitio.`)}>
-            {estado.publicado ? 'Desactivar' : 'Activar'}
-          </Boton>
-          <Boton compacto to={`/admin/estados/${estado.id}`}>
-            Editar
-          </Boton>
-          <Boton compacto variante="fantasma" onClick={() => setConfirmando(true)} aria-expanded={confirmando}>
-            Eliminar
-          </Boton>
+          <BotonesDeOrden nombre={estado.nombre} posicion={posicion} total={total} pendiente={accion.pendiente} mover={(d) => moverEstadoAdmin(estado.id, d)} correr={correr} />
+          <Boton to={abrir}>Abrir</Boton>
         </div>
       </div>
-
-      {accion.error && !confirmando && <Aviso className="mt-4">{accion.error}</Aviso>}
-      {confirmando && (
-        <div className="mt-4">
-          {temas > 0 ? (
-            <Aviso>
-              «{estado.nombre}» tiene {temas} {temas === 1 ? 'tema' : 'temas'} adentro. Para eliminarla, primero pasalos a otra ventana desde Temas. Si solo querés que deje de verse, desactivala.{' '}
-              <button type="button" className="font-bold underline" onClick={() => setConfirmando(false)}>
-                Entendido
-              </button>
-            </Aviso>
-          ) : (
-            <ConfirmarAccion
-              titulo={`¿Eliminar «${estado.nombre}»?`}
-              texto="Se borran la ventana y su foto. No se puede deshacer. Si solo querés que deje de verse, desactivala."
-              confirmar="Sí, eliminar la ventana"
-              pendiente={accion.pendiente}
-              error={accion.error}
-              onConfirmar={() => correr(() => eliminarEstadoAdmin(estado.id), `Eliminaste «${estado.nombre}».`)}
-              onCancelar={() => setConfirmando(false)}
-            />
-          )}
-        </div>
-      )}
+      {accion.error && <Aviso className="mt-4">{accion.error}</Aviso>}
     </li>
   )
 }

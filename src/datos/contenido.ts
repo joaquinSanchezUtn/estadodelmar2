@@ -64,7 +64,7 @@ export async function obtenerTema(slug: string): Promise<TemaVisible | null> {
 
   if (!(await tengoAcceso())) return { ...tema, acceso: 'bloqueado' }
 
-  const { data: filas, error: errorContenidos } = await supabase.from('contenidos').select(COLUMNAS_CONTENIDO).eq('tema_id', tema.id).order('orden')
+  const { data: filas, error: errorContenidos } = await supabase.from('contenidos').select(COLUMNAS_CONTENIDO).eq('tema_id', tema.id).order('orden').order('created_at')
   if (errorContenidos) throw errorContenidos
   return { ...tema, acceso: 'abierto', contenidos: filas.map(mapContenido) }
 }

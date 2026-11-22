@@ -1,35 +1,34 @@
-import { NavLink } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { cn } from '../../lib/cn'
+import { secciones } from './seccionesDelPanel'
 
-const enlaces = [
-  { to: '/admin/portada', texto: 'Portada' },
-  { to: '/admin/como-funciona', texto: 'Cómo funciona' },
-  { to: '/admin/estados', texto: 'Ventanas' },
-  { to: '/admin/ventanas', texto: 'Temas' },
-  { to: '/admin/quien-soy', texto: 'Quién soy' },
-  { to: '/admin/mensajes', texto: 'Mensajes' },
-  { to: '/admin/semillas', texto: 'Semillas del mar' },
-  { to: '/admin/ecos', texto: 'Ecos del océano' },
-]
+const inicio = { to: '/admin', titulo: 'Inicio', icono: '⌂', rutas: [] as string[] }
 
-// Las secciones del panel. NavLink marca la activa con aria-current="page".
+// Las secciones del panel: Inicio y las cuatro puertas. Una sección queda marcada también cuando se está en
+// una pantalla de adentro (por ejemplo, un tema marca «Ventanas y temas»).
 export default function NavegacionAdmin() {
+  const { pathname } = useLocation()
+  const activa = (rutas: string[], to: string) => (rutas.length ? rutas.some((r) => pathname === r || pathname.startsWith(`${r}/`)) : pathname === to)
+
   return (
     <nav aria-label="Panel de administración" className="flex flex-wrap gap-2">
-      {enlaces.map((e) => (
-        <NavLink
-          key={e.to}
-          to={e.to}
-          className={({ isActive }) =>
-            cn(
-              'inline-flex min-h-control-sm items-center rounded-full border px-5 text-cuerpo no-underline transition-colors',
-              isActive ? 'border-mar-primario bg-mar-primarioSuave font-bold text-mar-primario' : 'border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-primarioSuave',
-            )
-          }
-        >
-          {e.texto}
-        </NavLink>
-      ))}
+      {[inicio, ...secciones].map((s) => {
+        const marcada = activa(s.rutas, s.to)
+        return (
+          <Link
+            key={s.to}
+            to={s.to}
+            aria-current={marcada ? 'page' : undefined}
+            className={cn(
+              'inline-flex min-h-control items-center gap-2 rounded-full border px-5 text-destacado no-underline transition-colors',
+              marcada ? 'border-mar-primario bg-mar-primarioSuave font-bold text-mar-primario' : 'border-mar-bordeControl bg-mar-blanco text-mar-tinta hover:bg-mar-primarioSuave',
+            )}
+          >
+            <span aria-hidden="true">{s.icono}</span>
+            {s.titulo}
+          </Link>
+        )
+      })}
     </nav>
   )
 }

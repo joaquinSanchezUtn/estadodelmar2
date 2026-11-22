@@ -25,7 +25,7 @@ export default function AdminFrases({ seccion }: { seccion: SeccionDeFrases }) {
   const enRotacion = datos?.filter((f) => f.publicado).length ?? 0
 
   return (
-    <MarcoAdmin titulo={c.titulo} migas={[{ texto: 'Panel', to: '/admin' }, { texto: c.titulo }]}>
+    <MarcoAdmin titulo={c.titulo} migas={[{ texto: 'Panel', to: '/admin' }, { texto: 'Frases del día', to: '/admin/frases' }, { texto: c.titulo }]}>
       <div className="flex flex-col gap-6">
         <p className="max-w-parrafo text-cuerpo text-mar-tintaSuave">
           Cada día el sitio muestra {g(c, 'una', 'uno')} en la pestaña del costado {c.lado}, sin repetir hasta pasar por {g(c, 'todas', 'todos')}.{' '}

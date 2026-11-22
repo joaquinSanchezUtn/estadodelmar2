@@ -8,7 +8,7 @@ import MarcoAdmin from '../componentes/admin/MarcoAdmin'
 import { obtenerQuienSoy, quitarFotoQuienSoyAdmin, subirFotoQuienSoyAdmin } from '../datos/contenido'
 import { useCarga } from '../lib/useCarga'
 
-const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Quién soy' }]
+const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Textos de la página', to: '/admin/textos' }, { texto: 'Quién soy' }]
 
 // Los datos de la dueña que se ven en /quien-soy. A diferencia de las ventanas, es una sola pantalla:
 // no hay lista, se edita directo.

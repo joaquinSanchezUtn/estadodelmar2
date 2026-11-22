@@ -13,13 +13,13 @@ import LogoDelSitio from './LogoDelSitio'
 import MenuCuenta from './MenuCuenta'
 import MenuMovil, { type Enlace } from './MenuMovil'
 
-// El mismo recorrido para todos: por dónde empezar, los temas, las meditaciones y quién acompaña. Es solo
-// navegación: el acceso real a cada pantalla lo decide la base. Quien tiene cuenta encuentra lo suyo en el
-// menú del ícono (MenuCuenta). "Meditaciones" aparece recién cuando hay alguna publicada: un enlace a una
-// sección vacía promete algo que todavía no está.
+// El mismo recorrido para todos: por dónde empezar, las meditaciones y quién acompaña. Es solo navegación:
+// el acceso real a cada pantalla lo decide la base. Quien tiene cuenta encuentra lo suyo en el menú del
+// ícono (MenuCuenta). "Meditaciones" aparece recién cuando hay alguna publicada: un enlace a una sección
+// vacía promete algo que todavía no está. "Temas" no va (desde el 2026-11-22, pedido de Joaquin): a los
+// temas se entra solo por las ventanas.
 const recorridoPara = (conMeditaciones: boolean): Enlace[] => [
   { to: '/#estados', texto: 'Cómo estás hoy' },
-  { to: '/ventanas', texto: 'Temas' },
   ...(conMeditaciones ? [{ to: '/#meditaciones', texto: 'Meditaciones' }] : []),
   { to: '/quien-soy', texto: 'Quién soy' },
 ]

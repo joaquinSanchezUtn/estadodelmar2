@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom'
 import type { Tema } from '../../datos/tipos'
 import { minutos } from '../../lib/formato'
 
-// La franja nocturna: las meditaciones publicadas (una por tema, sale de `temas.piezas`, lo público) en
+// La franja nocturna: las meditaciones publicadas (un tema puede tener varias; sale de `temas.piezas`, lo público) en
 // una fila que se desliza de costado. Es el único fondo oscuro del sitio, a propósito: la noche invita a
 // bajar el ritmo. Mientras no haya ninguna publicada, lo dice en vez de mostrar tarjetas vacías.
 export default function MeditacionesInicio({ temas }: { temas: Tema[] | null }) {
-  const con = temas?.flatMap((t) => t.piezas.filter((p) => p.tipo === 'meditacion').map((p) => ({ tema: t, duracion: p.duracionMin }))) ?? []
+  const con = temas?.flatMap((t) => t.piezas.filter((p) => p.tipo === 'meditacion').map((p, i) => ({ tema: t, duracion: p.duracionMin, clave: `${t.id}-${i}` }))) ?? []
 
   return (
     <section id="meditaciones" className="relative my-6 scroll-mt-24 overflow-hidden rounded-burbujaGrande bg-gradient-to-b from-mar-noche to-mar-nocheProfunda px-5 py-10 text-mar-sobreNoche md:my-10 md:px-10 md:py-12">
@@ -25,8 +25,8 @@ export default function MeditacionesInicio({ temas }: { temas: Tema[] | null }) 
         </p>
       ) : (
         <ul className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-2 md:mx-0 md:justify-center md:px-0">
-          {con.map(({ tema, duracion }) => (
-            <li key={tema.id} className="w-64 shrink-0">
+          {con.map(({ tema, duracion, clave }) => (
+            <li key={clave} className="w-64 shrink-0">
               <Link to={`/tema/${tema.slug}`} className="flex h-full flex-col gap-3 rounded-burbuja border border-mar-sobreNoche/15 bg-mar-sobreNoche/5 p-5 text-mar-sobreNoche no-underline transition-colors hover:bg-mar-sobreNoche/10">
                 <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-mar-sobreNoche">
                   <span className="ml-1 border-y-4 border-l-8 border-y-transparent border-l-mar-noche" />

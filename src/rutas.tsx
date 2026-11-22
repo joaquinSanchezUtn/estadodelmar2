@@ -21,7 +21,8 @@ const AdminEstados = lazy(() => import('./pages/AdminEstados'))
 const AdminEditorEstado = lazy(() => import('./pages/AdminEditorEstado'))
 const AdminQuienSoy = lazy(() => import('./pages/AdminQuienSoy'))
 const AdminPortada = lazy(() => import('./pages/AdminPortada'))
-const AdminVentanas = lazy(() => import('./pages/AdminVentanas'))
+const AdminInicio = lazy(() => import('./pages/AdminInicio'))
+const AdminVentana = lazy(() => import('./pages/AdminVentana'))
 const Contacto = lazy(() => import('./pages/Contacto'))
 const CuentaEliminada = lazy(() => import('./pages/CuentaEliminada'))
 const MiCuenta = lazy(() => import('./pages/MiCuenta'))
@@ -69,7 +70,9 @@ export default function Rutas({ location }: { location: Location }) {
         </Route>
         <Route element={<RutaDeAdmin />}>
           {/* El resumen del panel se sacó (2026-11-15, Joaquin): todo se edita desde las secciones. */}
-          <Route path="/admin" element={<Navigate to="/admin/portada" replace />} />
+          <Route path="/admin" element={<AdminInicio key="inicio" que="inicio" />} />
+          <Route path="/admin/textos" element={<AdminInicio key="textos" que="textos" />} />
+          <Route path="/admin/frases" element={<AdminInicio key="frases" que="frases" />} />
           <Route path="/admin/portada" element={<AdminPortada key="portada" parte="portada" />} />
           <Route path="/admin/como-funciona" element={<AdminPortada key="como" parte="como" />} />
           <Route path="/admin/quien-soy" element={<AdminQuienSoy />} />
@@ -78,8 +81,9 @@ export default function Rutas({ location }: { location: Location }) {
           <Route path="/admin/ecos" element={<AdminFrases key="ecos" seccion="ecos" />} />
           <Route path="/admin/estados" element={<AdminEstados />} />
           <Route path="/admin/estados/nueva" element={<AdminEditorEstado />} />
-          <Route path="/admin/estados/:id" element={<AdminEditorEstado />} />
-          <Route path="/admin/ventanas" element={<AdminVentanas />} />
+          <Route path="/admin/estados/:id" element={<AdminVentana />} />
+          <Route path="/admin/estados/:id/editar" element={<AdminEditorEstado />} />
+          <Route path="/admin/ventanas" element={<Navigate to="/admin/estados" replace />} />
           <Route path="/admin/ventanas/nueva" element={<AdminEditorVentana />} />
           <Route path="/admin/ventanas/:slug" element={<AdminEditorVentana />} />
           <Route path="/admin/ventanas/:slug/contenidos/nuevo" element={<AdminEditorContenido />} />

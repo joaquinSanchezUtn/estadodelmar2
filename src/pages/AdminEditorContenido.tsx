@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { eliminarContenidoAdmin } from '../datos/contenido'
-import type { TipoContenido } from '../datos/tipos'
 import { useAccion } from '../lib/useAccion'
 import Aviso from '../componentes/base/Aviso'
 import Boton from '../componentes/base/Boton'
@@ -11,14 +10,13 @@ import ErrorDeCarga from '../componentes/base/ErrorDeCarga'
 import ConfirmarAccion from '../componentes/admin/ConfirmarAccion'
 import FormularioContenido from '../componentes/admin/FormularioContenido'
 import MarcoAdmin from '../componentes/admin/MarcoAdmin'
+import { nombresDePieza, SIN_VENTANA, tiposDePieza as tipos } from '../componentes/admin/seccionesDelPanel'
 import { descartarAdmin, useDatosAdmin } from '../componentes/admin/useDatosAdmin'
 import EjercitacionContenido from '../componentes/tema/EjercitacionContenido'
 import Reproductor from '../componentes/reproductor/Reproductor'
 
-const tipos: TipoContenido[] = ['video', 'meditacion', 'ejercitacion']
-const nuevas: Record<TipoContenido, string> = { video: 'Nuevo video', meditacion: 'Nueva meditación', ejercitacion: 'Nueva ejercitación' }
-
-// Agregar o editar una pieza de una ventana, con una vista previa de cómo la ven las suscriptoras.
+// Lo último de «Ventanas y temas»: agregar o cambiar un video, una meditación o una ejercitación de un tema, con
+// una vista previa de cómo la ven las suscriptoras. Al guardar una nueva se vuelve al tema.
 export default function AdminEditorContenido() {
   const { slug = '', id } = useParams()
   const [params] = useSearchParams()
@@ -34,11 +32,18 @@ export default function AdminEditorContenido() {
 
   if (!id && !tipoDeUrl) return <Navigate to={`/admin/ventanas/${slug}`} replace />
 
-  const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Temas', to: '/admin/ventanas' }, { texto: tema?.titulo ?? '…', to: `/admin/ventanas/${slug}` }, { texto: pieza?.titulo ?? (tipo ? nuevas[tipo] : '…') }]
+  const ventana = datos?.estados.find((e) => e.id === tema?.estadoMar)
+  const migas = [
+    { texto: 'Panel', to: '/admin' },
+    { texto: 'Ventanas y temas', to: '/admin/estados' },
+    { texto: ventana?.nombre ?? 'Sin ventana', to: `/admin/estados/${ventana?.id ?? SIN_VENTANA}` },
+    { texto: tema?.titulo ?? '…', to: `/admin/ventanas/${slug}` },
+    { texto: pieza?.titulo ?? (tipo ? nombresDePieza[tipo].nuevo : '…') },
+  ]
 
   const guardado = (_: string, eraNueva: boolean) => {
     descartarAdmin()
-    if (eraNueva) navegar(`/admin/ventanas/${slug}`, { state: { aviso: `Agregaste ${tipo === 'ejercitacion' ? 'la ejercitación' : tipo === 'video' ? 'el video' : 'la meditación'} al tema.` } })
+    if (eraNueva) navegar(`/admin/ventanas/${slug}`, { state: { aviso: `Listo, agregaste ${tipo === 'ejercitacion' ? 'la ejercitación' : tipo === 'video' ? 'el video' : 'la meditación'} al tema.` } })
     else {
       setAviso('Guardamos los cambios.')
       reintentar()
@@ -50,20 +55,20 @@ export default function AdminEditorContenido() {
       const r = await eliminarContenidoAdmin(id ?? '')
       if (!r.ok) return r.mensaje
       descartarAdmin()
-      navegar(`/admin/ventanas/${slug}`, { replace: true, state: { aviso: 'Eliminaste la pieza.' } })
+      navegar(`/admin/ventanas/${slug}`, { replace: true, state: { aviso: `Eliminaste «${pieza?.titulo ?? 'la pieza'}».` } })
       return null
     })
 
   if (!cargando && !error && datos && (!tema || (id && !pieza))) {
     return (
-      <MarcoAdmin titulo="Pieza" migas={migas}>
-        <EstadoVacio titulo="No encontramos eso" texto="Puede que el tema o la pieza ya no existan." enlace={{ to: '/admin/ventanas', texto: 'Ver todos los temas' }} />
+      <MarcoAdmin titulo="No encontramos eso" migas={migas.slice(0, 2)}>
+        <EstadoVacio titulo="No encontramos eso" texto="Puede que el tema o la pieza ya no existan." enlace={{ to: '/admin/estados', texto: 'Ver las ventanas' }} />
       </MarcoAdmin>
     )
   }
 
   return (
-    <MarcoAdmin titulo={pieza?.titulo ?? (tipo ? nuevas[tipo] : 'Pieza')} migas={migas}>
+    <MarcoAdmin titulo={pieza?.titulo ?? (tipo ? `${nombresDePieza[tipo].nuevo} en «${tema?.titulo ?? '…'}»` : 'Pieza')} migas={migas}>
       {error ? (
         <ErrorDeCarga texto="No pudimos leer la pieza." onReintentar={reintentar} />
       ) : cargando || !datos || !tema || !tipo ? (
@@ -80,7 +85,7 @@ export default function AdminEditorContenido() {
             <>
               <section aria-labelledby="previa-titulo" className="flex flex-col gap-3 rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
                 <h2 id="previa-titulo" className="text-titulo-s font-normal">
-                  Así la ven las suscriptoras
+                  Así lo ven las suscriptoras
                 </h2>
                 {pieza.tipo === 'ejercitacion' ? (
                   <EjercitacionContenido contenido={pieza} />
@@ -92,13 +97,13 @@ export default function AdminEditorContenido() {
               </section>
 
               <section className="rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
-                <h2 className="mb-2 text-titulo-s font-normal">Eliminar la pieza</h2>
-                <p className="mb-4 text-cuerpo text-mar-tintaSuave">Se borra la pieza y su archivo. Si solo querés que deje de verse, desmarcá «Publicada».</p>
+                <h2 className="mb-2 text-titulo-s font-normal">Eliminar</h2>
+                <p className="mb-4 text-cuerpo text-mar-tintaSuave">Se borra «{pieza.titulo}» con su archivo. Si solo querés que deje de verse, apagá «Mostrar en el sitio».</p>
                 {eliminando ? (
-                  <ConfirmarAccion titulo={`¿Eliminar «${pieza.titulo}»?`} texto="No se puede deshacer." confirmar="Sí, eliminar la pieza" pendiente={baja.pendiente} error={baja.error} onConfirmar={eliminar} onCancelar={() => setEliminando(false)} />
+                  <ConfirmarAccion titulo={`¿Eliminar «${pieza.titulo}»?`} texto="No se puede deshacer." confirmar="Sí, eliminarlo" pendiente={baja.pendiente} error={baja.error} onConfirmar={eliminar} onCancelar={() => setEliminando(false)} />
                 ) : (
-                  <Boton compacto variante="secundario" onClick={() => setEliminando(true)}>
-                    Eliminar la pieza
+                  <Boton variante="fantasma" onClick={() => setEliminando(true)}>
+                    Eliminar
                   </Boton>
                 )}
               </section>

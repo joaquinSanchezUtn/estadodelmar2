@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { estilos } from '../../datos/constantes'
-import { guardarEstadoAdmin, idDesdeNombre } from '../../datos/estados'
+import { guardarEstadoAdmin } from '../../datos/estados'
 import type { EstadoMarAdmin, EstiloId } from '../../datos/tipos'
 import { cn } from '../../lib/cn'
 import AreaTexto from '../base/AreaTexto'
@@ -42,8 +42,6 @@ export default function FormularioEstado({ inicial, onGuardado }: Props) {
     onGuardado(r.id ?? inicial?.id ?? '', !inicial)
   }
 
-  const direccion = (inicial?.id ?? idDesdeNombre(nombre)).replaceAll('_', '-')
-
   return (
     <form onSubmit={enviar} noValidate className="flex flex-col gap-6 rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-6 shadow-suave">
       <Campo
@@ -52,7 +50,7 @@ export default function FormularioEstado({ inicial, onGuardado }: Props) {
         onChange={(e) => setNombre(e.target.value)}
         maxLength={60}
         error={errores.nombre}
-        ayuda={`Se ve así: /estado/${direccion || 'la-direccion'}${inicial ? '' : '. La dirección no cambia después.'}`}
+        ayuda="El título de la tarjeta, por ejemplo «Tormenta»."
       />
       <AreaTexto etiqueta="Qué se vive acá" ayuda="Por ejemplo: Estrés, preocupación, ansiedad, enojo, miedo." rows={2} maxLength={200} value={estadoInterno} onChange={(e) => setEstadoInterno(e.target.value)} />
       {error(errores.estadoInterno)}
@@ -60,7 +58,7 @@ export default function FormularioEstado({ inicial, onGuardado }: Props) {
       {error(errores.ensenanza)}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1">
-          <Selector etiqueta="Aspecto" value={estilo} onChange={(e) => setEstilo(e.target.value as EstiloId)} opciones={estilos.map((s) => ({ valor: s.id, texto: s.nombre }))} />
+          <Selector etiqueta="Color y dibujo" value={estilo} onChange={(e) => setEstilo(e.target.value as EstiloId)} opciones={estilos.map((s) => ({ valor: s.id, texto: s.nombre }))} />
         </div>
         <span aria-hidden="true" className={cn('relative block h-16 w-24 shrink-0 overflow-hidden rounded-tarjeta border', coloresDe(estilo).agua, coloresDe(estilo).aroClaro)}>
           <DibujoEstado estado={estilo} vivo="siempre" autonomo />
@@ -68,11 +66,11 @@ export default function FormularioEstado({ inicial, onGuardado }: Props) {
       </div>
       <p className="-mt-3 text-meta text-mar-tintaSuave">El color de la tarjeta, y el dibujo que se ve si la ventana no tiene foto.</p>
       {error(errores.estilo)}
-      <Interruptor etiqueta="Activa" ayuda={publicado ? 'Aparece en «¿Cómo está tu mar hoy?».' : 'Desactivada: no aparece en el sitio, pero no se pierde.'} activo={publicado} onCambio={setPublicado} />
+      <Interruptor etiqueta="Mostrar en el sitio" ayuda={publicado ? 'Sí: aparece en «¿Cómo está tu mar hoy?».' : 'No: queda oculta, solo la ves vos. No se pierde nada.'} activo={publicado} onCambio={setPublicado} />
       {mensaje && <Aviso>{mensaje}</Aviso>}
       <div>
         <Boton type="submit" disabled={pendiente} aria-busy={pendiente}>
-          {pendiente ? 'Guardando…' : inicial ? 'Guardar cambios' : 'Crear ventana'}
+          {pendiente ? 'Guardando…' : inicial ? 'Guardar los cambios' : 'Crear la ventana'}
         </Boton>
       </div>
     </form>

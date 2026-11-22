@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { eliminarTemaAdmin, quitarFotoTemaAdmin, subirFotoTemaAdmin } from '../datos/contenido'
 import FotoAdmin from '../componentes/admin/FotoAdmin'
 import DibujoEstado from '../componentes/objetos/DibujoEstado'
@@ -15,12 +15,15 @@ import ConfirmarAccion from '../componentes/admin/ConfirmarAccion'
 import FormularioVentana from '../componentes/admin/FormularioVentana'
 import MarcoAdmin from '../componentes/admin/MarcoAdmin'
 import PiezasDeVentana from '../componentes/admin/PiezasDeVentana'
+import { SIN_VENTANA } from '../componentes/admin/seccionesDelPanel'
 import { descartarAdmin, useDatosAdmin } from '../componentes/admin/useDatosAdmin'
 
-// Crear un tema o editar uno existente. En uno existente, además, su foto, sus piezas y la opción de eliminarlo.
+// El tercer escalón: un tema. Arriba, lo que más se usa (sus videos y demás piezas); abajo, su nombre y
+// descripción, su foto y la opción de eliminarlo. Uno nuevo nace en la ventana de `?ventana=`.
 export default function AdminEditorVentana() {
   const { slug } = useParams()
   const nueva = !slug
+  const ventanaDeUrl = useSearchParams()[0].get('ventana')
   const navegar = useNavigate()
   const estadoDeNavegacion = useLocation().state as { aviso?: string } | null
   const { datos, cargando, error, reintentar } = useDatosAdmin()
@@ -28,20 +31,20 @@ export default function AdminEditorVentana() {
   const [eliminando, setEliminando] = useState(false)
   const baja = useAccion()
   const tema = datos?.temas.find((t) => t.slug === slug)
-  const estilo = datos?.estados.find((e) => e.id === tema?.estadoMar)?.estilo ?? null
-  const alCambiarFoto = (texto: string) => {
+  const ventanaId = nueva ? ventanaDeUrl : (tema?.estadoMar ?? null)
+  const ventana = datos?.estados.find((e) => e.id === ventanaId)
+  const estilo = ventana?.estilo ?? null
+  const volverA = `/admin/estados/${ventana?.id ?? SIN_VENTANA}`
+  const alCambiar = (texto: string) => {
     setAviso(texto)
     reintentar()
   }
 
   const guardado = (nuevoSlug: string, eraNueva: boolean) => {
+    descartarAdmin()
     if (eraNueva || nuevoSlug !== slug) {
-      descartarAdmin()
-      navegar(`/admin/ventanas/${nuevoSlug}`, { replace: !eraNueva, state: { aviso: eraNueva ? 'Creaste el tema. Ahora agregale sus piezas.' : 'Guardamos los cambios.' } })
-    } else {
-      setAviso('Guardamos los cambios.')
-      reintentar()
-    }
+      navegar(`/admin/ventanas/${nuevoSlug}`, { replace: !eraNueva, state: { aviso: eraNueva ? 'Listo, creaste el tema. Ahora agregale sus videos.' : 'Guardamos los cambios.' } })
+    } else alCambiar('Guardamos los cambios.')
   }
 
   const eliminar = () =>
@@ -49,29 +52,33 @@ export default function AdminEditorVentana() {
       const r = await eliminarTemaAdmin(slug ?? '')
       if (!r.ok) return r.mensaje
       descartarAdmin()
-      navegar('/admin/ventanas', { replace: true })
+      navegar(volverA, { replace: true, state: { aviso: `Eliminaste «${tema?.titulo ?? 'el tema'}».` } })
       return null
     })
 
-  const migas = [{ texto: 'Panel', to: '/admin' }, { texto: 'Temas', to: '/admin/ventanas' }, { texto: nueva ? 'Nuevo' : (tema?.titulo ?? '…') }]
-  const titulo = nueva ? 'Nuevo tema' : (tema?.titulo ?? 'Tema')
+  const migas = [
+    { texto: 'Panel', to: '/admin' },
+    { texto: 'Ventanas y temas', to: '/admin/estados' },
+    { texto: ventana?.nombre ?? 'Sin ventana', to: volverA },
+    { texto: nueva ? 'Nuevo tema' : (tema?.titulo ?? '…') },
+  ]
 
   if (!nueva && !cargando && !error && datos && !tema) {
     return (
-      <MarcoAdmin titulo="Tema" migas={migas}>
-        <EstadoVacio titulo="Ese tema no existe" texto="Puede que lo hayan eliminado." enlace={{ to: '/admin/ventanas', texto: 'Ver todos los temas' }} />
+      <MarcoAdmin titulo="Tema" migas={migas.slice(0, 2)}>
+        <EstadoVacio titulo="Ese tema no existe" texto="Puede que lo hayan eliminado." enlace={{ to: '/admin/estados', texto: 'Ver las ventanas' }} />
       </MarcoAdmin>
     )
   }
 
   return (
     <MarcoAdmin
-      titulo={titulo}
+      titulo={nueva ? `Nuevo tema${ventana ? ` en «${ventana.nombre}»` : ''}` : (tema?.titulo ?? 'Tema')}
       migas={migas}
       acciones={
         tema && (
-          <Boton compacto variante="secundario" to={`/tema/${tema.slug}`}>
-            Vista previa
+          <Boton variante="secundario" to={`/tema/${tema.slug}`}>
+            Ver cómo queda
           </Boton>
         )
       }
@@ -86,7 +93,11 @@ export default function AdminEditorVentana() {
       ) : (
         <>
           {aviso && <Aviso tono="info">{aviso}</Aviso>}
-          <FormularioVentana key={tema?.slug ?? 'nueva'} inicial={tema} estados={datos.estados} onGuardado={guardado} />
+          {tema && !tema.publicado && (
+            <Aviso tono="info">Este tema está oculto: las suscriptoras todavía no lo ven. Cuando esté listo, prendé «Mostrar en el sitio» más abajo y guardá.</Aviso>
+          )}
+          {tema && <PiezasDeVentana tema={tema} onCambio={reintentar} />}
+          <FormularioVentana key={tema?.slug ?? 'nueva'} inicial={tema} ventana={ventanaId} estados={datos.estados} onGuardado={guardado} />
           {tema && (
             <>
               <FotoAdmin
@@ -99,16 +110,15 @@ export default function AdminEditorVentana() {
                 sinFoto="el dibujo de su ventana"
                 subir={(foto) => subirFotoTemaAdmin(tema, foto)}
                 quitar={() => quitarFotoTemaAdmin(tema)}
-                onCambio={alCambiarFoto}
+                onCambio={alCambiar}
               />
-              <PiezasDeVentana tema={tema} />
-              <section className="rounded-tarjeta border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
+              <section className="rounded-burbuja border border-mar-bordeAgua bg-mar-blanco p-5 md:p-6">
                 <h2 className="mb-2 text-titulo-s font-normal">Eliminar el tema</h2>
-                <p className="mb-4 text-cuerpo text-mar-tintaSuave">Se borran el tema y todas sus piezas, con sus archivos. Si solo querés que deje de verse, desmarcá «Publicado».</p>
+                <p className="mb-4 text-cuerpo text-mar-tintaSuave">Se borran el tema y todo lo que tiene adentro, con sus videos. Si solo querés que deje de verse, apagá «Mostrar en el sitio».</p>
                 {eliminando ? (
                   <ConfirmarAccion titulo={`¿Eliminar «${tema.titulo}»?`} texto="No se puede deshacer." confirmar="Sí, eliminar el tema" pendiente={baja.pendiente} error={baja.error} onConfirmar={eliminar} onCancelar={() => setEliminando(false)} />
                 ) : (
-                  <Boton compacto variante="secundario" onClick={() => setEliminando(true)}>
+                  <Boton variante="fantasma" onClick={() => setEliminando(true)}>
                     Eliminar el tema
                   </Boton>
                 )}

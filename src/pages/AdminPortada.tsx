@@ -21,7 +21,7 @@ export default function AdminPortada({ parte }: { parte: ParteDePortada }) {
   const [aviso, setAviso] = useState<string | null>(null)
 
   return (
-    <MarcoAdmin titulo={titulo} migas={[{ texto: 'Panel', to: '/admin' }, { texto: titulo }]}>
+    <MarcoAdmin titulo={titulo} migas={[{ texto: 'Panel', to: '/admin' }, { texto: 'Textos de la página', to: '/admin/textos' }, { texto: titulo }]}>
       {error ? (
         <ErrorDeCarga texto="No pudimos leer los textos." onReintentar={reintentar} />
       ) : cargando || !datos ? (
